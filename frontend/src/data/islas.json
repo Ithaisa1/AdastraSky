@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tenerife",
+    "name": "Tenerife",
+    "coords": [28.2916, -16.6291]
+  },
+  {
+    "id": "gran-canaria",
+    "name": "Gran Canaria",
+    "coords": [27.9202, -15.5477]
+  },
+  {
+    "id": "la-palma",
+    "name": "La Palma",
+    "coords": [28.7634, -17.9156]
+  },
+  {
+    "id": "la-graciosa",
+    "name": "La Graciosa",
+    "coords": [29.2345, -13.5114]
+  }
+]

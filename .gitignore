@@ -1,0 +1,82 @@
+# Dependencies
+node_modules/
+*.egg-info/
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment
+.env
+.env.local
+.env.*.local
+.vscode/settings.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# Test
+coverage/
+.nyc_output/
+*.lcov
+.jest-cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporal
+tmp/
+temp/
+*.tmp
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+pgbackup/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Python
+venv/
+env/
+ENV/
+.venv
+
+# Frontend specific
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Backend specific
+backend/node_modules/
+backend/dist/
+
+# Python service specific
+python-service/venv/
+python-service/__pycache__/
+python-service/.pytest_cache/
