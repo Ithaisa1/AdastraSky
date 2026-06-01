@@ -6,7 +6,7 @@
 import axios from 'axios';
 import ChatHistory from '../models/ChatHistory.js';
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8001';
 
 /**
  * Enviar mensaje al agente de IA

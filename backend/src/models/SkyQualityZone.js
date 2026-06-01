@@ -1,85 +1,66 @@
-/**
- * AdastraSky Backend - Modelo SkyQualityZone
- * Zonas de calidad del cielo (Santuarios Estelares)
- */
-
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
 const SkyQualityZone = sequelize.define('SkyQualityZone', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
-  },
-  name: {
-    type: DataTypes.STRING(255),
-    allowNull: false
-  },
-  island: {
-    type: DataTypes.ENUM('Gran Canaria', 'Tenerife', 'La Palma', 'Lanzarote', 'Fuerteventura', 'El Hierro', 'La Gomera', 'La Graciosa'),
-    allowNull: false
-  },
-  category: {
-    type: DataTypes.ENUM('observatory', 'astronomical_viewpoint', 'landscape_viewpoint'),
-    allowNull: false
-  },
-  bortle_scale: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 1,
-      max: 9
-    }
-  },
-  latitude: {
-    type: DataTypes.DECIMAL(10, 8),
-    allowNull: false
-  },
-  longitude: {
-    type: DataTypes.DECIMAL(11, 8),
-    allowNull: false
-  },
-  altitude: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    comment: 'Altitud en metros sobre el nivel del mar'
-  },
-  accessibility: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  image_url: {
-    type: DataTypes.STRING(500),
-    allowNull: true
-  },
-  streaming_url: {
-    type: DataTypes.STRING(500),
-    allowNull: true
-  },
-  is_active: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
-  }
+  id:              { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  name:            { type: DataTypes.STRING(255), allowNull: false },
+  island:          { type: DataTypes.ENUM('Gran Canaria','Tenerife','La Palma','Lanzarote','Fuerteventura','El Hierro','La Gomera','La Graciosa'), allowNull: false },
+  municipality:    { type: DataTypes.STRING(150), allowNull: true },
+  category:        { type: DataTypes.ENUM('observatory','astronomical_viewpoint','landscape_viewpoint'), allowNull: false },
+  subcategory:     { type: DataTypes.ENUM('volcano','cliff','forest','sea_of_clouds','caldera','coast','dunes','hidden_spot','starlight','natural_observatory','dark_zone','educational','scientific','touristic'), allowNull: true },
+  bortle_scale:    { type: DataTypes.INTEGER, allowNull: false, validate: { min: 1, max: 9 } },
+  sqm_estimate:    { type: DataTypes.DECIMAL(4, 2), allowNull: true },
+  seeing_estimate: { type: DataTypes.DECIMAL(3, 1), allowNull: true },
+  transparency:    { type: DataTypes.INTEGER, allowNull: true },
+  avg_humidity:    { type: DataTypes.INTEGER, allowNull: true },
+  avg_cloudiness:  { type: DataTypes.INTEGER, allowNull: true },
+  clear_nights_per_year: { type: DataTypes.INTEGER, allowNull: true },
+  latitude:        { type: DataTypes.DECIMAL(10, 8), allowNull: false },
+  longitude:       { type: DataTypes.DECIMAL(11, 8), allowNull: false },
+  altitude:        { type: DataTypes.INTEGER, allowNull: false },
+  access_type:     { type: DataTypes.ENUM('car', '4x4', 'trail', 'hike', 'restricted'), allowNull: true },
+  accessibility:   { type: DataTypes.TEXT, allowNull: true },
+  has_parking:     { type: DataTypes.BOOLEAN, defaultValue: false },
+  has_bathrooms:   { type: DataTypes.BOOLEAN, defaultValue: false },
+  has_cafe:        { type: DataTypes.BOOLEAN, defaultValue: false },
+  has_mobile_coverage: { type: DataTypes.BOOLEAN, defaultValue: false },
+  has_electricity: { type: DataTypes.BOOLEAN, defaultValue: false },
+  has_water:       { type: DataTypes.BOOLEAN, defaultValue: false },
+  safety_risk:     { type: DataTypes.INTEGER, defaultValue: 1, validate: { min: 1, max: 5 } },
+  has_cliffs:      { type: DataTypes.BOOLEAN, defaultValue: false },
+  has_high_wind:   { type: DataTypes.BOOLEAN, defaultValue: false },
+  night_access:    { type: DataTypes.BOOLEAN, defaultValue: true },
+  permits_needed:  { type: DataTypes.STRING(255), allowNull: true },
+  landscape_quality:    { type: DataTypes.INTEGER, defaultValue: 3, validate: { min: 1, max: 5 } },
+  astro_orientation:    { type: DataTypes.INTEGER, defaultValue: 3, validate: { min: 1, max: 5 } },
+  photo_composition:    { type: DataTypes.INTEGER, defaultValue: 3, validate: { min: 1, max: 5 } },
+  photographer_access:  { type: DataTypes.INTEGER, defaultValue: 3, validate: { min: 1, max: 5 } },
+  milky_way_quality:    { type: DataTypes.INTEGER, allowNull: true, validate: { min: 1, max: 5 } },
+  milky_way_season:     { type: DataTypes.STRING(100), allowNull: true },
+  deep_sky_quality:     { type: DataTypes.INTEGER, allowNull: true, validate: { min: 1, max: 5 } },
+  star_trails_quality:  { type: DataTypes.INTEGER, allowNull: true, validate: { min: 1, max: 5 } },
+  lunar_quality:        { type: DataTypes.INTEGER, allowNull: true, validate: { min: 1, max: 5 } },
+  solar_quality:        { type: DataTypes.INTEGER, allowNull: true, validate: { min: 1, max: 5 } },
+  eclipse_quality:      { type: DataTypes.INTEGER, allowNull: true, validate: { min: 1, max: 5 } },
+  astro_score:      { type: DataTypes.INTEGER, allowNull: true },
+  photo_score:      { type: DataTypes.INTEGER, allowNull: true },
+  tourism_score:    { type: DataTypes.INTEGER, allowNull: true },
+  global_score:     { type: DataTypes.INTEGER, allowNull: true },
+  description:      { type: DataTypes.TEXT, allowNull: true },
+  image_url:        { type: DataTypes.STRING(500), allowNull: true },
+  streaming_url:    { type: DataTypes.STRING(500), allowNull: true },
+  is_active:        { type: DataTypes.BOOLEAN, defaultValue: true }
 }, {
   tableName: 'sky_quality_zones',
   indexes: [
-    {
-      fields: ['island']
-    },
-    {
-      fields: ['category']
-    },
-    {
-      fields: ['bortle_scale']
-    },
-    {
-      fields: ['latitude', 'longitude']
-    }
+    { fields: ['island'] },
+    { fields: ['category'] },
+    { fields: ['subcategory'] },
+    { fields: ['bortle_scale'] },
+    { fields: ['astro_score'] },
+    { fields: ['global_score'] },
+    { fields: ['latitude', 'longitude'] },
+    { fields: ['access_type'] }
   ]
 });
 

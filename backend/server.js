@@ -37,14 +37,18 @@ app.use(helmet({
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", process.env.AI_SERVICE_URL || "http://localhost:8000"],
+      connectSrc: ["'self'", process.env.AI_SERVICE_URL || "http://localhost:8001"],
     },
   },
 }));
 
 // CORS
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map(o => o.trim())
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -89,7 +93,7 @@ app.get('/health', async (req, res) => {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       database: 'connected',
-      aiService: process.env.AI_SERVICE_URL || 'http://localhost:8000',
+      aiService: process.env.AI_SERVICE_URL || 'http://localhost:8001',
     });
   } catch (error) {
     res.status(503).json({

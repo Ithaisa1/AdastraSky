@@ -8,6 +8,10 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Globe } from 'lucide-react';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_RE = /^.{6,}$/;
+const NAME_RE = /^.{2,}$/;
+
 const LoginPage = () => {
   const { t, i18n } = useTranslation();
   const { login, register } = useAuth();
@@ -21,7 +25,8 @@ const LoginPage = () => {
     firstName: '',
     lastName: '',
   });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLanguageChange = (lang) => {
@@ -34,20 +39,32 @@ const LoginPage = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError('');
+    setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
+    setApiError('');
+  };
+
+  const validate = () => {
+    const errs = {};
+    if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = 'Email inválido';
+    if (!formData.password || !PASSWORD_RE.test(formData.password)) errs.password = 'Mínimo 6 caracteres';
+    if (!isLogin) {
+      if (!formData.firstName || !NAME_RE.test(formData.firstName)) errs.firstName = 'Mínimo 2 caracteres';
+      if (!formData.lastName || !NAME_RE.test(formData.lastName)) errs.lastName = 'Mínimo 2 caracteres';
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setApiError('');
+    if (!validate()) return;
     setIsLoading(true);
 
     if (isLogin) {
       const result = await login(formData.email, formData.password);
-      if (result.success) {
-        // La transición hero se activará automáticamente
-      } else {
-        setError(result.error);
+      if (!result.success) {
+        setApiError(result.error);
       }
     } else {
       const result = await register(
@@ -57,10 +74,8 @@ const LoginPage = () => {
         formData.lastName,
         language
       );
-      if (result.success) {
-        // La transición hero se activará automáticamente
-      } else {
-        setError(result.error);
+      if (!result.success) {
+        setApiError(result.error);
       }
     }
 
@@ -151,10 +166,10 @@ const LoginPage = () => {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300"
+                      className="w-full px-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 transition-all duration-300"
                       placeholder="Tu nombre"
                     />
+                    {errors.firstName && <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -165,10 +180,10 @@ const LoginPage = () => {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300"
+                      className="w-full px-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 transition-all duration-300"
                       placeholder="Tu apellido"
                     />
+                    {errors.lastName && <p className="text-red-400 text-xs mt-1">{errors.lastName}</p>}
                   </div>
                 </>
               )}
@@ -184,11 +199,11 @@ const LoginPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    required
-                    className="w-full pl-10 pr-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300"
+                    className="w-full pl-10 pr-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 transition-all duration-300"
                     placeholder="tu@email.com"
                   />
                 </div>
+                {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
               </div>
 
               <div>
@@ -202,17 +217,16 @@ const LoginPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    required
-                    minLength={6}
-                    className="w-full pl-10 pr-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300"
+                    className="w-full pl-10 pr-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 transition-all duration-300"
                     placeholder="••••••••"
                   />
                 </div>
+                {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
               </div>
 
-              {error && (
+              {apiError && (
                 <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                  <p className="text-red-400 text-sm text-center">{error}</p>
+                  <p className="text-red-400 text-sm text-center">{apiError}</p>
                 </div>
               )}
 
@@ -234,7 +248,8 @@ const LoginPage = () => {
               <button
                 onClick={() => {
                   setIsLogin(!isLogin);
-                  setError('');
+                  setApiError('');
+                  setErrors({});
                 }}
                 className="text-astroAccent hover:text-astroAccent/80 transition-colors duration-300"
               >

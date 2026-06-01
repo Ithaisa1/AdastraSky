@@ -3,7 +3,8 @@
  * Gestión global del estado de autenticación y usuario
  */
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -11,6 +12,7 @@ const AuthContext = createContext(null);
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -27,11 +29,7 @@ export const AuthProvider = ({ children }) => {
       setToken(storedToken);
       const userData = JSON.parse(storedUser);
       setUser(userData);
-      
-      // Asignar rol basado en el email
-      const userRole = userData.email === 'admin@adastra.com' ? 'admin' : 'user';
-      setRole(userRole);
-      
+      setRole(userData.role || 'user');
       setIsAuthenticated(true);
     }
     setIsLoading(false);
@@ -55,28 +53,15 @@ export const AuthProvider = ({ children }) => {
 
       const { user: userData, token: newToken } = response.data.data;
 
-      // Asignar rol basado en el email
-      const userRole = email === 'admin@adastra.com' ? 'admin' : 'user';
-      
-      // Asignar nombre basado en el rol
-      if (userRole === 'admin') {
-        userData.first_name = 'Comandante';
-        userData.last_name = 'Admin';
-      } else {
-        userData.first_name = 'Misión';
-        userData.last_name = 'Especialista';
-      }
-
       setUser(userData);
       setToken(newToken);
-      setRole(userRole);
+      setRole(userData.role || 'user');
       setIsAuthenticated(true);
 
       localStorage.setItem('adastra_session', newToken);
       localStorage.setItem('adastra_user', JSON.stringify(userData));
 
-      // Redirigir a /explorador tras login exitoso
-      window.location.href = '/explorador';
+      navigate('/explorador');
 
       return { success: true };
     } catch (error) {
@@ -100,27 +85,14 @@ export const AuthProvider = ({ children }) => {
 
       const { user: userData, token: newToken } = response.data.data;
 
-      // Asignar rol basado en el email
-      const userRole = email === 'admin@adastra.com' ? 'admin' : 'user';
-      
-      // Asignar nombre basado en el rol
-      if (userRole === 'admin') {
-        userData.first_name = 'Comandante';
-        userData.last_name = 'Admin';
-      } else {
-        userData.first_name = 'Misión';
-        userData.last_name = 'Especialista';
-      }
-
       setUser(userData);
       setToken(newToken);
-      setRole(userRole);
+      setRole(userData.role || 'user');
       setIsAuthenticated(true);
 
       localStorage.setItem('adastra_session', newToken);
       localStorage.setItem('adastra_user', JSON.stringify(userData));
 
-      // Activar transición hero
       setShowHeroTransition(true);
 
       return { success: true };

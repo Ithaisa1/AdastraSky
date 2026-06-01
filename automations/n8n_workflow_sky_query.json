@@ -1,0 +1,150 @@
+{
+  "name": "AdAstra Sky Query Automation",
+  "nodes": [
+    {
+      "id": "webhook-1",
+      "name": "Webhook de entrada",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {
+        "path": "adastra-sky-query",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "adastra-sky-query"
+    },
+    {
+      "id": "if-1",
+      "name": "¿Es consulta astronómica?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.type }}",
+              "operation": "equal",
+              "value2": "astronomy"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "http-1",
+      "name": "Consultar API Backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 200],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.backend_url || 'http://localhost:5000' }}/api/sky/zones/query",
+        "authentication": "none",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "island",
+              "value": "={{ $json.body.island || '' }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $json.body.category || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "http-2",
+      "name": "Consultar IA Service",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 400],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.ai_url || 'http://localhost:8000' }}/api/chat",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.body.question }}"
+            },
+            {
+              "name": "language",
+              "value": "={{ $json.body.language || 'es' }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "set-1",
+      "name": "Formatear respuesta",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [850, 300],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "response",
+              "value": "={{ ($json.type === 'astronomy') ? $items('Consultar API Backend').item.json : $items('Consultar IA Service').item.json }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $json.body.type }}"
+            },
+            {
+              "name": "status",
+              "value": "processed"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "respond-1",
+      "name": "Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook de entrada": {
+      "main": [[{ "node": "¿Es consulta astronómica?", "type": "main", "index": 0 }]]
+    },
+    "¿Es consulta astronómica?": {
+      "main": [
+        [{ "node": "Consultar API Backend", "type": "main", "index": 0 }],
+        [{ "node": "Consultar IA Service", "type": "main", "index": 0 }]
+      ]
+    },
+    "Consultar API Backend": {
+      "main": [[{ "node": "Formatear respuesta", "type": "main", "index": 0 }]]
+    },
+    "Consultar IA Service": {
+      "main": [[{ "node": "Formatear respuesta", "type": "main", "index": 0 }]]
+    },
+    "Formatear respuesta": {
+      "main": [[{ "node": "Responder", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["astroturismo", "adastra-sky"],
+  "versionId": "adastra-sky-v1"
+}

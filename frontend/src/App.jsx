@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import HeroTransition from './components/HeroTransition';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
@@ -10,6 +11,7 @@ import ObservatoriesPage from './pages/ObservatoriesPage';
 import DataPage from './pages/DataPage';
 import EventsPage from './pages/EventsPage';
 import ContactPage from './pages/ContactPage';
+import ExploradorPage from './pages/ExploradorPage';
 
 // Componente protegido de ruta
 const ProtectedRoute = ({ children }) => {
@@ -32,8 +34,9 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AuthProvider>
+        <HeroTransition />
         <Routes>
           {/* Ruta pública de home */}
           <Route path="/" element={<HomePage />} />
@@ -62,7 +65,7 @@ function App() {
             path="/map"
             element={
               <ProtectedRoute>
-                <DashboardPage />
+                <ExploradorPage />
               </ProtectedRoute>
             }
           />
@@ -118,8 +121,8 @@ function App() {
           {/* Redirección por defecto */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

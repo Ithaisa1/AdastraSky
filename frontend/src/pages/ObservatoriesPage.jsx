@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import { observatoriesData, observatoryIslands } from '../data/observatoriesData';
-import { Search, MapPin, Calendar, Clock, Star, ArrowRight } from 'lucide-react';
+import { Search, MapPin, Calendar, Clock, Star, ArrowRight, Radar } from 'lucide-react';
 
 const ObservatoriesPage = () => {
   const [selectedIsland, setSelectedIsland] = useState('all');
@@ -49,7 +49,13 @@ const ObservatoriesPage = () => {
         {/* Contenido Principal */}
         <div className="flex-1 overflow-auto p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredObservatories.map((observatory) => (
+            {filteredObservatories.length === 0 ? (
+              <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-500">
+                <Radar className="w-16 h-16 mb-4 opacity-50" />
+                <p className="text-lg font-medium text-gray-400 mb-1">No hay observatorios en esta isla</p>
+                <p className="text-sm">Selecciona otra isla para ver sus observatorios</p>
+              </div>
+            ) : filteredObservatories.map((observatory) => (
               <div
                 key={observatory.id}
                 className="bg-astroCard/50 backdrop-blur-lg rounded-lg border border-white/10 overflow-hidden hover:border-astroAccent/50 transition-all cursor-pointer group"

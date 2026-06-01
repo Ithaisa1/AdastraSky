@@ -1,42 +1,31 @@
-/**
- * AdastraSky Frontend - Mapa Interactivo de Exploración
- * React Leaflet con marcadores diferenciados por categoría y filtros por islas
- */
-
 import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { DivIcon } from 'leaflet';
-import { santuariosData, categories, islands } from '../data/santuariosData';
+import { santuariosData, islands } from '../data/santuariosData';
 import 'leaflet/dist/leaflet.css';
 
-// Iconos personalizados para cada categoría con colores específicos
+const categoryConfig = {
+  all:               { icon: '📍', dot: 'bg-gray-400', label: 'Todos' },
+  observatory:       { icon: '🔭', dot: 'bg-violet-500', label: 'Observatorios' },
+  astronomical_viewpoint: { icon: '🌌', dot: 'bg-amber-500', label: 'Miradores Astronómicos' },
+  landscape_viewpoint:    { icon: '🏞️', dot: 'bg-emerald-500', label: 'Miradores Paisajísticos' },
+};
+
+const markerConfig = {
+  observatory:            { bg: 'bg-violet-500', border: 'border-violet-400', icon: '🔭' },
+  astronomical_viewpoint: { bg: 'bg-amber-500', border: 'border-amber-400', icon: '🌌' },
+  landscape_viewpoint:    { bg: 'bg-emerald-500', border: 'border-emerald-400', icon: '🏞️' },
+};
+
 const createCustomIcon = (category) => {
-  let iconHtml = '';
-
-  if (category === 'observatory') {
-    // Violeta para observatorios oficiales
-    iconHtml = `<div class="bg-violet-500 p-2 rounded-full shadow-lg border-2 border-violet-400">🔭</div>`;
-  } else if (category === 'astronomical_viewpoint') {
-    // Dorado para miradores astronómicos
-    iconHtml = `<div class="bg-amber-500 p-2 rounded-full shadow-lg border-2 border-amber-400">🌌</div>`;
-  } else {
-    // Verde para miradores paisajísticos
-    iconHtml = `<div class="bg-emerald-500 p-2 rounded-full shadow-lg border-2 border-emerald-400">🏞️</div>`;
-  }
-
-  return new DivIcon({
-    html: iconHtml,
-    className: 'custom-marker',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-  });
+  const m = markerConfig[category] || markerConfig.landscape_viewpoint;
+  const iconHtml = `<div class="${m.bg} p-2 rounded-full shadow-lg border-2 ${m.border}">${m.icon}</div>`;
+  return new DivIcon({ html: iconHtml, className: 'custom-marker', iconSize: [40, 40], iconAnchor: [20, 20] });
 };
 
 const MapClickHandler = ({ onCoordinateClick }) => {
   useMapEvents({
-    click: (e) => {
-      onCoordinateClick(e.latlng);
-    },
+    click: (e) => { if (onCoordinateClick) onCoordinateClick(e.latlng); },
   });
   return null;
 };
@@ -46,14 +35,13 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
   const [selectedIsland, setSelectedIsland] = useState('all');
 
   const filteredZones = santuariosData.filter((zone) => {
-    const categoryMatch = selectedCategory === 'all' || zone.category === selectedCategory;
-    const islandMatch = selectedIsland === 'all' || zone.island === selectedIsland;
-    return categoryMatch && islandMatch;
+    const catMatch = selectedCategory === 'all' || zone.category === selectedCategory;
+    const islMatch = selectedIsland === 'all' || zone.island === selectedIsland;
+    return catMatch && islMatch;
   });
 
   return (
     <div className="h-full w-full">
-      {/* Filtros de islas - Barra horizontal superior */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] bg-astroCard/90 backdrop-blur-lg rounded-lg p-2 border border-white/10 shadow-xl">
         <div className="flex gap-2">
           {islands.map((island) => (
@@ -72,26 +60,27 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
         </div>
       </div>
 
-      {/* Filtros de categoría - Panel flotante en la parte inferior izquierda */}
-      <div className="absolute bottom-4 left-42 z-[1000] bg-astroCard/90 backdrop-blur-lg rounded-lg p-3 border border-white/10 shadow-xl">
-        <div className="flex flex-col gap-2">
-          {categories.map((category) => (
+      <div className="absolute bottom-4 left-4 z-[1000] bg-astroCard/90 backdrop-blur-lg rounded-lg p-3 border border-white/10 shadow-xl min-w-[200px]">
+        <p className="text-xs text-gray-400 font-mono mb-2 border-b border-white/10 pb-1">L E Y E N D A</p>
+        <div className="flex flex-col gap-1.5">
+          {Object.entries(categoryConfig).map(([id, cfg]) => (
             <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedCategory === category.id
-                  ? 'bg-astroAccent text-white'
-                  : 'text-gray-300 hover:bg-white/10'
+              key={id}
+              onClick={() => setSelectedCategory(id)}
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                selectedCategory === id
+                  ? 'bg-astroAccent/20 text-white'
+                  : 'text-gray-300 hover:bg-white/5'
               }`}
             >
-              {category.label}
+              <span className={`w-3 h-3 rounded-full ${cfg.dot} ${selectedCategory === id ? 'ring-2 ring-white/50' : ''}`} />
+              <span>{cfg.icon}</span>
+              <span>{cfg.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Mapa */}
       <MapContainer
         center={[28.2917, -16.5111]}
         zoom={8}
@@ -99,7 +88,7 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
         className="bg-astroDark"
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
 
@@ -110,18 +99,8 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
             key={zone.id}
             position={[zone.latitude, zone.longitude]}
             icon={createCustomIcon(zone.category)}
-            eventHandlers={{
-              click: () => onZoneSelect(zone),
-            }}
-          >
-            <Popup className="bg-astroCard text-white border-astroAccent">
-              <div className="p-2">
-                <h3 className="font-semibold text-lg">{zone.name}</h3>
-                <p className="text-sm text-gray-300">{zone.island}</p>
-                <p className="text-xs text-astroAccent mt-1">Bortle: {zone.bortle_scale}</p>
-              </div>
-            </Popup>
-          </Marker>
+            eventHandlers={{ click: () => onZoneSelect(zone) }}
+          />
         ))}
       </MapContainer>
     </div>

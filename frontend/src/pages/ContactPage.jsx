@@ -7,6 +7,8 @@ import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import { Mail, Phone, MapPin, Send, Star, Globe } from 'lucide-react';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -14,19 +16,33 @@ const ContactPage = () => {
     subject: '',
     message: ''
   });
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  const validate = () => {
+    const errs = {};
+    if (!formData.name || formData.name.length < 2) errs.name = 'Mínimo 2 caracteres';
+    if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = 'Email inválido';
+    if (!formData.subject) errs.subject = 'Selecciona un asunto';
+    if (!formData.message || formData.message.length < 10) errs.message = 'Mínimo 10 caracteres';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError('');
+    setSubmitSuccess(false);
+    if (!validate()) return;
     setIsSubmitting(true);
-    
-    // Simular envío del formulario
+
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitSuccess(true);
+      setErrors({});
       setFormData({ name: '', email: '', subject: '', message: '' });
-      
       setTimeout(() => setSubmitSuccess(false), 3000);
     }, 1500);
   };
@@ -36,6 +52,8 @@ const ContactPage = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
+    setSubmitError('');
   };
 
   return (
@@ -137,10 +155,10 @@ const ContactPage = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    required
                     className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors"
                     placeholder="Tu nombre"
                   />
+                  {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
                 </div>
 
                 <div>
@@ -152,10 +170,10 @@ const ContactPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    required
                     className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors"
                     placeholder="tu@email.com"
                   />
+                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -166,7 +184,6 @@ const ContactPage = () => {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    required
                     className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors"
                   >
                     <option value="">Selecciona un asunto</option>
@@ -178,6 +195,7 @@ const ContactPage = () => {
                     <option value="collaboration">Colaboración</option>
                     <option value="other">Otro</option>
                   </select>
+                  {errors.subject && <p className="text-red-400 text-xs mt-1">{errors.subject}</p>}
                 </div>
 
                 <div>
@@ -188,11 +206,11 @@ const ContactPage = () => {
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    required
                     rows={6}
                     className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors resize-none"
                     placeholder="Escribe tu mensaje aquí..."
                   />
+                  {errors.message && <p className="text-red-400 text-xs mt-1">{errors.message}</p>}
                 </div>
 
                 <button

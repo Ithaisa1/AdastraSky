@@ -52,7 +52,8 @@ export const register = async (req, res, next) => {
           email: user.email,
           first_name: user.first_name,
           last_name: user.last_name,
-          preferred_language: user.preferred_language
+          preferred_language: user.preferred_language,
+          role: user.role
         },
         token
       }
@@ -117,7 +118,8 @@ export const login = async (req, res, next) => {
           email: user.email,
           first_name: user.first_name,
           last_name: user.last_name,
-          preferred_language: user.preferred_language
+          preferred_language: user.preferred_language,
+          role: user.role
         },
         token
       }
