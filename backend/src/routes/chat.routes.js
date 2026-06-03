@@ -1,8 +1,3 @@
-/**
- * AdastraSky Backend - Rutas de Chat
- * Proxy hacia el microservicio de IA
- */
-
 import express from 'express';
 import { sendMessage, getChatHistory } from '../controllers/chat.controller.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
@@ -10,16 +5,46 @@ import { authenticateToken } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 /**
- * @route   POST /api/chat/message
- * @desc    Enviar mensaje al agente de IA
- * @access  Private
+ * @openapi
+ * /api/chat/message:
+ *   post:
+ *     tags: [Chat]
+ *     summary: Enviar mensaje al agente de IA
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [message]
+ *             properties:
+ *               message: { type: string }
+ *               language: { type: string, default: es }
+ *               session_id: { type: string, format: uuid }
+ *     responses:
+ *       200: { description: Respuesta del agente IA }
+ *       503: { description: AI Service no disponible }
+ *       504: { description: Timeout del AI Service }
  */
 router.post('/message', authenticateToken, sendMessage);
 
 /**
- * @route   GET /api/chat/history
- * @desc    Obtener historial de chat del usuario
- * @access  Private
+ * @openapi
+ * /api/chat/history:
+ *   get:
+ *     tags: [Chat]
+ *     summary: Obtener historial de chat del usuario autenticado
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: session_id
+ *         schema: { type: string }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 50 }
+ *     responses:
+ *       200: { description: Historial de conversaciones }
  */
 router.get('/history', authenticateToken, getChatHistory);
 

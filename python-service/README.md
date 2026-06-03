@@ -1,74 +1,54 @@
-# AdAstraSky - Sky Engine (Microservicio Python)
+# Sky Engine — Python Microservice
 
-Microservicio especializado en cálculos astronómicos y análisis de condiciones de cielo.
-
-## Responsabilidades
-
-- **Sky Score**: Cálculo de puntuación astronómica (0-10)
-- **Scoring**: Análisis combinado de múltiples factores
-- **Analytics**: Procesamiento de datos históricos y predicciones
-- **Sky Zones**: Análisis geográfico de zonas de observación
+Microservicio de cálculos astronómicos y análisis de condiciones de cielo.
 
 ## Estructura
 
 ```
 sky_engine/
 ├── __init__.py
-├── calculator.py         # Lógica de cálculo principal
-├── models.py            # Modelos científicos
-└── utils.py             # Funciones auxiliares
+├── calculator.py         # SkyScoreCalculator, WhatToSeeCalculator, AstronomicalEvents
+└── utils.py              # Funciones auxiliares (fase lunar, hora local, etc.)
 
 scoring/
 ├── __init__.py
-├── sky_score.py         # Algoritmo de Sky Score
-├── factors.py           # Factores de puntuación
-└── weights.py           # Pesos y configuración
+├── sky_score.py          # Algoritmo SkyScoreAlgorithm (0-10)
 
 analytics/
 ├── __init__.py
-├── predictor.py         # Predicciones
-├── aggregator.py        # Agregación de datos
-└── reporter.py          # Generación de reportes
+└── ... (no implementado)
+
+config.py                 # Configuración Flask
+main.py                   # Punto de entrada Flask
 ```
 
-## APIs Internas
+## Endpoints
 
-El microservicio expone endpoints REST que el backend de Node.js consume.
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/health` | Health check |
+| POST | `/api/sky-score` | Calcular Sky Score desde datos atmosféricos |
+| GET | `/api/what-to-see` | Obtener objetos visibles en coordenadas |
+| GET | `/api/events` | Eventos astronómicos próximos |
 
 ### POST /api/sky-score
 ```json
 {
-  "latitude": 28.3301,
-  "longitude": -16.4923,
   "cloudiness": 0.12,
-  "wind_speed": 5,
-  "humidity": 45,
   "light_pollution": 0.15,
-  "moon_phase": 0.43
+  "moon_phase": 0.43,
+  "wind": 5,
+  "humidity": 0.45
 }
 ```
+Devuelve: `{ "sky_score": 8.9, "factors": {...}, "recommendation": "..." }`
 
-Devuelve: Sky Score (0-10) con detalles
-
-### GET /api/what-to-see
-```json
-{
-  "latitude": 28.3301,
-  "longitude": -16.4923,
-  "date": "2024-05-25",
-  "time": "23:30"
-}
-```
-
-## Tecnologías
-
-- **astropy**: Cálculos astronómicos
-- **numpy**: Computación numérica
-- **pandas**: Análisis de datos
-- **flask**: API REST
+### GET /api/what-to-see?latitude=28.33&longitude=-16.49
+Devuelve planetas, constelaciones y objetos Messier visibles.
 
 ## Ejecución
 
 ```bash
-python -m flask run --port=5001
+pip install -r requirements.txt
+python main.py            # http://localhost:5001
 ```

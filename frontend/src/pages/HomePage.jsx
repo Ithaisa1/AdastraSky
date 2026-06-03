@@ -10,7 +10,6 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   const handleEnterApp = () => {
-    console.log('Navigating to /login');
     navigate('/login');
   };
 

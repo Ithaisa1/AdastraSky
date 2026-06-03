@@ -134,7 +134,7 @@ JWT_SECRET=tu_jwt_secret_super_secreto_aqui
 JWT_EXPIRES_IN=7d
 
 # Microservicio de IA
-AI_SERVICE_URL=http://localhost:8000
+AI_SERVICE_URL=http://localhost:8001
 
 # APIs Externas
 OPENWEATHER_API_KEY=tu_clave_openweather_aqui
@@ -152,7 +152,7 @@ FRONTEND_URL=http://localhost:5173
 - **Rate Limiting**: 100 peticiones por 15 minutos por IP
 - **JWT**: Tokens con expiración configurada
 - **Bcrypt**: Hashing de contraseñas con salt rounds de 10
-- **Validación Joi**: Validación de datos de entrada
+- Express validation: validación manual de datos de entrada
 
 ## 📊 Modelos de Base de Datos
 

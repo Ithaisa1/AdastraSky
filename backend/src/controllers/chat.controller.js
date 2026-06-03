@@ -3,6 +3,7 @@
  * Proxy hacia el microservicio de IA (Python FastAPI)
  */
 
+import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import ChatHistory from '../models/ChatHistory.js';
 
@@ -41,7 +42,7 @@ export const sendMessage = async (req, res, next) => {
     // Guardar en historial
     await ChatHistory.create({
       user_id,
-      session_id: session_id || null,
+      session_id: session_id || uuidv4(),
       message,
       response: aiResponse.data.response,
       language,

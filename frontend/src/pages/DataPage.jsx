@@ -103,8 +103,8 @@ const DataPage = () => {
                   </div>
                   {c.stars && c.stars.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
-                      {c.stars.slice(0,3).map((s,i)=>(
-                        <span key={i} className="text-[10px] bg-white/5 text-gray-400 px-1.5 py-0.5 rounded">{s.n}</span>
+                      {c.stars.slice(0,3).map((s)=>(
+                        <span key={s.n} className="text-[10px] bg-white/5 text-gray-400 px-1.5 py-0.5 rounded">{s.n}</span>
                       ))}
                     </div>
                   )}

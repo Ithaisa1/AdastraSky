@@ -12,14 +12,19 @@ import cors from 'cors';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './src/swagger.js';
 import sequelize from './src/config/database.js';
+import './src/models/index.js';
 import errorHandler from './src/middleware/errorHandler.js';
 import notFound from './src/middleware/notFound.js';
 
 import authRoutes from './src/routes/auth.routes.js';
 import skyRoutes from './src/routes/sky.routes.js';
+import adminRoutes from './src/routes/admin.routes.js';
 import chatRoutes from './src/routes/chat.routes.js';
 import islandRoutes from './src/routes/island.routes.js';
+import contactRoutes from './src/routes/contact.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -115,6 +120,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       sky: '/api/sky',
+      admin: '/api/admin',
       chat: '/api/chat',
       islands: '/api/islands',
     },
@@ -123,13 +129,29 @@ app.get('/api', (req, res) => {
 });
 
 // ============================================================
+// SWAGGER DOCS
+// ============================================================
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'AdAstra Sky API Docs',
+}));
+
+app.get('/api/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.json(swaggerSpec);
+});
+
+// ============================================================
 // RUTAS DE LA APLICACIÓN
 // ============================================================
 
 app.use('/api/auth', authRoutes);
 app.use('/api/sky', skyRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/islands', islandRoutes);
+app.use('/api/contact', contactRoutes);
 
 // ============================================================
 // MIDDLEWARES DE ERROR

@@ -14,6 +14,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import logoImg from "../assets/Adastrasky-removebg-preview.png";
 import {
   ChevronLeft,
   ChevronRight,
@@ -26,9 +27,9 @@ import {
   Settings,
   Radio,
   Search,
-  Satellite,
   Calendar,
   Mail,
+  Shield,
 } from "lucide-react";
 
 // ============================================================================
@@ -99,6 +100,14 @@ const navigationRoutes = [
     path: "/contact",
     category: "system",
     description: "Contact us",
+  },
+  {
+    id: "admin",
+    label: "Admin Panel",
+    icon: Shield,
+    path: "/admin",
+    category: "system",
+    description: "Administration",
   },
 ];
 
@@ -186,20 +195,9 @@ export default function Sidebar() {
     >
       {/* Logo / Badge */}
       <div
-        className={`flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-lg bg-gradient-to-br from-cyan-500/20 to-indigo-600/20 border border-cyan-500/50 relative overflow-hidden group`}
+        className={`flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-lg overflow-hidden`}
       >
-        {/* Pulsing orbital effect */}
-        <div className="absolute inset-0 rounded-lg animate-pulse bg-cyan-500/10" />
-        <Satellite
-          size={24}
-          className="text-cyan-400 relative z-10 group-hover:text-cyan-300 transition-colors"
-        />
-
-        {/* Rotating border effect */}
-        <div
-          className="absolute inset-0 rounded-lg border border-transparent bg-gradient-to-r from-cyan-500/0 via-cyan-500/50 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-spin"
-          style={{ animationDuration: "3s" }}
-        />
+        <img src={logoImg} alt="AdAstraSky" className="w-full h-full object-contain" />
       </div>
 
       {/* Title and Subtitle */}

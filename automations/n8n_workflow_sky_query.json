@@ -65,7 +65,7 @@
       "position": [650, 400],
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.ai_url || 'http://localhost:8000' }}/api/chat",
+        "url": "={{ $json.ai_url || 'http://localhost:8001' }}/api/chat",
         "authentication": "none",
         "sendBody": true,
         "bodyParameters": {

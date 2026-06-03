@@ -21,16 +21,16 @@ import sys
 from datetime import datetime
 from typing import List, Dict, Any
 import json
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from backend.app.models import SkyQualityZone, Base
-from backend.database import engine, SessionLocal
-from sqlalchemy.exc import IntegrityError
 import logging
 
-# Configure logging
+# Intentar importar psycopg2 (requerido); si no está, el script no podrá ejecutarse
+try:
+    import psycopg2
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
+
+# Configurar logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -719,118 +719,81 @@ LANDSCAPE_VIEWPOINTS = [
 ]
 
 # ============================================================================
-# DATABASE SEEDING FUNCTIONS
+# DATABASE SEEDING FUNCTIONS (psycopg2)
 # ============================================================================
 
-def create_sky_quality_zone(data: Dict[str, Any]) -> SkyQualityZone:
-    """Create a SkyQualityZone object from dictionary data."""
-    return SkyQualityZone(
-        name_es=data["name_es"],
-        name_en=data["name_en"],
-        name_de=data["name_de"],
-        island=data["island"],
-        latitude=data["latitude"],
-        longitude=data["longitude"],
-        altitude=data["altitude"],
-        bortle_scale=data["bortle_scale"],
-        category=data["category"],
-        description_es=data["description_es"],
-        description_en=data["description_en"],
-        description_de=data["description_de"],
-        accessibility=data.get("accessibility", "Unknown"),
-        points_of_interest=data.get("points_of_interest", []),
-        image_url=data.get("image_url"),
-        live_stream_url=data.get("live_stream_url"),
-        website=data.get("website"),
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+def get_connection():
+    """Obtiene conexión a PostgreSQL desde variables de entorno."""
+    db_url = os.environ.get(
+        "DATABASE_URL",
+        f"postgresql://{os.environ.get('DB_USER', 'postgres')}:{os.environ.get('DB_PASSWORD', 'postgres')}"
+        f"@{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', '5432')}"
+        f"/{os.environ.get('DB_NAME', 'adastrasky')}"
     )
+    return psycopg2.connect(db_url)
 
 
-def clear_existing_data(session) -> None:
+def clear_existing_data(conn) -> None:
     """Clear existing sky quality zones before seeding."""
     try:
-        count = session.query(SkyQualityZone).delete()
-        session.commit()
-        logger.info(f"✓ Cleared {count} existing sky quality zones")
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM sky_quality_zones")
+        conn.commit()
+        logger.info("✓ Cleared existing sky quality zones")
     except Exception as e:
+        conn.rollback()
         logger.error(f"✗ Error clearing existing data: {str(e)}")
-        session.rollback()
         raise
 
 
-def seed_sky_quality_zones(session) -> None:
-    """Seed all sky quality zones (observatories + viewpoints)."""
+def seed_sky_quality_zones(conn) -> None:
+    """Seed all sky quality zones using raw SQL."""
     all_zones = OBSERVATORIES + ASTRONOMICAL_VIEWPOINTS + LANDSCAPE_VIEWPOINTS
-    
+
     logger.info(f"🌟 Starting seeding of {len(all_zones)} sky quality zones...")
     logger.info(f"   - {len(OBSERVATORIES)} Observatories")
     logger.info(f"   - {len(ASTRONOMICAL_VIEWPOINTS)} Astronomical Viewpoints")
     logger.info(f"   - {len(LANDSCAPE_VIEWPOINTS)} Landscape Viewpoints")
-    
+
+    insert_sql = """
+        INSERT INTO sky_quality_zones
+            (name, island, category, bortle_scale, latitude, longitude, altitude,
+             accessibility, description, image_url, streaming_url, is_active)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+
     successfully_added = 0
     failed = 0
-    
+
     for idx, zone_data in enumerate(all_zones, 1):
         try:
-            zone = create_sky_quality_zone(zone_data)
-            session.add(zone)
-            session.flush()  # Flush to catch errors early
+            with conn.cursor() as cur:
+                cur.execute(insert_sql, (
+                    zone_data["name_es"],
+                    zone_data["island"],
+                    zone_data["category"],
+                    zone_data["bortle_scale"],
+                    zone_data["latitude"],
+                    zone_data["longitude"],
+                    zone_data["altitude"],
+                    zone_data.get("accessibility", ""),
+                    zone_data.get("description_es", ""),
+                    zone_data.get("image_url"),
+                    zone_data.get("live_stream_url"),
+                    True,
+                ))
+            conn.commit()
             successfully_added += 1
             category_name = zone_data["category"].replace("_", " ").title()
             logger.info(f"   ✓ [{idx:2d}/{len(all_zones)}] {zone_data['name_es']:40s} ({zone_data['island']:15s}) - {category_name}")
-        except IntegrityError as e:
-            logger.warning(f"   ⚠ [{idx:2d}/{len(all_zones)}] Duplicate entry: {zone_data['name_es']}")
-            session.rollback()
-            failed += 1
         except Exception as e:
+            conn.rollback()
             logger.error(f"   ✗ [{idx:2d}/{len(all_zones)}] Error seeding {zone_data['name_es']}: {str(e)}")
-            session.rollback()
             failed += 1
-    
-    try:
-        session.commit()
-        logger.info(f"\n✓ Successfully seeded {successfully_added} zones")
-        if failed > 0:
-            logger.warning(f"⚠ {failed} zones failed to seed")
-    except Exception as e:
-        logger.error(f"✗ Error committing seed data: {str(e)}")
-        session.rollback()
-        raise
 
-
-def print_seeding_summary(session) -> None:
-    """Print summary statistics of seeded data."""
-    try:
-        total_zones = session.query(SkyQualityZone).count()
-        
-        # Count by category
-        observatories = session.query(SkyQualityZone).filter_by(category="observatory").count()
-        astronomical = session.query(SkyQualityZone).filter_by(category="astronomical_viewpoint").count()
-        landscape = session.query(SkyQualityZone).filter_by(category="landscape_viewpoint").count()
-        
-        # Count by island
-        islands = session.query(SkyQualityZone.island).distinct().all()
-        
-        logger.info("\n" + "="*70)
-        logger.info("📊 SEEDING SUMMARY")
-        logger.info("="*70)
-        logger.info(f"Total Sky Quality Zones:        {total_zones}")
-        logger.info(f"  - Official Observatories:     {observatories}")
-        logger.info(f"  - Astronomical Viewpoints:    {astronomical}")
-        logger.info(f"  - Landscape Viewpoints:       {landscape}")
-        logger.info(f"\nIslands covered:                {len(islands)}/8")
-        for island, in islands:
-            count = session.query(SkyQualityZone).filter_by(island=island).count()
-            avg_bortle = session.query(SkyQualityZone.bortle_scale).filter_by(island=island).scalar()
-            logger.info(f"  - {island:20s}: {count:2d} zones (avg Bortle: {avg_bortle})")
-        
-        logger.info("="*70)
-        logger.info("✓ Database seeding completed successfully!")
-        logger.info("="*70 + "\n")
-        
-    except Exception as e:
-        logger.error(f"Error printing summary: {str(e)}")
+    logger.info(f"\n✓ Successfully seeded {successfully_added} zones")
+    if failed > 0:
+        logger.warning(f"⚠ {failed} zones failed to seed")
 
 
 # ============================================================================
@@ -838,40 +801,23 @@ def print_seeding_summary(session) -> None:
 # ============================================================================
 
 def main():
-    """Main seeding function."""
     logger.info("\n")
-    logger.info("╔" + "="*68 + "╗")
+    logger.info("╔" + "=" * 68 + "╗")
     logger.info("║" + "ADASTRA SKY - DATABASE SEEDING SCRIPT".center(68) + "║")
-    logger.info("║" + "Sky Quality Zones for Canary Islands".center(68) + "║")
-    logger.info("╚" + "="*68 + "╝\n")
-    
+    logger.info("╚" + "=" * 68 + "╝\n")
+
+    if not HAS_PSYCOPG2:
+        logger.error("psycopg2 no instalado. Ejecuta: pip install psycopg2-binary")
+        return 1
+
     try:
-        # Create database tables
-        logger.info("📦 Creating database tables...")
-        Base.metadata.create_all(bind=engine)
-        logger.info("✓ Database tables created/verified\n")
-        
-        # Get database session
-        session = SessionLocal()
-        
+        conn = get_connection()
         try:
-            # Clear existing data
-            logger.info("🗑️  Clearing existing data...")
-            clear_existing_data(session)
-            logger.info()
-            
-            # Seed new data
-            seed_sky_quality_zones(session)
-            logger.info()
-            
-            # Print summary
-            print_seeding_summary(session)
-            
+            clear_existing_data(conn)
+            seed_sky_quality_zones(conn)
         finally:
-            session.close()
-        
+            conn.close()
         return 0
-        
     except Exception as e:
         logger.error(f"\n✗ Fatal error during seeding: {str(e)}")
         logger.exception("Full traceback:")

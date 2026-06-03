@@ -50,6 +50,27 @@ export function getNextEvent(events = []) {
   return events[0];
 }
 
+export function scoreLabel(skyScore) {
+  if (!skyScore || typeof skyScore.score === 'undefined') return 'Sin datos';
+  if (skyScore.score >= 8) return 'Excelente';
+  if (skyScore.score >= 6) return 'Buena';
+  if (skyScore.score >= 4) return 'Regular';
+  return 'Mala';
+}
+
+export function getSeasonFromMonth(month) {
+  if (month >= 3 && month <= 5) return 'spring';
+  if (month >= 6 && month <= 8) return 'summer';
+  if (month >= 9 && month <= 11) return 'autumn';
+  return 'winter';
+}
+
+export function formatSkyScore(score) {
+  if (typeof score === 'number') return score.toFixed(1);
+  if (score && typeof score === 'object' && typeof score.score === 'number') return score.score.toFixed(1);
+  return String(score ?? '0');
+}
+
 export function getGreeting(lang = 'es') {
   const hour = new Date().getHours();
   const greetings = {

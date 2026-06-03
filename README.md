@@ -1,337 +1,255 @@
-# 🌌 AdAstraSky - README
+# AdAstra Sky — Plataforma de Astroturismo
 
-**Plataforma inteligente de astroturismo y exploración nocturna**
-
-Enfocada en las Islas Canarias con arquitectura moderna, escalable y profesional.
+**Plataforma inteligente de astroturismo y exploración nocturna** enfocada en las Islas Canarias.
 
 ---
 
-## 🎯 Visión del Proyecto
-
-AdAstraSky responde 3 preguntas fundamentales:
-
-1. **¿Vale la pena observar el cielo hoy?** → Sky Score
-2. **¿Dónde es el mejor lugar en Canarias?** → Sky Zones
-3. **¿Qué se puede ver exactamente?** → What to See
-
-Combinando astronomía, meteorología, geolocalización y visualización inteligente.
-
----
-
-## 🧱 Stack Tecnológico
+## Stack Tecnológico
 
 | Componente | Stack |
 |-----------|-------|
-| Frontend | React + Vite + Tailwind CSS |
-| Backend | Node.js + Express + PostgreSQL |
-| Motor Científico | Python + Astropy + Ephem |
-| Automatización | n8n |
-| Mapas | Leaflet / Mapbox |
+| Frontend | React 19 + Vite + Tailwind CSS + Framer Motion |
+| Backend | Node.js + Express + Sequelize + PostgreSQL |
+| AI Service | FastAPI + LangGraph + ChromaDB + Groq (LLaMA 3.3) |
+| Sky Engine | Python + Flask + Astropy + Ephem |
+| Automatización | n8n workflows |
+| Mapas | Leaflet + React-Leaflet |
 | APIs Externas | OpenWeatherMap, AstronomyAPI, NASA |
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
-adastrasky/
-├── frontend/           # Interfaz React
-├── backend/            # API Express
-├── python-service/     # Sky Engine (cálculos astronómicos)
-├── automation/         # Workflows n8n
-├── database/           # Modelos y migraciones
-├── docs/               # Documentación
-├── infrastructure/     # Docker, deployment
-└── README.md           # Este archivo
+adastra-sky/
+├── frontend/                # React SPA (Vite)
+│   ├── src/pages/           # 21 páginas (11 enrutadas)
+│   ├── src/components/      # Componentes reutilizables
+│   ├── src/context/         # AuthContext (JWT)
+│   └── src/services/        # API clients
+│
+├── backend/                 # API REST (Express + Sequelize)
+│   ├── src/routes/          # auth, sky, chat, islands
+│   ├── src/controllers/     # Lógica de negocio
+│   ├── src/models/          # User, SkyQualityZone, ChatHistory
+│   └── src/middleware/      # JWT auth, error handler
+│
+├── ai-service/              # Agente IA (FastAPI + LangGraph)
+│   ├── agent/               # StateGraph con Groq/OpenAI
+│   ├── rag/                 # ChromaDB vector store
+│   ├── routers/             # /health, /api/chat
+│   └── documents/           # 6 documentos IAC para RAG
+│
+├── python-service/          # Sky Engine (Flask)
+│   └── sky_engine/          # Cálculos astronómicos
+│
+├── database/                # Seeds y documentos RAG
+│   ├── seed_bortle_v2.py    # Poblado de zonas
+│   └── documents/           # Documentos IAC
+│
+├── automations/             # Workflows n8n
+├── docs/                    # Documentación
+└── infrastructure/          # Docker / deploy
 ```
 
 ---
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### Requisitos
 - Node.js >= 18
-- Python >= 3.9
+- Python >= 3.10
 - PostgreSQL >= 12
-- npm o yarn
 
-### Backend
+### 1. Backend
 
 ```bash
 cd backend
-cp .env.example .env          # Configurar variables
+cp .env.example .env
 npm install
-npm run dev                    # Desarrollar
-npm run migrate               # Migraciones DB
+npm run migrate
+npm run seed
+npm run dev          # http://localhost:5000
 ```
 
-**Health Check**: http://localhost:5000/health
-
-### Frontend
+### 2. Frontend
 
 ```bash
 cd frontend
 npm install
-npm run dev                    # Desarrollar en http://localhost:3000
-npm run build                  # Buildear para producción
+npm run dev          # http://localhost:5173
 ```
 
-### Python Service
+### 3. AI Service
+
+```bash
+cd ai-service
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env
+# Configurar GROQ_API_KEY en .env
+python rag/ingest.py       # Poblar ChromaDB
+python main.py             # http://localhost:8001
+```
+
+### 4. Python Service (Sky Engine)
 
 ```bash
 cd python-service
 pip install -r requirements.txt
-python -m flask run --port=5001
+python app.py              # http://localhost:5001
 ```
 
 ---
 
-## 🌟 Características Principales
+## APIs
 
-### ✨ Sky Today
-- Sky Score (puntuación 0-10)
-- Condiciones meteorológicas en tiempo real
-- Fase lunar y visibilidad
-- Mejor hora para observar
+### Backend (`http://localhost:5000`)
 
-### 🗺️ Map Explorer
-- Mapa interactivo de Canarias
-- Sky Zones con puntuaciones
-- Filtros por isla
-- Coordenadas GPS
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/api/auth/register` | ✗ | Registro de usuario |
+| POST | `/api/auth/login` | ✗ | Login (JWT) |
+| GET | `/api/auth/profile` | ✓ | Perfil de usuario |
+| GET | `/api/sky/zones` | ✗ | Zonas astronómicas |
+| GET | `/api/sky/zones/geojson` | ✗ | Zonas en formato GeoJSON |
+| GET | `/api/sky/zones/recommend/tonight` | ✗ | Mejores zonas para esta noche |
+| GET | `/api/sky/zones/recommend/photo` | ✗ | Mejores zonas para astrofoto |
+| GET | `/api/sky/zones/:id` | ✗ | Detalle de zona |
+| GET | `/api/sky/islands/:island` | ✗ | Zonas por isla |
+| GET | `/api/sky/category/:category` | ✗ | Zonas por categoría |
+| POST | `/api/chat/message` | ✓ | Enviar mensaje al agente IA |
+| GET | `/api/chat/history` | ✓ | Historial de chat |
+| GET | `/api/islands` | ✗ | Lista de islas |
+| GET | `/api/islands/:name` | ✗ | Detalle de isla |
+| GET | `/health` | ✗ | Health check |
 
-### 🪐 What to See Tonight
-- Planetas visibles
-- Constelaciones detectables
-- Vía Láctea
-- Eventos activos
+### AI Service (`http://localhost:8001`)
 
-### 📅 Eventos Astronómicos
-- Calendario dinámico
-- Eclipses, superlunas, lluvias de meteoros
-- Notificaciones de eventos próximos
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/health` | Health check |
+| POST | `/api/chat` | Chat con el agente astronómico |
 
-### 🧠 Sky Score System™
-Algoritmo patentable que combina:
-- Nubosidad (30%)
-- Contaminación lumínica (30%)
-- Fase lunar (15%)
-- Viento (10%)
-- Humedad (10%)
-- Transparencia (5%)
+### Python Service (`http://localhost:5001`)
 
----
-
-## 📚 APIs Principales
-
-### Sky Today
-```bash
-GET /api/sky/today?lat=28.3301&lng=-16.4923
-```
-
-### Sky Score
-```bash
-POST /api/sky/score
-{
-  "latitude": 28.3301,
-  "longitude": -16.4923,
-  "cloudiness": 0.12
-}
-```
-
-### Sky Zones
-```bash
-GET /api/zones?island=tenerife
-```
-
-### What to See
-```bash
-GET /api/what-to-see?lat=28.33&lng=-16.49
-```
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/health` | Health check |
+| POST | `/api/sky-score` | Calcular Sky Score |
+| GET | `/api/what-to-see` | Qué observar esta noche |
+| GET | `/api/events` | Eventos astronómicos |
 
 ---
 
-## 🔑 Configuración de Ambiente
+## AI Assistant — AdAstra
 
-### Backend (.env)
+El agente inteligente utiliza LangGraph con un grafo de estados:
 
+1. **LLM**: Groq (`llama-3.3-70b-versatile`) o ChatGPT (según `GROQ_API_KEY` / `OPENAI_API_KEY`)
+2. **RAG**: ChromaDB con 6 documentos del IAC (Instituto de Astrofísica de Canarias)
+3. **Tools**:
+   - `search_rag_documents` — búsqueda semántica en documentos
+   - `get_observatory_info` — información de observatorios (BD)
+   - `get_weather_conditions` — clima actual por coordenadas
+   - `get_constellation_info` — datos de constelaciones (BD)
+
+**Modo offline**: si no hay API key configurada, responde solo con búsqueda RAG.
+
+---
+
+## Frontend — Páginas
+
+| Ruta | Componente | Acceso |
+|------|-----------|--------|
+| `/` | HomePage | Público |
+| `/login` | LoginPage | Público |
+| `/explorador` | Dashboard | Requiere auth |
+| `/observatories` | Observatorios | Requiere auth |
+| `/map` | Mapa interactivo | Requiere auth |
+| `/data` | Base de datos celeste | Requiere auth |
+| `/events` | Eventos astronómicos | Requiere auth |
+| `/chat` | Chat con AdAstra | Requiere auth |
+| `/settings` | Perfil / Ajustes | Requiere auth |
+| `/admin` | Panel admin | Requiere auth |
+| `/contact` | Contacto | Requiere auth |
+
+---
+
+## Variables de Entorno
+
+### Backend (`.env`)
 ```env
-NODE_ENV=development
 PORT=5000
-FRONTEND_URL=http://localhost:3000
-
 DB_HOST=localhost
 DB_PORT=5432
+DB_NAME=adastrasky
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=adastrasky
-
-WEATHER_API_KEY=your_key
-ASTRONOMY_API_KEY=your_key
-NASA_API_KEY=your_key
-
-PYTHON_SERVICE_URL=http://localhost:5001
+JWT_SECRET=your_secret
+JWT_EXPIRES_IN=7d
+AI_SERVICE_URL=http://localhost:8001
+FRONTEND_URL=http://localhost:5173
 ```
 
-### Frontend (.env)
-
+### AI Service (`.env`)
 ```env
-VITE_API_URL=http://localhost:5000/api
+PORT=8001
+GROQ_API_KEY=gsk_your_key
+GROQ_MODEL=llama-3.3-70b-versatile
+OPENAI_API_KEY=sk-your-key       # alternativo
+OPENAI_MODEL=gpt-4o-mini
+CHROMA_PERSIST_DIR=./rag/chroma_db
+```
+
+### Frontend (`.env`)
+```env
+VITE_API_URL=http://localhost:5000
 ```
 
 ---
 
-## 🎨 Diseño Visual
+## Documentación
 
-- **Tema**: Modo oscuro real (tema nocturno)
-- **Paleta**: Azules, negros profundos, acentos cyan
-- **Componentes**: Tarjetas con glassmorphism
-- **Efectos**: Suaves transiciones, animaciones espaciales
+- [Arquitectura](./docs/ARCHITECTURE.md)
+- [API Specification](./docs/api_specification.md)
+- [Convenciones](./docs/CONVENTIONS.md)
+- [Guía de despliegue](./docs/deployment_guide.md)
 
 ---
 
-## 🧪 Testing
+## Testing
 
-### Backend
 ```bash
-npm test                # Ejecutar tests
-npm run test:coverage   # Coverage
-```
+# Backend
+cd backend && npm test
 
-### Frontend
-```bash
-npm run test           # Vitest
-npm run test:coverage  # Coverage
-```
+# Frontend
+cd frontend && npm test
 
-### Python Service
-```bash
-pytest
-pytest --cov
+# Python Service
+cd python-service && pytest
+
+# AI Service
+cd ai-service && python -m pytest
 ```
 
 ---
 
-## 📖 Documentación
+## Despliegue
 
-- [Arquitectura](./docs/ARCHITECTURE.md) - Diseño del sistema
-- [API Documentation](./docs/API.md) - Endpoints detallados
-- [Database Schema](./docs/DATABASE.md) - Modelos de datos
-- [Contributing](./CONTRIBUTING.md) - Cómo contribuir
+| Servicio | Plataforma |
+|----------|-----------|
+| Frontend | Vercel |
+| Backend | Render + Neon (PostgreSQL) |
+| AI Service | Render |
+| Python Service | Render / Railway |
 
----
-
-## 🔄 Flujo de Desarrollo
-
-1. **Feature branch**: `git checkout -b feature/mi-feature`
-2. **Desarrollo**: Hacer cambios
-3. **Tests**: `npm test`
-4. **Commit**: `git commit -m "feat: descripción"`
-5. **Push**: `git push origin feature/mi-feature`
-6. **PR**: Crear pull request
+Ver [guía de despliegue](./docs/deployment_guide.md) para instrucciones detalladas.
 
 ---
 
-## 🤝 Integración: Caminos Reales
+## Licencia
 
-AdAstraSky integra el proyecto "Caminos Reales" (senderismo) como complemento externo:
-
-- Botón en footer: "🥾 Explorar Caminos Reales"
-- Link externo (sin integración backend)
-- Sección "Proyectos Relacionados"
-
----
-
-## 📈 Roadmap
-
-### FASE 1 (MVP - Actual)
-- [x] Estructura base
-- [x] Sky Today core
-- [x] Frontend inicial
-- [ ] Integración APIs externas
-- [ ] Sky Score funcional
-
-### FASE 2 (Diferenciación)
-- [ ] Sky Zones System
-- [ ] Ranking por islas
-- [ ] Mapas avanzados
-
-### FASE 3 (Inteligencia)
-- [ ] AI Assistant
-- [ ] Predicciones por horas
-- [ ] Sky Heatmap
-
-### FASE 4 (Monetización)
-- [ ] Modo empresas
-- [ ] Versión premium
-- [ ] Paneles profesionales
-
----
-
-## 💼 Profesionalismo
-
-Este proyecto está diseñado como:
-✅ **Producto real** - No académico  
-✅ **Portfolio profesional** - De calidad startup  
-✅ **Escalable** - Preparado para crecer  
-✅ **Mantenible** - Código limpio y documentado  
-✅ **Testeable** - Con cobertura de tests  
-
----
-
-## 🛠️ Troubleshooting
-
-### Puerto en uso
-```bash
-# Windows
-netstat -ano | findstr :5000
-taskkill /PID <PID> /F
-
-# Mac/Linux
-lsof -i :5000
-kill -9 <PID>
-```
-
-### Base de datos no conecta
-```bash
-# Verificar PostgreSQL está corriendo
-psql -U postgres
-
-# Crear DB
-createdb adastrasky
-```
-
-### Python dependencies
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt --force-reinstall
-```
-
----
-
-## 📞 Contacto & Soporte
-
-- 📧 Email: support@adastrasky.com
-- 🌐 Web: www.adastrasky.com
-- 📱 Issues: GitHub Issues
-- 💬 Discussions: GitHub Discussions
-
----
-
-## 📄 Licencia
-
-MIT License - Libre para usar, modificar y distribuir.
-
----
-
-## 🙏 Agradecimientos
-
-- Comunidad astronómica de Canarias
-- Proyecto "Caminos Reales" por integración
-- Todas las APIs externas por datos
-
----
-
-**Última actualización**: 25 de mayo de 2024  
-**Versión**: 1.0.0 (MVP)  
-**Estado**: 🚀 En desarrollo activo
+MIT

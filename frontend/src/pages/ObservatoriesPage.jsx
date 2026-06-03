@@ -159,8 +159,8 @@ const ObservatoriesPage = () => {
                     Telescopios
                   </h4>
                   <ul className="space-y-2">
-                    {selectedObservatory.telescopes.map((telescope, index) => (
-                      <li key={index} className="text-gray-400 text-sm">
+                    {selectedObservatory.telescopes.map((telescope) => (
+                      <li key={telescope} className="text-gray-400 text-sm">
                         • {telescope}
                       </li>
                     ))}
@@ -173,8 +173,8 @@ const ObservatoriesPage = () => {
                     Áreas de Investigación
                   </h4>
                   <ul className="space-y-2">
-                    {selectedObservatory.research_areas.map((area, index) => (
-                      <li key={index} className="text-gray-400 text-sm">
+                    {selectedObservatory.research_areas.map((area) => (
+                      <li key={area} className="text-gray-400 text-sm">
                         • {area}
                       </li>
                     ))}

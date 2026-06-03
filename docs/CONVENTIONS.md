@@ -1,42 +1,28 @@
-# 🎯 Convenciones del Proyecto AdAstraSky
-
-Este documento define estándares y convenciones que todo código en AdAstraSky debe seguir.
+# Convenciones del Proyecto AdAstraSky
 
 ---
 
-## 📁 Estructura de Archivos
+## Estructura de Archivos
 
-### Backend (Node.js)
+### Backend (Node.js + Express)
 
 ```
 backend/
-├── config/              # Configuraciones
-│   ├── server.js       # Config del servidor
-│   └── db.js           # Config de BD
-├── controllers/        # Lógica de controladores
-│   ├── skyController.js
-│   └── zoneController.js
-├── routes/             # Definición de rutas
-│   ├── sky.js
-│   └── zones.js
-├── services/           # Lógica de negocio
-│   ├── skyService.js
-│   └── zoneService.js
-├── middlewares/        # Middlewares
-│   ├── errorHandler.js
-│   └── auth.js
-├── utils/              # Funciones auxiliares
-│   └── validators.js
-├── database/
-│   ├── models/
-│   ├── migrations/
-│   └── seeds/
-├── index.js            # Punto de entrada
+├── src/
+│   ├── config/database.js       # PostgreSQL + Sequelize
+│   ├── controllers/              # auth, chat, sky, island
+│   ├── middleware/               # authMiddleware, errorHandler, notFound
+│   ├── models/                   # User, SkyQualityZone, ChatHistory
+│   ├── routes/                   # auth, chat, sky, island, contact
+│   ├── seed/seedUsers.js         # Seed de usuarios demo
+│   └── swagger.js                # Configuración Swagger/OpenAPI
+├── server.js                     # Punto de entrada
 ├── package.json
-└── .env.example
+├── .env / .env.example
+└── README.md
 ```
 
-### Frontend (React)
+### Frontend (React + Vite)
 
 ```
 frontend/

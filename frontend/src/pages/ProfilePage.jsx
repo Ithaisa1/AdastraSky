@@ -37,19 +37,13 @@ const ProfilePage = () => {
 
   const handleProfileSave = (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para guardar el perfil
-    console.log('Perfil guardado:', profileData);
   };
 
   const handleSettingsSave = (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para guardar la configuración
-    console.log('Configuración guardada:', settings);
   };
 
   const handleDeleteAccount = () => {
-    // Aquí iría la lógica para eliminar la cuenta
-    console.log('Cuenta eliminada');
     logout();
     navigate('/');
   };

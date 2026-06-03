@@ -5,7 +5,10 @@
 
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import axios from 'axios';
 import { Mail, Phone, MapPin, Send, Star, Globe } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -38,13 +41,22 @@ const ContactPage = () => {
     if (!validate()) return;
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const token = localStorage.getItem('adastra_session');
+      await axios.post(
+        `${API_URL}/api/contact`,
+        formData,
+        token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+      );
       setSubmitSuccess(true);
       setErrors({});
       setFormData({ name: '', email: '', subject: '', message: '' });
       setTimeout(() => setSubmitSuccess(false), 3000);
-    }, 1500);
+    } catch (err) {
+      setSubmitError(err.response?.data?.message || 'Error al enviar el mensaje. Intenta de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -142,6 +154,11 @@ const ContactPage = () => {
               {submitSuccess && (
                 <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
                   <p className="text-green-400 text-sm">¡Mensaje enviado correctamente! Nos pondremos en contacto contigo pronto.</p>
+                </div>
+              )}
+              {submitError && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-red-400 text-sm">{submitError}</p>
                 </div>
               )}
 

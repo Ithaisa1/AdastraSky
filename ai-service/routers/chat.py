@@ -1,6 +1,7 @@
+import json
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, ToolMessage
 from uuid import uuid4
 
 from agent.agent import build_agent
@@ -50,8 +51,18 @@ async def chat(request: ChatRequest):
 
         sources = []
         for msg in result["messages"]:
-            if hasattr(msg, "additional_kwargs") and msg.additional_kwargs.get("source"):
-                sources.append(msg.additional_kwargs["source"])
+            if isinstance(msg, ToolMessage):
+                try:
+                    data = json.loads(msg.content)
+                    if isinstance(data, list):
+                        for item in data:
+                            if isinstance(item, dict) and item.get("title"):
+                                sources.append({
+                                    "title": item["title"],
+                                    "source": item.get("source", "Documento IAC"),
+                                })
+                except (json.JSONDecodeError, TypeError):
+                    pass
 
         return ChatResponse(response=response_text, session_id=session_id, sources=sources)
     except Exception as e:
@@ -60,4 +71,8 @@ async def chat(request: ChatRequest):
 
 @router.get("/history/{session_id}")
 async def get_history(session_id: str):
-    return {"session_id": session_id, "history": []}
+    return {
+        "session_id": session_id,
+        "history": [],
+        "note": "Usa GET /api/chat/history?session_id=... en el backend para obtener el historial completo",
+    }
