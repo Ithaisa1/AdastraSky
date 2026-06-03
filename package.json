@@ -1,0 +1,17 @@
+{
+  "name": "adastra-sky",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install && cd ../ai-service && pip install -r requirements.txt",
+    "dev": "concurrently -n API,IA,WEB -c cyan,yellow,green \"npm run dev --prefix backend\" \"uvicorn main:app --reload --port 8001 --app-dir ai-service\" \"npm run dev --prefix frontend\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:ai": "uvicorn main:app --reload --port 8001 --app-dir ai-service",
+    "build": "npm run build --prefix frontend",
+    "start": "concurrently -n API,IA,WEB -c cyan,yellow,green \"npm start --prefix backend\" \"uvicorn main:app --port 8001 --app-dir ai-service\" \"npm run preview --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

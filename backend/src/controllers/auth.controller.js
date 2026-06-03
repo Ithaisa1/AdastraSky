@@ -132,6 +132,50 @@ export const login = async (req, res, next) => {
 /**
  * Obtener perfil del usuario autenticado
  */
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { first_name, last_name, email, bio, location } = req.body;
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        code: 'USER_NOT_FOUND',
+        message: 'Usuario no encontrado'
+      });
+    }
+
+    if (email && email !== user.email) {
+      const existing = await User.findOne({ where: { email } });
+      if (existing) {
+        return res.status(409).json({
+          status: 'error',
+          code: 'EMAIL_EXISTS',
+          message: 'El email ya está en uso'
+        });
+      }
+    }
+
+    await user.update({
+      first_name: first_name ?? user.first_name,
+      last_name: last_name ?? user.last_name,
+      email: email ?? user.email,
+      bio: bio ?? user.bio,
+      location: location ?? user.location
+    });
+
+    const { password, ...userData } = user.toJSON();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Perfil actualizado correctamente',
+      data: { user: userData }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getProfile = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.user.id, {

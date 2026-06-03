@@ -161,12 +161,7 @@ Modelos principales:
 
 ### 6. Infraestructura
 
-**Ubicación**: `/infrastructure`
-
-- Docker Compose para desarrollo
-- Configuraciones de deployment
-- CI/CD templates
-- Scripts de inicialización
+Actualmente no hay configuración de infraestructura desplegada.
 
 ---
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import { getAllZones, getZoneById, getZonesByIsland, getZonesByCategory, queryZones, recommendTonight, recommendForPhotography, getZonesGeoJSON, getAllZonesCSV } from '../controllers/sky.controller.js';
+import { saveSkyScore, getLatestSkyScore, getSkyScoreHistory } from '../controllers/skyScore.controller.js';
 
 const router = express.Router();
 
@@ -141,5 +142,58 @@ router.get('/islands/:island', getZonesByIsland);
  *       200: { description: Zonas de la categoría }
  */
 router.get('/category/:category', getZonesByCategory);
+
+/**
+ * @openapi
+ * /api/sky/score:
+ *   post:
+ *     tags: [Sky Score]
+ *     summary: Guarda un Sky Score diario (desde n8n)
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [date, overall_score]
+ *             properties:
+ *               date: { type: string, format: date }
+ *               overall_score: { type: number }
+ *               astro_score: { type: number }
+ *               photo_score: { type: number }
+ *               tourism_score: { type: number }
+ *     responses:
+ *       201: { description: Score creado }
+ *       200: { description: Score actualizado }
+ */
+router.post('/score', saveSkyScore);
+
+/**
+ * @openapi
+ * /api/sky/score/latest:
+ *   get:
+ *     tags: [Sky Score]
+ *     summary: Obtiene el último Sky Score registrado
+ *     responses:
+ *       200: { description: Último score }
+ */
+router.get('/score/latest', getLatestSkyScore);
+
+/**
+ * @openapi
+ * /api/sky/score/history:
+ *   get:
+ *     tags: [Sky Score]
+ *     summary: Historial de Sky Scores
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema: { type: integer }
+ *         description: Número de días a retroceder (default 30)
+ *     responses:
+ *       200: { description: Lista de scores }
+ */
+router.get('/score/history', getSkyScoreHistory);
 
 export default router;

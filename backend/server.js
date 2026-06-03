@@ -25,6 +25,7 @@ import adminRoutes from './src/routes/admin.routes.js';
 import chatRoutes from './src/routes/chat.routes.js';
 import islandRoutes from './src/routes/island.routes.js';
 import contactRoutes from './src/routes/contact.routes.js';
+import eventsRoutes from './src/routes/events.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -117,13 +118,14 @@ app.get('/api', (req, res) => {
     version: '1.0.0',
     description: 'API principal de la plataforma de astroturismo premium para las Islas Canarias',
     environment: NODE_ENV,
-    endpoints: {
-      auth: '/api/auth',
-      sky: '/api/sky',
-      admin: '/api/admin',
-      chat: '/api/chat',
-      islands: '/api/islands',
-    },
+      endpoints: {
+        auth: '/api/auth',
+        sky: '/api/sky',
+        admin: '/api/admin',
+        chat: '/api/chat',
+        islands: '/api/islands',
+        events: '/api/events',
+      },
     documentation: '/docs/api_specification.md',
   });
 });
@@ -152,6 +154,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/islands', islandRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/events', eventsRoutes);
 
 // ============================================================
 // MIDDLEWARES DE ERROR

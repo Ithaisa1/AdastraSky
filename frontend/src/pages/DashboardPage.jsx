@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Calendar, ChevronRight, Globe, Moon, Star, Sparkles, Map, Navigation, Sun
+  Calendar, ChevronRight, Globe, Moon, Star, Sparkles, Map, Sun
 } from 'lucide-react';
 import {
   getLunarPhase, calculateSkyScore, getNextEvent, getGreeting
@@ -12,15 +12,33 @@ import { santuariosData } from '../data/santuariosData';
 import { astronomicalEvents } from '../data/astronomicalData';
 import Sidebar from '../components/Sidebar';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const DashboardPage = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const lang = i18n.language;
+  const [liveScore, setLiveScore] = useState(null);
 
   const lunar = useMemo(() => getLunarPhase(), []);
-  const skyScore = useMemo(() => calculateSkyScore(santuariosData), []);
+  const localScore = useMemo(() => calculateSkyScore(santuariosData), []);
   const greeting = getGreeting(lang);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/sky/score/latest`)
+      .then(r => r.json())
+      .then(data => {
+        if (data?.data?.score?.source !== 'fallback') {
+          setLiveScore(data.data.score);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const skyScore = liveScore
+    ? { score: liveScore.overall_score, level: '', label: '' }
+    : localScore;
 
   const topZones = useMemo(() =>
     [...santuariosData]
@@ -41,22 +59,22 @@ const DashboardPage = () => {
   return (
     <div className="h-screen w-full overflow-hidden flex bg-deepSpace">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-gradient-dashboard">
+      <main className="flex-1 overflow-y-auto bg-gradient-dashboard p-3">
         <div className="p-6 space-y-6 max-w-7xl mx-auto">
 
           {/* HERO SECTION */}
           <section className="relative rounded-2xl overflow-hidden border border-white/5">
             <div className="absolute inset-0 bg-gradient-to-r from-astroDark/90 via-astroDark/60 to-transparent z-10" />
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className="absolute inset-0 bg-cover bg-center animate-ken-burns"
               style={{
                 backgroundImage: 'url(https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop)',
               }}
             />
             <div className="relative z-20 p-8 md:p-12">
-              <div className="flex items-center gap-2 text-astroAccent mb-2">
-                <Sparkles className="w-4 h-4" />
-                <span className="text-xs font-mono uppercase tracking-widest">
+              <div className="flex items-center gap-2 text-auroraGreen mb-2">
+                <Sparkles className="w-4 h-4 text-auroraGreen" />
+                <span className="text-xs font-mono uppercase tracking-widest text-auroraGreen/90">
                   {new Date().toLocaleDateString(lang, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </span>
               </div>
@@ -67,20 +85,12 @@ const DashboardPage = () => {
                 {lang === 'es' ? 'Hoy el archipiélago te ofrece' :
                  lang === 'en' ? 'Today the archipelago offers you' :
                  'Heute bietet dir der Archipel'}{' '}
-                <span className="text-astroAccent font-semibold">{santuariosData.length} santuarios estelares</span>{' '}
+                <span className="text-solarFlare font-semibold [text-shadow:0_0_20px_rgba(245,158,11,0.4)]">{santuariosData.length} santuarios estelares</span>{' '}
                 {lang === 'es' ? 'para explorar' :
                  lang === 'en' ? 'to explore' :
                  'zu erkunden'}
               </p>
-              <div className="flex gap-4 mt-6">
-                <button
-                  onClick={() => navigate('/explorador')}
-                  className="flex items-center gap-2 px-6 py-3 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-xl transition-all duration-300 shadow-lg shadow-astroAccent/30"
-                >
-                  <Navigation className="w-4 h-4" />
-                  <span>{lang === 'es' ? 'Explorar Ahora' : lang === 'en' ? 'Explore Now' : 'Jetzt Erkunden'}</span>
-                </button>
-              </div>
+            
             </div>
           </section>
 
@@ -100,7 +110,7 @@ const DashboardPage = () => {
                 <div>
                   <p className="text-2xl font-bold text-white">{lunar.name[lang]?.[lunar.phaseIndex] || lunar.name.es[lunar.phaseIndex]}</p>
                   <p className="text-sm text-gray-400">
-                    {lunar.illumination}%{' '}
+                    <span className="text-auroraGreen font-semibold">{lunar.illumination}%</span>{' '}
                     {lang === 'es' ? 'iluminado' : lang === 'en' ? 'illuminated' : 'beleuchtet'}
                   </p>
                 </div>
@@ -139,10 +149,18 @@ const DashboardPage = () => {
                 <div>
                   <p className="text-lg font-semibold text-white">{skyScore.label}</p>
                   <p className="text-xs text-gray-400">
-                    {lang === 'es' ? 'Media del archipiélago' :
-                     lang === 'en' ? 'Archipelago average' :
-                     'Durchschnitt der Inseln'}
+                    {liveScore
+                      ? (lang === 'es' ? 'Actualizado hoy' : lang === 'en' ? 'Updated today' : 'Heute aktualisiert')
+                      : (lang === 'es' ? 'Media del archipiélago' :
+                         lang === 'en' ? 'Archipelago average' :
+                         'Durchschnitt der Inseln')}
                   </p>
+                  {liveScore && (
+                    <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-mono text-auroraGreen bg-auroraGreen/10 px-1.5 py-0.5 rounded">
+                      <span className="w-1.5 h-1.5 rounded-full bg-auroraGreen animate-pulse" />
+                      EN VIVO
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -193,11 +211,11 @@ const DashboardPage = () => {
               {topZones.map((zone) => (
                 <button
                   key={zone.id}
-                  onClick={() => navigate('/explorador')}
+                  onClick={() => navigate('/map', { state: { selectedZone: zone } })}
                   className="group bg-gradient-card rounded-xl border border-white/5 p-5 text-left hover:border-astroAccent/30 transition-all duration-300 hover:shadow-lg hover:shadow-astroAccent/5"
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-xs font-mono px-2 py-1 rounded-full bg-astroAccent/10 text-astroAccent border border-astroAccent/20">
+                    <span className="text-xs font-mono px-2 py-1 rounded-full bg-cosmicPurple/20 text-nebulaPink border border-cosmicPurple/30 shadow-[0_0_12px_rgba(236,72,153,0.15)]">
                       Bortle {zone.bortle_scale}
                     </span>
                     <span className={`w-2 h-2 rounded-full ${
@@ -207,9 +225,9 @@ const DashboardPage = () => {
                   </div>
                   <h3 className="text-white font-semibold group-hover:text-astroAccent transition-colors">{zone.name}</h3>
                   <p className="text-sm text-gray-400 mt-1">{zone.island}</p>
-                  <div className="flex gap-3 mt-3 text-xs text-gray-500">
-                    <span>{zone.altitude}m</span>
-                    <span className="capitalize">
+                  <div className="flex gap-3 mt-3 text-xs">
+                    <span className="text-emerald-300 font-mono font-semibold">{zone.altitude}m</span>
+                    <span className="capitalize text-indigo-300">
                       {zone.category === 'observatory' ? '🔭' :
                        zone.category === 'astronomical_viewpoint' ? '🌌' : '🏞️'}
                       {' '}
@@ -233,7 +251,7 @@ const DashboardPage = () => {
                  onClick={() => navigate('/explorador')}>
               <div className="absolute inset-0 bg-gradient-to-r from-astroDark/80 to-transparent z-10" />
               <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 animate-ken-burns"
                 style={{
                   backgroundImage: 'url(https://images.unsplash.com/photo-1587936571907-f205f0a22db3?q=80&w=2070&auto=format&fit=crop)',
                 }}
@@ -244,11 +262,12 @@ const DashboardPage = () => {
                 </p>
                 <h3 className="text-3xl font-bold text-white mb-2">{featuredIsland}</h3>
                 <p className="text-sm text-gray-300 max-w-xs">
-                  {lang === 'es'
-                    ? `${santuariosData.filter(z => z.island === featuredIsland).length} santuarios estelares te esperan`
+                  <span className="text-solarFlare font-semibold">{santuariosData.filter(z => z.island === featuredIsland).length}</span>
+                  {' '}{lang === 'es'
+                    ? 'santuarios estelares te esperan'
                     : lang === 'en'
-                    ? `${santuariosData.filter(z => z.island === featuredIsland).length} stellar sanctuaries await you`
-                    : `${santuariosData.filter(z => z.island === featuredIsland).length} Sternenheiligtümer warten auf dich`}
+                    ? 'stellar sanctuaries await you'
+                    : 'Sternenheiligtümer warten auf dich'}
                 </p>
               </div>
             </div>
@@ -269,7 +288,7 @@ const DashboardPage = () => {
                   : 'Erkunden Sie alle 75 Sehenswürdigkeiten auf den 8 Inseln des Archipels'}
               </p>
               <button
-                onClick={() => navigate('/explorador')}
+                onClick={() => navigate('/map')}
                 className="flex items-center gap-2 px-8 py-3 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-xl transition-all duration-300 shadow-lg shadow-astroAccent/30"
               >
                 <Globe className="w-4 h-4" />

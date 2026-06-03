@@ -48,8 +48,7 @@ adastra-sky/
 │   └── documents/           # Documentos IAC
 │
 ├── automations/             # Workflows n8n
-├── docs/                    # Documentación
-└── infrastructure/          # Docker / deploy
+└── docs/                    # Documentación
 ```
 
 ---

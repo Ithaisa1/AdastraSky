@@ -81,8 +81,8 @@ def get_constellation_info(name: str) -> dict:
 
 def _query_db(sql: str, params: tuple) -> list[dict]:
     """Helper para consultas PostgreSQL."""
-    if not settings.database_url or "localhost" in settings.database_url:
-        return [{"info": "Base de datos no disponible en modo local/offline"}]
+    if not settings.database_url:
+        return [{"info": "Base de datos no disponible"}]
     import psycopg2
     try:
         conn = psycopg2.connect(settings.database_url, connect_timeout=3)

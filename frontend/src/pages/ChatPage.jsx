@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, Star } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 
@@ -79,13 +79,13 @@ const ChatPage = () => {
       <Sidebar />
 
       {/* Contenido Principal */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden p-3">
         {/* Header */}
         <div className="bg-astroCard border-b border-white/10 p-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-astroAccent rounded-full flex items-center justify-center">
-                <Bot className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-solarFlare to-nebulaPink rounded-full flex items-center justify-center shadow-[0_0_16px_rgba(245,158,11,0.3)]">
+                <Star className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-white">{t('chat.title')}</h1>
@@ -100,8 +100,8 @@ const ChatPage = () => {
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center">
               <div className="text-center">
-                <div className="w-20 h-20 bg-astroAccent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Bot className="w-10 h-10 text-astroAccent" />
+                <div className="w-20 h-20 bg-gradient-to-br from-solarFlare/20 to-nebulaPink/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-solarFlare/20">
+                  <Star className="w-10 h-10 text-solarFlare" />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-2">
                   {t('chat.title')}
@@ -127,8 +127,8 @@ const ChatPage = () => {
                 >
                   <div className="flex items-start gap-3">
                     {message.role === 'assistant' && (
-                      <div className="w-8 h-8 bg-astroAccent/20 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Bot className="w-4 h-4 text-astroAccent" />
+                      <div className="w-8 h-8 bg-gradient-to-br from-solarFlare/20 to-nebulaPink/20 rounded-full flex items-center justify-center flex-shrink-0 border border-solarFlare/20">
+                        <Star className="w-4 h-4 text-solarFlare" />
                       </div>
                     )}
                     <div className="flex-1">
@@ -150,13 +150,13 @@ const ChatPage = () => {
             <div className="flex justify-start">
               <div className="bg-astroCard border border-white/10 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-astroAccent/20 rounded-full flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-astroAccent" />
+                  <div className="w-8 h-8 bg-gradient-to-br from-solarFlare/20 to-nebulaPink/20 rounded-full flex items-center justify-center border border-solarFlare/20">
+                    <Star className="w-4 h-4 text-solarFlare" />
                   </div>
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-astroAccent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-astroAccent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-astroAccent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="w-2 h-2 bg-solarFlare rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-solarFlare rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-solarFlare rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                   <span className="text-sm text-gray-400">{t('chat.thinking')}</span>
                 </div>

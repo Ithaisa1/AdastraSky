@@ -23,13 +23,15 @@ import {
   LogOut,
   BarChart3,
   Map,
-  MessageSquare,
+  Star,
   Settings,
   Radio,
   Search,
+  Satellite,
   Calendar,
   Mail,
   Shield,
+  HelpCircle,
 } from "lucide-react";
 
 // ============================================================================
@@ -71,11 +73,11 @@ const navigationRoutes = [
   },
   {
     id: "chat",
-    label: "AI Assistant",
-    icon: MessageSquare,
+    label: "Adastra",
+    icon: Star,
     path: "/chat",
     category: "ai",
-    description: "Chat with Astro-Agent",
+    description: "AI Astronomic Assistant",
   },
   {
     id: "settings",
@@ -87,11 +89,11 @@ const navigationRoutes = [
   },
   {
     id: "events",
-    label: "Eventos",
+    label: "Calendario",
     icon: Calendar,
     path: "/events",
     category: "science",
-    description: "Astronomical events",
+    description: "Calendar & observatory bookings",
   },
   {
     id: "contact",
@@ -108,6 +110,14 @@ const navigationRoutes = [
     path: "/admin",
     category: "system",
     description: "Administration",
+  },
+  {
+    id: "faq",
+    label: "FAQ",
+    icon: HelpCircle,
+    path: "/faq",
+    category: "system",
+    description: "Frequently asked questions",
   },
 ];
 
@@ -277,6 +287,10 @@ export default function Sidebar() {
     );
   };
 
+  const visibleRoutes = navigationRoutes.filter(
+    r => r.id !== 'admin' || role === 'admin'
+  );
+
   const NavigationMenu = () => (
     <nav className={`flex-1 py-6 px-2 overflow-y-auto scrollbar-hide`}>
       {/* Main Navigation */}
@@ -287,7 +301,7 @@ export default function Sidebar() {
           </div>
         )}
         <ul className="space-y-2">
-          {navigationRoutes.slice(0, 3).map((route) => (
+          {visibleRoutes.slice(0, 3).map((route) => (
             <NavMenuItem key={route.id} route={route} />
           ))}
         </ul>
@@ -301,7 +315,7 @@ export default function Sidebar() {
           </div>
         )}
         <ul className="space-y-2">
-          {navigationRoutes.slice(3, 5).map((route) => (
+          {visibleRoutes.slice(3, 5).map((route) => (
             <NavMenuItem key={route.id} route={route} />
           ))}
         </ul>
@@ -315,7 +329,7 @@ export default function Sidebar() {
           </div>
         )}
         <ul className="space-y-2">
-          {navigationRoutes.slice(5).map((route) => (
+          {visibleRoutes.slice(5).map((route) => (
             <NavMenuItem key={route.id} route={route} />
           ))}
         </ul>
@@ -362,8 +376,8 @@ export default function Sidebar() {
 
         {/* User Info */}
         {isExpanded && (
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-200 truncate">
+          <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate('/settings')}>
+            <p className="text-sm font-medium text-slate-200 truncate hover:text-cyan-400 transition-colors">
               {user?.first_name} {user?.last_name}
             </p>
             <p className="text-xs text-slate-500 truncate">

@@ -28,6 +28,7 @@ export default {
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
         'star-twinkle': 'star-twinkle 2s ease-in-out infinite',
         'gauge-fill': 'gauge-fill 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'ken-burns': 'ken-burns 25s ease-in-out infinite alternate',
       },
       keyframes: {
         'space-rotation': {
@@ -61,6 +62,17 @@ export default {
         'gauge-fill': {
           '0%': { strokeDashoffset: '283' },
           '100%': { strokeDashoffset: 'var(--gauge-offset)' },
+        },
+        'ken-burns': {
+          '0%': {
+            transform: 'scale(1) translateX(0)',
+          },
+          '50%': {
+            transform: 'scale(1.15) translateX(-2%)',
+          },
+          '100%': {
+            transform: 'scale(1.08) translateX(1%)',
+          },
         },
       },
     },

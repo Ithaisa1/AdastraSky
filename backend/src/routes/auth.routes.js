@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getProfile } from '../controllers/auth.controller.js';
+import { register, login, getProfile, updateProfile } from '../controllers/auth.controller.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -63,5 +63,6 @@ router.post('/login', login);
  *       401: { description: Token inválido o expirado }
  */
 router.get('/profile', authenticateToken, getProfile);
+router.put('/profile', authenticateToken, updateProfile);
 
 export default router;

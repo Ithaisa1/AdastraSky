@@ -9,9 +9,10 @@ import AdminPanel from './pages/AdminPanel';
 import ProfilePage from './pages/ProfilePage';
 import ObservatoriesPage from './pages/ObservatoriesPage';
 import DataPage from './pages/DataPage';
-import EventsPage from './pages/EventsPage';
+import CalendarPage from './pages/CalendarPage';
 import ContactPage from './pages/ContactPage';
 import ExploradorPage from './pages/ExploradorPage';
+import FAQPage from './pages/FAQPage';
 
 // Componente protegido de ruta
 const ProtectedRoute = ({ children }) => {
@@ -27,6 +28,28 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, isLoading, role } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-astroDark flex items-center justify-center">
+        <div className="text-white text-xl">Cargando...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role !== 'admin') {
+    return <Navigate to="/explorador" replace />;
   }
 
   return children;
@@ -81,7 +104,7 @@ function App() {
             path="/events"
             element={
               <ProtectedRoute>
-                <EventsPage />
+                <CalendarPage />
               </ProtectedRoute>
             }
           />
@@ -104,9 +127,9 @@ function App() {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <AdminPanel />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
           <Route
@@ -114,6 +137,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ContactPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/faq"
+            element={
+              <ProtectedRoute>
+                <FAQPage />
               </ProtectedRoute>
             }
           />

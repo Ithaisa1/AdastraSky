@@ -57,10 +57,6 @@ temp/
 *.sqlite3
 pgbackup/
 
-# Docker
-.docker/
-docker-compose.override.yml
-
 # Python
 venv/
 env/

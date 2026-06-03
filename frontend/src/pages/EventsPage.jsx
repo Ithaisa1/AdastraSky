@@ -16,7 +16,7 @@ const EventsPage = () => {
 
   const filteredEvents = astronomicalEvents.filter(
     event => selectedCategory === 'all' || event.type === selectedCategory
-  );
+  ).sort((a, b) => a.date.localeCompare(b.date));
 
   const getEventIcon = (type) => {
     switch (type) {
@@ -64,7 +64,7 @@ const EventsPage = () => {
     <div className="h-screen w-full bg-astroDark flex">
       <Sidebar />
       
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col p-3">
         {/* Header */}
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
           <h1 className="text-3xl font-bold text-white">Eventos Astronómicos</h1>

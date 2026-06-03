@@ -1,0 +1,175 @@
+{
+  "name": "AdAstra Sky Score Diario",
+  "nodes": [
+    {
+      "id": "schedule-1",
+      "name": "Programación diaria",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "time",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "code-1",
+      "name": "Calcular fase lunar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "parameters": {
+        "language": "javascript",
+        "code": "// Calcular fase lunar actual\nconst knownNewMoon = new Date('2000-01-06T18:14:00Z');\nconst synodicMonth = 29.53058867;\nconst now = new Date();\nconst diff = (now - knownNewMoon) / (1000 * 60 * 60 * 24);\nconst age = ((diff % synodicMonth) + synodicMonth) % synodicMonth;\nconst illumination = Math.round(((1 - Math.cos(2 * Math.PI * age / synodicMonth)) / 2) * 100);\nconst phaseIndex = Math.round(age / synodicMonth * 8) % 8;\nconst phaseNames = ['Luna Nueva', 'Creciente', 'Cuarto Creciente', 'Gibosa Creciente', 'Luna Llena', 'Gibosa Menguante', 'Cuarto Menguante', 'Menguante'];\n\nreturn {\n  moon_phase: phaseNames[phaseIndex],\n  moon_illumination: illumination,\n  moon_phase_index: phaseIndex\n};"
+      }
+    },
+    {
+      "id": "http-1",
+      "name": "Obtener zonas del backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 450],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.backend_url || 'http://localhost:5000' }}/api/sky/zones",
+        "authentication": "none",
+        "options": {}
+      }
+    },
+    {
+      "id": "http-2",
+      "name": "Obtener clima - La Palma",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 600],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.openweathermap.org/data/2.5/weather",
+        "authentication": "none",
+        "queryParameters": {
+          "parameters": [
+            { "name": "lat", "value": "28.6819" },
+            { "name": "lon", "value": "-17.7644" },
+            { "name": "appid", "value": "={{ $json.openweather_api_key }}" },
+            { "name": "units", "value": "metric" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "http-3",
+      "name": "Obtener clima - Tenerife",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 750],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.openweathermap.org/data/2.5/weather",
+        "authentication": "none",
+        "queryParameters": {
+          "parameters": [
+            { "name": "lat", "value": "28.3000" },
+            { "name": "lon", "value": "-16.5500" },
+            { "name": "appid", "value": "={{ $json.openweather_api_key }}" },
+            { "name": "units", "value": "metric" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "merge-1",
+      "name": "Combinar datos",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [650, 450],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "code-2",
+      "name": "Calcular Sky Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 450],
+      "parameters": {
+        "language": "javascript",
+        "code": "// Extraer datos de las ramas combinadas\nconst zones = $input.all()[0]?.json?.data?.zones || [];\nconst moonData = $input.all()[1]?.json || {};\nconst weatherLP = $input.all()[2]?.json || {};\nconst weatherTF = $input.all()[3]?.json || {};\n\n// Calcular promedio Bortle\nconst avgBortle = zones.length > 0\n  ? zones.reduce((s, z) => s + z.bortle_scale, 0) / zones.length\n  : 5;\n\n// Extraer datos meteorológicos\nconst temps = [weatherLP?.main?.temp, weatherTF?.main?.temp].filter(t => t != null);\nconst humidities = [weatherLP?.main?.humidity, weatherTF?.main?.humidity].filter(h => h != null);\nconst winds = [weatherLP?.wind?.speed, weatherTF?.wind?.speed].filter(w => w != null);\nconst cloudsLP = weatherLP?.clouds?.all ?? null;\nconst cloudsTF = weatherTF?.clouds?.all ?? null;\nconst cloudinessValues = [cloudsLP, cloudsTF].filter(c => c != null);\n\nconst avgTemp = temps.length > 0 ? temps.reduce((s, t) => s + t, 0) / temps.length : null;\nconst avgHumidity = humidities.length > 0 ? humidities.reduce((s, h) => s + h, 0) / humidities.length : null;\nconst avgWind = winds.length > 0 ? winds.reduce((s, w) => s + w, 0) / winds.length : null;\nconst avgCloudiness = cloudinessValues.length > 0 ? cloudinessValues.reduce((s, c) => s + c, 0) / cloudinessValues.length : null;\n\n// Calcular puntuaciones (0-10)\nconst bortleScore = ((9 - avgBortle) / 8) * 10;\nconst cloudScore = avgCloudiness !== null ? Math.max(0, 10 - avgCloudiness / 10) : 5;\nconst moonScore = moonData.moon_illumination !== undefined\n  ? 10 - (moonData.moon_illumination / 10)\n  : 5;\nconst windScore = avgWind !== null ? Math.max(0, 10 - avgWind * 2) : 5;\n\n// Ponderación\nconst overallScore = Math.round(\n  (bortleScore * 0.40 + cloudScore * 0.25 + moonScore * 0.20 + windScore * 0.15) * 10\n) / 10;\n\nreturn {\n  date: new Date().toISOString().split('T')[0],\n  overall_score: overallScore,\n  astro_score: Math.round((bortleScore * 0.5 + cloudScore * 0.3 + moonScore * 0.2) * 10) / 10,\n  photo_score: Math.round((bortleScore * 0.3 + cloudScore * 0.4 + windScore * 0.3) * 10) / 10,\n  tourism_score: Math.round((bortleScore * 0.2 + cloudScore * 0.3 + (10 - avgWind) * 0.3 + 5 * 0.2) * 10) / 10,\n  avg_bortle: Math.round(avgBortle * 10) / 10,\n  avg_cloudiness: avgCloudiness !== null ? Math.round(avgCloudiness * 10) / 10 : null,\n  avg_humidity: avgHumidity !== null ? Math.round(avgHumidity * 10) / 10 : null,\n  avg_wind_speed: avgWind !== null ? Math.round(avgWind * 10) / 10 : null,\n  avg_temperature: avgTemp !== null ? Math.round(avgTemp * 10) / 10 : null,\n  moon_phase: moonData.moon_phase || null,\n  moon_illumination: moonData.moon_illumination ?? null,\n  source: 'n8n'\n};"
+      }
+    },
+    {
+      "id": "http-4",
+      "name": "Guardar en backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 450],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.backend_url || 'http://localhost:5000' }}/api/sky/score",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "date", "value": "={{ $json.date }}" },
+            { "name": "overall_score", "value": "={{ $json.overall_score }}" },
+            { "name": "astro_score", "value": "={{ $json.astro_score }}" },
+            { "name": "photo_score", "value": "={{ $json.photo_score }}" },
+            { "name": "tourism_score", "value": "={{ $json.tourism_score }}" },
+            { "name": "avg_bortle", "value": "={{ $json.avg_bortle }}" },
+            { "name": "avg_cloudiness", "value": "={{ $json.avg_cloudiness }}" },
+            { "name": "avg_humidity", "value": "={{ $json.avg_humidity }}" },
+            { "name": "avg_wind_speed", "value": "={{ $json.avg_wind_speed }}" },
+            { "name": "avg_temperature", "value": "={{ $json.avg_temperature }}" },
+            { "name": "moon_phase", "value": "={{ $json.moon_phase }}" },
+            { "name": "moon_illumination", "value": "={{ $json.moon_illumination }}" },
+            { "name": "source", "value": "n8n" }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Programación diaria": {
+      "main": [[
+        { "node": "Calcular fase lunar", "type": "main", "index": 0 },
+        { "node": "Obtener zonas del backend", "type": "main", "index": 0 },
+        { "node": "Obtener clima - La Palma", "type": "main", "index": 0 },
+        { "node": "Obtener clima - Tenerife", "type": "main", "index": 0 }
+      ]]
+    },
+    "Calcular fase lunar": {
+      "main": [[{ "node": "Combinar datos", "type": "main", "index": 1 }]]
+    },
+    "Obtener zonas del backend": {
+      "main": [[{ "node": "Combinar datos", "type": "main", "index": 0 }]]
+    },
+    "Obtener clima - La Palma": {
+      "main": [[{ "node": "Combinar datos", "type": "main", "index": 2 }]]
+    },
+    "Obtener clima - Tenerife": {
+      "main": [[{ "node": "Combinar datos", "type": "main", "index": 3 }]]
+    },
+    "Combinar datos": {
+      "main": [[{ "node": "Calcular Sky Score", "type": "main", "index": 0 }]]
+    },
+    "Calcular Sky Score": {
+      "main": [[{ "node": "Guardar en backend", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["adastra-sky", "automation", "sky-score"],
+  "versionId": "adastra-sky-score-v1"
+}

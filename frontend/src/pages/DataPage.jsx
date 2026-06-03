@@ -34,7 +34,7 @@ const DataPage = () => {
   return (
     <div className="h-screen w-full bg-astroDark flex">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col p-3">
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
           <h1 className="text-3xl font-bold text-white">Base de datos del cielo</h1>
           <p className="text-gray-400 mt-1">88 constelaciones, 7 planetas + Luna + Sol, y eventos astronómicos</p>

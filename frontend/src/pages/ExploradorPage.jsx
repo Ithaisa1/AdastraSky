@@ -1,13 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import InteractiveMap from '../components/InteractiveMap';
 import SanctuaryPanel from '../components/SanctuaryPanel';
 import StreetViewPanel from '../components/StreetViewPanel';
 import Sidebar from '../components/Sidebar';
 
 const ExploradorPage = () => {
-  const [selectedZone, setSelectedZone] = useState(null);
+  const location = useLocation();
+  const [selectedZone, setSelectedZone] = useState(location.state?.selectedZone || null);
   const [clickedCoords, setClickedCoords] = useState(null);
-  const [panel, setPanel] = useState(null);
+  const [panel, setPanel] = useState(location.state?.selectedZone ? 'sanctuary' : null);
+
+  useEffect(() => {
+    if (location.state?.selectedZone) {
+      setSelectedZone(location.state.selectedZone);
+      setPanel('sanctuary');
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   const handleZoneSelect = (zone) => {
     setClickedCoords(null);
@@ -30,7 +40,7 @@ const ExploradorPage = () => {
   return (
     <div className="flex h-screen bg-astroDark overflow-hidden">
       <Sidebar />
-      <main className="flex-1 relative flex">
+      <main className="flex-1 relative flex p-3">
         <div className="flex-1 relative">
           <InformacionHeader
             zone={selectedZone}

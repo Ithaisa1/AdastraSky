@@ -10,8 +10,10 @@ import { User, Settings, Bell, Trash2, Save, LogOut } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 
 const ProfilePage = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserData } = useAuth();
   const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState(null);
   
   const [activeTab, setActiveTab] = useState('profile');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -35,8 +37,37 @@ const ProfilePage = () => {
     language: 'es',
   });
 
-  const handleProfileSave = (e) => {
+  const handleProfileSave = async (e) => {
     e.preventDefault();
+    setSaving(true);
+    setSaveMessage(null);
+    try {
+      const token = localStorage.getItem('adastra_session');
+      const res = await fetch('http://localhost:5000/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          first_name: profileData.firstName,
+          last_name: profileData.lastName,
+          email: profileData.email,
+          bio: profileData.bio,
+          location: profileData.location,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        updateUserData(data.data.user);
+        setSaveMessage('success');
+      } else {
+        setSaveMessage(data.message || 'Error al guardar');
+      }
+    } catch {
+      setSaveMessage('Error de conexión');
+    }
+    setSaving(false);
   };
 
   const handleSettingsSave = (e) => {
@@ -57,7 +88,7 @@ const ProfilePage = () => {
     <div className="h-screen w-full bg-astroDark flex">
       <Sidebar />
       
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col p-3">
         {/* Header */}
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
           <h1 className="text-3xl font-bold text-white">Perfil de Usuario</h1>
@@ -167,13 +198,20 @@ const ProfilePage = () => {
                       className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors resize-none"
                     />
                   </div>
+                  {saveMessage === 'success' && (
+                    <p className="text-green-400 text-sm mt-4">Perfil actualizado correctamente</p>
+                  )}
+                  {saveMessage && saveMessage !== 'success' && (
+                    <p className="text-red-400 text-sm mt-4">{saveMessage}</p>
+                  )}
                   <div className="mt-6 flex justify-end">
                     <button
                       type="submit"
-                      className="flex items-center gap-2 px-6 py-3 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-lg transition-colors"
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-lg transition-colors disabled:opacity-50"
                     >
                       <Save className="w-5 h-5" />
-                      Guardar Cambios
+                      {saving ? 'Guardando...' : 'Guardar Cambios'}
                     </button>
                   </div>
                 </form>

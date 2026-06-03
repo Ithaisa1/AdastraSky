@@ -115,6 +115,12 @@ export const AuthProvider = ({ children }) => {
     delete axios.defaults.headers.common['Authorization'];
   };
 
+  const updateUserData = (userData) => {
+    setUser(userData);
+    setRole(userData.role || 'user');
+    localStorage.setItem('adastra_user', JSON.stringify(userData));
+  };
+
   const completeHeroTransition = () => {
     setShowHeroTransition(false);
   };
@@ -129,6 +135,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateUserData,
     completeHeroTransition,
   };
 

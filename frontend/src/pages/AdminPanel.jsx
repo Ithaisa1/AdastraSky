@@ -152,6 +152,16 @@ const AdminPanel = () => {
     }
   };
 
+  const handleHardDeleteUser = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/api/admin/users/${id}/hard`, getAuthHeaders());
+      setConfirmDelete(null);
+      await fetchUsers();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al eliminar usuario');
+    }
+  };
+
   const filteredZones = zones.filter(z =>
     !search || z.name?.toLowerCase().includes(search.toLowerCase()) ||
     z.island?.toLowerCase().includes(search.toLowerCase()) ||
@@ -190,7 +200,7 @@ const AdminPanel = () => {
   return (
     <div className="h-screen w-full bg-astroDark flex">
       <Sidebar />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-3">
         <div className="bg-astroCard border-b border-white/10 p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -561,6 +571,11 @@ const AdminPanel = () => {
                 Desactivar
               </button>
             </div>
+            {confirmDelete.type === 'user' && (
+              <button onClick={() => handleHardDeleteUser(confirmDelete.id)} className="w-full mt-3 px-4 py-2 bg-red-800/50 hover:bg-red-800/70 text-red-300 border border-red-800/50 rounded-lg transition-colors text-sm">
+                Eliminar permanentemente
+              </button>
+            )}
           </div>
         </div>
       )}
