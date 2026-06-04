@@ -75,7 +75,12 @@ frontend/.vite/
 backend/node_modules/
 backend/dist/
 
-# Python service specific
+# Python service specific (migrated to ai-service)
 python-service/venv/
 python-service/__pycache__/
 python-service/.pytest_cache/
+
+# AI Service
+ai-service/venv/
+ai-service/__pycache__/
+ai-service/.pytest_cache/

@@ -96,4 +96,37 @@ def _query_db(sql: str, params: tuple) -> list[dict]:
         return [{"info": "Base de datos no disponible", "detail": str(e)}]
 
 
-tools = [search_rag_documents, get_observatory_info, get_weather_conditions, get_constellation_info]
+@tool
+def calculate_sky_score(
+    cloudiness: float = 0.0,
+    light_pollution: float = 0.0,
+    moon_phase: float = 0.0,
+    wind: float = 0.0,
+    humidity: float = 0.0,
+    transparency: float = 0.8,
+) -> dict:
+    """Calcula el Sky Score (0-10) de calidad del cielo basado en condiciones atmosféricas: nubosidad, contaminación lumínica, fase lunar, viento, humedad y transparencia."""
+    from sky_engine.sky_score import SkyScoreAlgorithm
+
+    factors = {
+        "cloudiness": cloudiness,
+        "light_pollution": light_pollution,
+        "moon_phase": moon_phase,
+        "wind": wind,
+        "humidity": humidity,
+        "transparency": transparency,
+    }
+    algorithm = SkyScoreAlgorithm()
+    score = algorithm.calculate_sky_score(factors)
+    if score >= 8.5:
+        recommendation = "Excelente noche para observar. ¡Sal ahora!"
+    elif score >= 7:
+        recommendation = "Buena noche para observar."
+    elif score >= 5:
+        recommendation = "Condiciones aceptables. Puedes intentarlo."
+    else:
+        recommendation = "No es buena noche. Espera condiciones mejores."
+    return {"sky_score": score, "factors": factors, "recommendation": recommendation}
+
+
+tools = [search_rag_documents, get_observatory_info, get_weather_conditions, get_constellation_info, calculate_sky_score]

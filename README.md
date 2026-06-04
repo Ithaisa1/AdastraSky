@@ -11,7 +11,7 @@
 | Frontend | React 19 + Vite + Tailwind CSS + Framer Motion |
 | Backend | Node.js + Express + Sequelize + PostgreSQL |
 | AI Service | FastAPI + LangGraph + ChromaDB + Groq (LLaMA 3.3) |
-| Sky Engine | Python + Flask + Astropy + Ephem |
+| Sky Engine | Python FastAPI (integrado en AI Service) |
 | Automatización | n8n workflows |
 | Mapas | Leaflet + React-Leaflet |
 | APIs Externas | OpenWeatherMap, AstronomyAPI, NASA |
@@ -34,14 +34,13 @@ adastra-sky/
 │   ├── src/models/          # User, SkyQualityZone, ChatHistory
 │   └── src/middleware/      # JWT auth, error handler
 │
-├── ai-service/              # Agente IA (FastAPI + LangGraph)
+├── ai-service/              # Agente IA + Sky Engine (FastAPI + LangGraph)
 │   ├── agent/               # StateGraph con Groq/OpenAI
+│   ├── sky_engine/          # SkyScore, moon phase, eventos astronómicos
 │   ├── rag/                 # ChromaDB vector store
-│   ├── routers/             # /health, /api/chat
+│   ├── routers/             # /health, /api/chat, /api/sky-score
 │   └── documents/           # 6 documentos IAC para RAG
 │
-├── python-service/          # Sky Engine (Flask)
-│   └── sky_engine/          # Cálculos astronómicos
 │
 ├── database/                # Seeds y documentos RAG
 │   ├── seed_bortle_v2.py    # Poblado de zonas
@@ -92,15 +91,9 @@ python rag/ingest.py       # Poblar ChromaDB
 python main.py             # http://localhost:8001
 ```
 
-### 4. Python Service (Sky Engine)
-
-```bash
-cd python-service
-pip install -r requirements.txt
-python app.py              # http://localhost:5001
-```
-
 ---
+
+> **Nota**: El Sky Engine (cálculos de sky score, eventos, qué observar) está integrado en el AI Service como endpoints `/api/sky-score`, `/api/what-to-see` y `/api/events`.
 
 ## APIs
 
@@ -130,15 +123,9 @@ python app.py              # http://localhost:5001
 |--------|------|-------------|
 | GET | `/health` | Health check |
 | POST | `/api/chat` | Chat con el agente astronómico |
-
-### Python Service (`http://localhost:5001`)
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/health` | Health check |
-| POST | `/api/sky-score` | Calcular Sky Score |
+| POST | `/api/sky-score` | Calcular Sky Score (0-10) |
 | GET | `/api/what-to-see` | Qué observar esta noche |
-| GET | `/api/events` | Eventos astronómicos |
+| GET | `/api/events` | Eventos astronómicos próximos |
 
 ---
 
@@ -151,8 +138,9 @@ El agente inteligente utiliza LangGraph con un grafo de estados:
 3. **Tools**:
    - `search_rag_documents` — búsqueda semántica en documentos
    - `get_observatory_info` — información de observatorios (BD)
-   - `get_weather_conditions` — clima actual por coordenadas
-   - `get_constellation_info` — datos de constelaciones (BD)
+    - `get_weather_conditions` — clima actual por coordenadas
+    - `get_constellation_info` — datos de constelaciones (BD)
+    - `calculate_sky_score` — calidad del cielo basada en condiciones atmosféricas
 
 **Modo offline**: si no hay API key configurada, responde solo con búsqueda RAG.
 
@@ -227,9 +215,6 @@ cd backend && npm test
 # Frontend
 cd frontend && npm test
 
-# Python Service
-cd python-service && pytest
-
 # AI Service
 cd ai-service && python -m pytest
 ```
@@ -243,7 +228,7 @@ cd ai-service && python -m pytest
 | Frontend | Vercel |
 | Backend | Render + Neon (PostgreSQL) |
 | AI Service | Render |
-| Python Service | Render / Railway |
+| Sky Engine | Integrado en AI Service |
 
 Ver [guía de despliegue](./docs/deployment_guide.md) para instrucciones detalladas.
 

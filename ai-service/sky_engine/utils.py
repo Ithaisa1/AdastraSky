@@ -1,7 +1,3 @@
-"""
-Utilidades para Sky Engine
-"""
-
 import math
 from datetime import datetime, timedelta
 
@@ -26,11 +22,3 @@ def get_local_time(latitude, longitude, utc_time=None):
         utc_time = datetime.utcnow()
     offset_hours = round(longitude / 15)
     return utc_time + timedelta(hours=offset_hours)
-
-
-def calculate_altitude(latitude, longitude, object_name, time=None):
-    return 45.0
-
-
-def get_light_pollution_level(latitude, longitude):
-    return 0.15

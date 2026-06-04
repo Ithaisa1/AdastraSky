@@ -9,7 +9,7 @@ AdAstraSky es una arquitectura **moderna, escalable y profesional** diseñada pa
 ### Principios
 
 ✅ **Clean Architecture**: Separación clara de responsabilidades  
-✅ **Microservicios**: Backend independiente + Python Service  
+✅ **Microservicios**: Backend independiente + AI Service  
 ✅ **API First**: Comunicación mediante APIs REST  
 ✅ **Escalabilidad**: Preparado para crecer  
 ✅ **Documentación**: Código autodocumentado  
@@ -89,39 +89,40 @@ backend/
 
 ---
 
-### 3. Python Service (Sky Engine)
+### 3. AI Service + Sky Engine (FastAPI + LangGraph)
 
-**Ubicación**: `/python-service`
+**Ubicación**: `/ai-service`
 
 Responsabilidades:
-- Cálculos astronómicos complejos
-- Algoritmo de Sky Score
-- Predicciones astronómicas
-- Análisis de visibilidad
-- Procesamiento científico
+- Agente astronómico inteligente con LangGraph
+- Cálculos astronómicos (Sky Score, fase lunar, eventos)
+- RAG sobre documentos IAC con ChromaDB
+- Coordinación con APIs externas (OpenWeatherMap, NASA)
+- Procesamiento científico y recomendaciones
 
 Características:
-- API REST independiente
-- Lógica científica pura
-- Escalable horizontalmente
-- Testing incluido
+- API REST FastAPI con múltiples routers
+- LangGraph StateGraph con Groq/OpenAI
+- ChromaDB vector store para búsqueda semántica
+- Sky Score Algorithm (0-10) para calidad del cielo
 
 **Stack**:
-- Python 3.9+
-- Flask
-- NumPy/Pandas
-- Astropy
-- Ephem
+- Python 3.10+
+- FastAPI + Uvicorn
+- LangChain + LangGraph
+- ChromaDB + Sentence Transformers
+- Groq (LLaMA 3.3) / OpenAI
 
 **Estructura**:
 ```
-python-service/
-├── sky_engine/        # Motor de cálculos
-├── scoring/           # Algoritmos de puntuación
-├── analytics/         # Análisis avanzados
-├── config.py          # Configuración
-├── requirements.txt   # Dependencias
-└── main.py           # Punto de entrada
+ai-service/
+├── agent/             # LangGraph StateGraph + Tools
+├── sky_engine/        # SkyScore, moon phase, eventos
+├── rag/               # ChromaDB vector store
+├── routers/           # /health, /api/chat, /api/sky-score
+├── documents/         # Documentos IAC para RAG
+├── config.py          # Configuración Pydantic
+└── main.py            # Punto de entrada FastAPI
 ```
 
 ---

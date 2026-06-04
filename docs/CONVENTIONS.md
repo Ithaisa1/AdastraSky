@@ -56,8 +56,29 @@ frontend/
 └── vite.config.js
 ```
 
-### Python Service
+### AI Service + Sky Engine (FastAPI)
 
+```
+ai-service/
+├── agent/
+│   ├── agent.py         # LangGraph StateGraph
+│   ├── state.py         # Definición de estado
+│   └── tools.py         # Tools: RAG, weather, sky score
+├── sky_engine/
+│   ├── __init__.py
+│   ├── sky_score.py     # Sky Score Algorithm (0-10)
+│   └── utils.py         # Moon illumination, helpers
+├── rag/
+│   ├── vector_store.py  # ChromaDB wrapper
+│   └── ingest.py        # Poblado de documentos
+├── routers/
+│   ├── health.py
+│   ├── chat.py
+│   └── sky.py           # /api/sky-score, what-to-see, events
+├── documents/           # Documentos IAC para RAG
+├── config.py            # Pydantic settings
+├── main.py              # FastAPI entry point
+└── requirements.txt
 ```
 python-service/
 ├── sky_engine/
