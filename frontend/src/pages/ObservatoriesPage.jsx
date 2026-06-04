@@ -17,7 +17,7 @@ const ObservatoriesPage = () => {
   );
 
   return (
-    <div className="h-screen w-full bg-astroDark flex">
+    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       
       <div className="flex-1 flex flex-col p-3">
@@ -48,7 +48,7 @@ const ObservatoriesPage = () => {
 
         {/* Contenido Principal */}
         <div className="flex-1 overflow-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredObservatories.length === 0 ? (
               <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-500">
                 <Radar className="w-16 h-16 mb-4 opacity-50" />

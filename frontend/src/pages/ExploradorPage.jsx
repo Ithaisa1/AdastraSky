@@ -38,10 +38,10 @@ const ExploradorPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-astroDark overflow-hidden">
+    <div className="flex min-h-screen bg-astroDark overflow-hidden">
       <Sidebar />
-      <main className="flex-1 relative flex p-3">
-        <div className="flex-1 relative">
+      <main className="flex-1 relative flex flex-col md:flex-row p-3">
+        <div className="flex-1 relative min-h-[300px] md:min-h-0">
           <InformacionHeader
             zone={selectedZone}
             coords={clickedCoords}
@@ -53,13 +53,13 @@ const ExploradorPage = () => {
         </div>
 
         {panel === 'sanctuary' && selectedZone && (
-          <aside className="w-[420px] border-l border-white/10 overflow-y-auto z-[1001]">
+          <aside className="w-full md:w-[420px] md:border-l border-white/10 overflow-y-auto z-[1001] max-h-[50vh] md:max-h-none">
             <SanctuaryPanel zone={selectedZone} onClose={handleClose} />
           </aside>
         )}
 
         {panel === 'streetview' && clickedCoords && (
-          <aside className="w-[420px] border-l border-white/10 overflow-y-auto z-[1001]">
+          <aside className="w-full md:w-[420px] md:border-l border-white/10 overflow-y-auto z-[1001] max-h-[50vh] md:max-h-none">
             <StreetViewPanel latlng={clickedCoords} onClose={handleClose} />
           </aside>
         )}
@@ -76,8 +76,8 @@ const InformacionHeader = ({ zone, coords }) => {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-[1000] bg-astroCard/80 backdrop-blur-md rounded-lg px-4 py-2 border border-white/10 shadow-lg">
-      <p className="text-xs text-gray-400 font-mono">{getLabel()}</p>
+    <div className="absolute top-4 left-4 right-4 md:left-auto md:right-4 z-[1000] bg-astroCard/80 backdrop-blur-md rounded-lg px-4 py-2 border border-white/10 shadow-lg">
+      <p className="text-xs text-gray-400 font-mono truncate">{getLabel()}</p>
     </div>
   );
 };

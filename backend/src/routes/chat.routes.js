@@ -6,7 +6,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/chat/message:
+ * /api/chat:
  *   post:
  *     tags: [Chat]
  *     summary: Enviar mensaje al agente de IA
@@ -27,18 +27,19 @@ const router = express.Router();
  *       503: { description: AI Service no disponible }
  *       504: { description: Timeout del AI Service }
  */
-router.post('/message', authenticateToken, sendMessage);
+router.post('/', authenticateToken, sendMessage);
 
 /**
  * @openapi
- * /api/chat/history:
+ * /api/chat/history/{session_id}:
  *   get:
  *     tags: [Chat]
  *     summary: Obtener historial de chat del usuario autenticado
  *     security: [{ bearerAuth: [] }]
  *     parameters:
- *       - in: query
+ *       - in: path
  *         name: session_id
+ *         required: true
  *         schema: { type: string }
  *       - in: query
  *         name: limit
@@ -46,6 +47,6 @@ router.post('/message', authenticateToken, sendMessage);
  *     responses:
  *       200: { description: Historial de conversaciones }
  */
-router.get('/history', authenticateToken, getChatHistory);
+router.get('/history/:session_id', authenticateToken, getChatHistory);
 
 export default router;

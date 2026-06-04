@@ -93,27 +93,27 @@ function CalendarGrid({ events, month, year, onPrevMonth, onNextMonth, onEventCl
         ))}
         {rows.map((row, ri) =>
           row.map((day, ci) => {
-            if (day === null) return <div key={`e-${ri}-${ci}`} className="min-h-[60px] md:min-h-[80px]" />;
+            if (day === null) return <div key={`e-${ri}-${ci}`} className="min-h-[50px] sm:min-h-[60px] md:min-h-[80px]" />;
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const dayEvents = eventDates[dateStr] || [];
             const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
             return (
-              <div key={`d-${ri}-${ci}`} className={`min-h-[60px] md:min-h-[80px] p-1 rounded-lg border ${isToday ? 'border-cyan-400/50 bg-cyan-400/10' : 'border-transparent hover:border-white/10 hover:bg-white/5'} transition-all`}>
-                <div className={`text-xs md:text-sm font-medium mb-1 ${isToday ? 'text-cyan-400' : 'text-gray-400'}`}>{day}</div>
-                <div className="flex flex-col gap-0.5">
-                  {dayEvents.slice(0, 3).map((ev, i) => {
+              <div key={`d-${ri}-${ci}`} className={`min-h-[50px] sm:min-h-[60px] md:min-h-[80px] p-1 rounded-lg border ${isToday ? 'border-cyan-400/50 bg-cyan-400/10' : 'border-transparent hover:border-white/10 hover:bg-white/5'} transition-all`}>
+                <div className={`text-[11px] sm:text-xs md:text-sm font-medium mb-0.5 sm:mb-1 ${isToday ? 'text-cyan-400' : 'text-gray-400'}`}>{day}</div>
+                <div className="flex flex-col gap-px sm:gap-0.5">
+                  {dayEvents.slice(0, 2).map((ev, i) => {
                     const Icon = EVENT_ICONS[ev.type] || Calendar;
                     const colorClass = EVENT_COLORS[ev.type] || EVENT_COLORS.other;
                     return (
                       <button key={i} onClick={() => onEventClick(ev)}
-                        className={`flex items-center gap-1 px-1 py-0.5 rounded text-[10px] md:text-xs ${colorClass} truncate hover:opacity-80`}
+                        className={`flex items-center gap-1 px-1 py-px sm:py-0.5 rounded text-[9px] sm:text-[10px] md:text-xs ${colorClass} truncate hover:opacity-80`}
                       >
-                        <Icon className="w-2.5 h-2.5 flex-shrink-0" />
+                        <Icon className="w-2 h-2 sm:w-2.5 sm:h-2.5 flex-shrink-0" />
                         <span className="truncate hidden md:inline">{ev.name}</span>
                       </button>
                     );
                   })}
-                  {dayEvents.length > 3 && <div className="text-[10px] text-gray-500 px-1">+{dayEvents.length - 3} más</div>}
+                  {dayEvents.length > 2 && <div className="text-[9px] sm:text-[10px] text-gray-500 px-1">+{dayEvents.length - 2} más</div>}
                 </div>
               </div>
             );
@@ -317,7 +317,7 @@ export default function CalendarPage() {
   ];
 
   return (
-    <div className="h-screen w-full bg-astroDark flex">
+    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col p-3 overflow-auto">
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-4 md:p-6 rounded-xl mb-4">
@@ -326,12 +326,12 @@ export default function CalendarPage() {
               <h1 className="text-2xl md:text-3xl font-bold text-white">{t('calendar.title')}</h1>
               <p className="text-gray-400 text-sm mt-1">{t('calendar.subtitle')}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto">
               {tabs.map(t => {
                 const Icon = t.icon;
                 return (
                   <button key={t.id} onClick={() => setTab(t.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === t.id ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'}`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${tab === t.id ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'}`}
                   >
                     <Icon className="w-4 h-4" /> {t.label}
                   </button>

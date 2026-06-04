@@ -85,7 +85,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-astroDark flex">
+    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       
       <div className="flex-1 flex flex-col p-3">
@@ -99,7 +99,7 @@ const ProfilePage = () => {
         <div className="flex-1 overflow-auto p-6">
           <div className="max-w-4xl mx-auto">
             {/* Tabs de Navegación */}
-            <div className="flex gap-4 mb-6 border-b border-white/10 pb-4">
+            <div className="flex gap-4 mb-6 border-b border-white/10 pb-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('profile')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${

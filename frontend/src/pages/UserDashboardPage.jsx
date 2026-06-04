@@ -16,7 +16,7 @@ const UserDashboardPage = () => {
   const [alerts] = useState([]);
 
   return (
-    <div className="h-screen w-full bg-astroDark flex">
+    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
       {/* Sidebar de Navegación */}
       <Sidebar />
 

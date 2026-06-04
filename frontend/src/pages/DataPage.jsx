@@ -32,7 +32,7 @@ const DataPage = () => {
   }, [search]);
 
   return (
-    <div className="h-screen w-full bg-astroDark flex">
+    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col p-3">
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
@@ -114,7 +114,7 @@ const DataPage = () => {
           )}
 
           {activeTab==='planets' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredPlanets.length === 0 ? (
                 <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-500">
                   <Globe className="w-16 h-16 mb-4 opacity-50" />

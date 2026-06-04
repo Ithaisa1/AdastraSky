@@ -57,7 +57,7 @@ const DashboardPage = () => {
   const gaugeOffset = gaugeCircumference - (skyScore.score / 10) * gaugeCircumference;
 
   return (
-    <div className="h-screen w-full overflow-hidden flex bg-deepSpace">
+    <div className="min-h-screen w-full overflow-hidden flex bg-deepSpace">
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-gradient-dashboard p-3">
         <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -71,17 +71,17 @@ const DashboardPage = () => {
                 backgroundImage: 'url(https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop)',
               }}
             />
-            <div className="relative z-20 p-8 md:p-12">
+            <div className="relative z-20 p-6 sm:p-8 md:p-12">
               <div className="flex items-center gap-2 text-auroraGreen mb-2">
                 <Sparkles className="w-4 h-4 text-auroraGreen" />
                 <span className="text-xs font-mono uppercase tracking-widest text-auroraGreen/90">
                   {new Date().toLocaleDateString(lang, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-2">
                 {greeting}, {user?.first_name || 'Explorador'}
               </h1>
-              <p className="text-lg text-gray-300 max-w-xl">
+              <p className="text-sm sm:text-lg text-gray-300 max-w-xl">
                 {lang === 'es' ? 'Hoy el archipiélago te ofrece' :
                  lang === 'en' ? 'Today the archipelago offers you' :
                  'Heute bietet dir der Archipel'}{' '}
@@ -95,7 +95,7 @@ const DashboardPage = () => {
           </section>
 
           {/* STATS ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
 
             {/* LUNAR PHASE */}
             <div className="bg-gradient-card rounded-2xl border border-white/5 p-6">
@@ -124,8 +124,8 @@ const DashboardPage = () => {
                 {lang === 'es' ? 'Sky Score Global' : lang === 'en' ? 'Global Sky Score' : 'Globaler Himmelswert'}
               </h3>
               <div className="flex items-center gap-6">
-                <div className="relative w-24 h-24">
-                  <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+                <div className="relative w-20 sm:w-24 h-20 sm:h-24">
+                  <svg className="w-20 sm:w-24 h-20 sm:h-24 -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
                     <circle
                       cx="50" cy="50" r="45" fill="none"
@@ -143,11 +143,11 @@ const DashboardPage = () => {
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">{skyScore.score.toFixed(1)}</span>
+                    <span className="text-xl sm:text-2xl font-bold text-white">{skyScore.score.toFixed(1)}</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-lg font-semibold text-white">{skyScore.label}</p>
+                  <p className="text-base sm:text-lg font-semibold text-white">{skyScore.label}</p>
                   <p className="text-xs text-gray-400">
                     {liveScore
                       ? (lang === 'es' ? 'Actualizado hoy' : lang === 'en' ? 'Updated today' : 'Heute aktualisiert')
@@ -207,7 +207,7 @@ const DashboardPage = () => {
                 <ChevronRight className="w-3 h-3" />
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {topZones.map((zone) => (
                 <button
                   key={zone.id}
@@ -244,7 +244,7 @@ const DashboardPage = () => {
           </section>
 
           {/* BOTTOM ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
 
             {/* FEATURED ISLAND */}
             <div className="relative rounded-2xl overflow-hidden border border-white/5 group cursor-pointer"

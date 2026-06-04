@@ -81,7 +81,8 @@ export const sendMessage = async (req, res, next) => {
 export const getChatHistory = async (req, res, next) => {
   try {
     const user_id = req.user.id;
-    const { session_id, limit = 50 } = req.query;
+    const session_id = req.params.session_id || req.query.session_id;
+    const { limit = 50 } = req.query;
 
     const whereClause = { user_id };
     if (session_id) {

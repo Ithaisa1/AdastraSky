@@ -198,7 +198,7 @@ const AdminPanel = () => {
   }
 
   return (
-    <div className="h-screen w-full bg-astroDark flex">
+    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       <div className="flex-1 overflow-y-auto p-3">
         <div className="bg-astroCard border-b border-white/10 p-6">
@@ -224,7 +224,7 @@ const AdminPanel = () => {
         )}
 
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-astroCard rounded-lg border border-white/10 p-4">
               <div className="flex items-center gap-3 mb-2">
                 <Database className="w-5 h-5 text-astroAccent" />

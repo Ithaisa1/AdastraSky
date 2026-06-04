@@ -1,0 +1,402 @@
+{
+  "info": {
+    "name": "AdAstraSky API",
+    "description": "Colección completa de la API de AdAstraSky — Plataforma de Astroturismo con IA integrada.\n\n## Backend (Node + Express)\nBase URL: `http://localhost:5000`\n\n## AI Service (FastAPI)\nBase URL: `http://localhost:8001`\n\n## Autenticación\n- Registro: `POST /api/auth/register`\n- Login: `POST /api/auth/login` (devuelve token)\n- Usar token en header: `Authorization: Bearer <token>`\n- Admin: `admin@adastra.com / admin123`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "adastra-sky"
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Registro",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@ejemplo.com\",\n  \"password\": \"123456\",\n  \"first_name\": \"Usuario\",\n  \"last_name\": \"Ejemplo\",\n  \"preferred_language\": \"es\"\n}"
+            },
+            "url": { "raw": "{{backend}}/api/auth/register", "host": ["{{backend}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@adastra.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{backend}}/api/auth/login", "host": ["{{backend}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Perfil (GET)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{backend}}/api/auth/profile", "host": ["{{backend}}"], "path": ["api", "auth", "profile"] }
+          }
+        },
+        {
+          "name": "Perfil (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Admin\",\n  \"last_name\": \"AdAstra\",\n  \"preferred_language\": \"en\"\n}"
+            },
+            "url": { "raw": "{{backend}}/api/auth/profile", "host": ["{{backend}}"], "path": ["api", "auth", "profile"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌌 Sky Zones",
+      "item": [
+        {
+          "name": "Todas las zonas",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/zones", "host": ["{{backend}}"], "path": ["api", "sky", "zones"] }
+          }
+        },
+        {
+          "name": "Zona por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/zones/1", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "1"] }
+          }
+        },
+        {
+          "name": "GeoJSON",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/zones/geojson", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "geojson"] }
+          }
+        },
+        {
+          "name": "CSV",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/zones/csv", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "csv"] }
+          }
+        },
+        {
+          "name": "Búsqueda avanzada",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/zones/query?island=Tenerife&category=observatory&maxBortle=3", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "query"] }
+          }
+        },
+        {
+          "name": "Recomendación esta noche",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/zones/recommend/tonight", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "recommend", "tonight"] }
+          }
+        },
+        {
+          "name": "Recomendación astrofoto",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/zones/recommend/photo", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "recommend", "photo"] }
+          }
+        },
+        {
+          "name": "Por isla",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/islands/Tenerife", "host": ["{{backend}}"], "path": ["api", "sky", "islands", "Tenerife"] }
+          }
+        },
+        {
+          "name": "Por categoría",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/category/observatory", "host": ["{{backend}}"], "path": ["api", "sky", "category", "observatory"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ Sky Score",
+      "item": [
+        {
+          "name": "Último score",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/score/latest", "host": ["{{backend}}"], "path": ["api", "sky", "score", "latest"] }
+          }
+        },
+        {
+          "name": "Historial de scores",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/sky/score/history?days=7", "host": ["{{backend}}"], "path": ["api", "sky", "score", "history"] }
+          }
+        },
+        {
+          "name": "Guardar score (n8n)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-06-04\",\n  \"overall_score\": 8.5,\n  \"astro_score\": 8.7,\n  \"photo_score\": 8.2,\n  \"tourism_score\": 7.9\n}"
+            },
+            "url": { "raw": "{{backend}}/api/sky/score", "host": ["{{backend}}"], "path": ["api", "sky", "score"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🤖 Chat / IA",
+      "item": [
+        {
+          "name": "Enviar mensaje (Backend)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"¿Cuál es el mejor lugar para observar estrellas en Tenerife?\",\n  \"language\": \"es\"\n}"
+            },
+            "url": { "raw": "{{backend}}/api/chat", "host": ["{{backend}}"], "path": ["api", "chat"] }
+          }
+        },
+        {
+          "name": "Historial de chat",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{backend}}/api/chat/history/{{session_id}}", "host": ["{{backend}}"], "path": ["api", "chat", "history", "{{session_id}}"] }
+          }
+        },
+        {
+          "name": "Chat directo (AI Service)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"¿Qué constelaciones son visibles hoy?\",\n  \"language\": \"es\"\n}"
+            },
+            "url": { "raw": "{{ai_service}}/api/chat", "host": ["{{ai_service}}"], "path": ["api", "chat"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏝️ Islas",
+      "item": [
+        {
+          "name": "Todas las islas",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/islands", "host": ["{{backend}}"], "path": ["api", "islands"] }
+          }
+        },
+        {
+          "name": "Isla por nombre",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/islands/La%20Palma", "host": ["{{backend}}"], "path": ["api", "islands", "La%20Palma"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Eventos",
+      "item": [
+        {
+          "name": "Todos los eventos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/events?month=6&year=2026", "host": ["{{backend}}"], "path": ["api", "events"] }
+          }
+        },
+        {
+          "name": "Seed eventos",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{backend}}/api/events/seed", "host": ["{{backend}}"], "path": ["api", "events", "seed"] }
+          }
+        },
+        {
+          "name": "NASA APOD",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/events/nasa/apod", "host": ["{{backend}}"], "path": ["api", "events", "nasa", "apod"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📞 Contacto",
+      "item": [
+        {
+          "name": "Enviar mensaje",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Ejemplo\",\n  \"email\": \"user@ejemplo.com\",\n  \"subject\": \"Consulta sobre observatorios\",\n  \"message\": \"Me gustaría saber más sobre las visitas guiadas al Observatorio del Teide.\"\n}"
+            },
+            "url": { "raw": "{{backend}}/api/contact", "host": ["{{backend}}"], "path": ["api", "contact"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Admin",
+      "item": [
+        {
+          "name": "Zonas - Listar",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{backend}}/api/admin/zones", "host": ["{{backend}}"], "path": ["api", "admin", "zones"] }
+          }
+        },
+        {
+          "name": "Zonas - Crear",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mirador de Prueba\",\n  \"island\": \"Tenerife\",\n  \"category\": \"astronomical_viewpoint\",\n  \"bortle_scale\": 3,\n  \"latitude\": 28.3,\n  \"longitude\": -16.5,\n  \"altitude\": 1200,\n  \"description\": \"Zona de prueba\"\n}"
+            },
+            "url": { "raw": "{{backend}}/api/admin/zones", "host": ["{{backend}}"], "path": ["api", "admin", "zones"] }
+          }
+        },
+        {
+          "name": "Zonas - Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bortle_scale\": 2,\n  \"description\": \"Actualizado\"\n}"
+            },
+            "url": { "raw": "{{backend}}/api/admin/zones/1", "host": ["{{backend}}"], "path": ["api", "admin", "zones", "1"] }
+          }
+        },
+        {
+          "name": "Zonas - Eliminar",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{backend}}/api/admin/zones/1", "host": ["{{backend}}"], "path": ["api", "admin", "zones", "1"] }
+          }
+        },
+        {
+          "name": "Usuarios - Listar",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{backend}}/api/admin/users", "host": ["{{backend}}"], "path": ["api", "admin", "users"] }
+          }
+        },
+        {
+          "name": "Usuarios - Detalle",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{backend}}/api/admin/users/1", "host": ["{{backend}}"], "path": ["api", "admin", "users", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧠 AI Service",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{ai_service}}/health", "host": ["{{ai_service}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "Sky Score",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cloudiness\": 0.1,\n  \"light_pollution\": 0.15,\n  \"moon_phase\": 0.43,\n  \"wind\": 5,\n  \"humidity\": 0.45,\n  \"transparency\": 0.8\n}"
+            },
+            "url": { "raw": "{{ai_service}}/api/sky-score", "host": ["{{ai_service}}"], "path": ["api", "sky-score"] }
+          }
+        },
+        {
+          "name": "Qué observar",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{ai_service}}/api/what-to-see?latitude=28.33&longitude=-16.49", "host": ["{{ai_service}}"], "path": ["api", "what-to-see"] }
+          }
+        },
+        {
+          "name": "Eventos astronómicos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{ai_service}}/api/events?days_ahead=90", "host": ["{{ai_service}}"], "path": ["api", "events"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "❤️ Health",
+      "item": [
+        {
+          "name": "Backend Health",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/health", "host": ["{{backend}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "AI Service Health",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{ai_service}}/health", "host": ["{{ai_service}}"], "path": ["health"] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "backend",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "ai_service",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

@@ -38,7 +38,7 @@ const ChatPage = () => {
 
     try {
       const response = await axios.post(
-        `${API_URL}/api/chat/message`,
+        `${API_URL}/api/chat`,
         {
           message: userMessage,
           language: i18n.language || 'es',
@@ -74,7 +74,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-astroDark flex">
+    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
       {/* Sidebar de Navegación */}
       <Sidebar />
 

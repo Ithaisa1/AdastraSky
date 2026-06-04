@@ -69,7 +69,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-astroDark flex">
+    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       
       <div className="flex-1 flex flex-col p-3">
