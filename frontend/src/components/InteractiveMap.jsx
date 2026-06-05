@@ -41,7 +41,7 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
   });
 
   return (
-    <div className="h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] bg-astroCard/90 backdrop-blur-lg rounded-lg p-2 border border-white/10 shadow-xl max-w-[90vw] md:max-w-none">
         <div className="flex gap-1 md:gap-2 overflow-x-auto scrollbar-hide">
           {islands.map((island) => (

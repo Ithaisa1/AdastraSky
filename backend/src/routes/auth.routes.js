@@ -1,8 +1,21 @@
 import express from 'express';
 import { register, login, getProfile, updateProfile } from '../controllers/auth.controller.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: {
+    status: 'error',
+    code: 429,
+    message: 'Demasiados intentos de autenticación. Intenta de nuevo en 15 minutos.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 /**
  * @openapi
@@ -27,7 +40,7 @@ const router = express.Router();
  *       201: { description: Usuario registrado }
  *       409: { description: Email ya registrado }
  */
-router.post('/register', register);
+router.post('/register', authLimiter, register);
 
 /**
  * @openapi
@@ -49,7 +62,7 @@ router.post('/register', register);
  *       200: { description: Login exitoso, devuelve token }
  *       401: { description: Credenciales inválidas }
  */
-router.post('/login', login);
+router.post('/login', authLimiter, login);
 
 /**
  * @openapi

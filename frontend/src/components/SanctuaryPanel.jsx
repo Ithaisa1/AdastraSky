@@ -11,26 +11,17 @@ const SanctuaryPanel = ({ zone, onClose }) => {
   const [weatherData, setWeatherData] = useState(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
 
-  const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
-  const OPENWEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const fetchWeatherData = async () => {
       setIsLoadingWeather(true);
       try {
-        if (API_KEY && zone.latitude && zone.longitude) {
-          const response = await axios.get(OPENWEATHER_URL, {
-            params: { lat: zone.latitude, lon: zone.longitude, appid: API_KEY, units: 'metric', lang },
+        if (zone.latitude && zone.longitude) {
+          const response = await axios.get(`${API_URL}/api/weather/current`, {
+            params: { lat: zone.latitude, lon: zone.longitude, lang },
           });
-          const data = response.data;
-          setWeatherData({
-            temperature: Math.round(data.main.temp),
-            cloudiness: data.clouds.all,
-            windSpeed: Math.round(data.wind.speed * 3.6),
-            windDirection: getWindDirection(data.wind.deg),
-            visibility: Math.round(data.visibility / 1000),
-            humidity: data.main.humidity,
-          });
+          setWeatherData(response.data.data);
         } else {
           setWeatherData({ temperature: 18, cloudiness: 15, windSpeed: 12, windDirection: 'NE', visibility: 25, humidity: 45 });
         }
@@ -41,7 +32,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
       }
     };
     fetchWeatherData();
-  }, [zone.latitude, zone.longitude, lang, API_KEY]);
+  }, [zone.latitude, zone.longitude, lang]);
 
   const getWindDirection = (degrees) => {
     const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];

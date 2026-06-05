@@ -4,11 +4,13 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
 import { observatoriesData, observatoryIslands } from '../data/observatoriesData';
 import { Search, MapPin, Calendar, Clock, Star, ArrowRight, Radar } from 'lucide-react';
 
 const ObservatoriesPage = () => {
+  const { t } = useTranslation();
   const [selectedIsland, setSelectedIsland] = useState('all');
   const [selectedObservatory, setSelectedObservatory] = useState(null);
 
@@ -17,14 +19,14 @@ const ObservatoriesPage = () => {
   );
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
+    <div className="min-h-screen w-full bg-astroDark flex">
       <Sidebar />
       
       <div className="flex-1 flex flex-col p-3">
         {/* Header */}
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
-          <h1 className="text-3xl font-bold text-white">Observatorios</h1>
-          <p className="text-gray-400 mt-1">Descubre los principales observatorios astronómicos de las Islas Canarias</p>
+          <h1 className="text-3xl font-bold text-white">{t('observatories.title')}</h1>
+          <p className="text-gray-400 mt-1">{t('observatories.subtitle')}</p>
         </div>
 
         {/* Filtros de islas */}

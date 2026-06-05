@@ -109,9 +109,9 @@ const FAQPage = () => {
   })).filter(cat => cat.items.length > 0);
 
   return (
-    <div className="min-h-screen w-full overflow-hidden flex bg-deepSpace">
+    <div className="min-h-screen w-full flex bg-deepSpace">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-3">
+      <main className="flex-1 p-3">
         <div className="p-6 space-y-6 max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-astroAccent/20 to-cosmicPurple/20 border border-astroAccent/20 flex items-center justify-center">

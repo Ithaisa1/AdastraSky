@@ -34,8 +34,8 @@ const seedUsers = async () => {
     }
 
     const saltRounds = 10;
-    const demoPassword = await bcrypt.hash('demo123', saltRounds);
-    const adminPassword = await bcrypt.hash('admin123', saltRounds);
+    const demoPassword = await bcrypt.hash(process.env.SEED_DEMO_PASSWORD || 'demo123', saltRounds);
+    const adminPassword = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || 'admin123', saltRounds);
 
     await User.create({
       email: 'demo@adastra.sky',
@@ -55,16 +55,8 @@ const seedUsers = async () => {
       is_active: true,
     });
 
-    console.log('\n✅ Usuarios creados exitosamente:\n');
-    console.log('👤 USUARIO DEMO:');
-    console.log('   Email: demo@adastra.sky');
-    console.log('   Contraseña: demo123');
-    console.log('   Rol: Usuario estándar\n');
-
-    console.log('👤 USUARIO ADMIN:');
-    console.log('   Email: admin@adastra.sky');
-    console.log('   Contraseña: admin123');
-    console.log('   Rol: Administrador\n');
+    console.log('\n✅ Usuarios creados exitosamente');
+    console.log('⚠️  Cambia las contraseñas por defecto en producción usando SEED_DEMO_PASSWORD y SEED_ADMIN_PASSWORD');
 
     process.exit(0);
   } catch (error) {

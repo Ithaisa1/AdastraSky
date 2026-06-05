@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const {
+  DATABASE_URL,
   DB_HOST = 'localhost',
   DB_PORT = 5432,
   DB_NAME = 'adastrasky',
@@ -17,10 +18,7 @@ const {
   NODE_ENV = 'development'
 } = process.env;
 
-// Configuración de conexión a PostgreSQL
-const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
-  host: DB_HOST,
-  port: DB_PORT,
+const baseOptions = {
   dialect: 'postgres',
   logging: NODE_ENV === 'development' ? console.log : false,
   pool: {
@@ -36,7 +34,19 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
     createdAt: 'created_at',
     updatedAt: 'updated_at'
   }
-});
+};
+
+// Si DATABASE_URL está definido (Render, Neon, etc.), usarlo directamente
+const sequelize = DATABASE_URL
+  ? new Sequelize(DATABASE_URL, {
+      ...baseOptions,
+      ssl: NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    })
+  : new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
+      ...baseOptions,
+      host: DB_HOST,
+      port: DB_PORT,
+    });
 
 // Test de conexión
 export const testConnection = async () => {

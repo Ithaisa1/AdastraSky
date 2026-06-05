@@ -3,10 +3,12 @@
  * Landing Page de bienvenida
  */
 
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleEnterApp = () => {
@@ -38,13 +40,12 @@ const HomePage = () => {
 
         {/* Título Principal */}
         <h2 className="text-3xl md:text-5xl font-sans text-white text-center mb-6 leading-tight">
-          Descubre el Cielo de Las Islas Canarias
+          {t('home.heroTitle')}
         </h2>
 
         {/* Subtítulo Descriptivo */}
         <p className="text-lg md:text-xl text-gray-300 text-center mb-12 max-w-4xl leading-relaxed">
-          Explora los observatorios, miradores astronómicos y las mejores zonas del archipiélago 
-          para contemplar el firmamento en condiciones óptimas.
+          {t('home.heroSubtitle')}
         </p>
 
         {/* Botón Central Prominente */}
@@ -54,7 +55,7 @@ const HomePage = () => {
         >
           <LogIn className="w-5 h-5 text-indigo-400" />
           <span className="text-white font-sans text-lg">
-            Entrar a la App
+            {t('home.startExploring')}
           </span>
         </button>
 

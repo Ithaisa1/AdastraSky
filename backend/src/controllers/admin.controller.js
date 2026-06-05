@@ -16,6 +16,30 @@ const withScores = (zone) => {
 
 const SORTABLE_FIELDS = ['name', 'island', 'category', 'bortle_scale', 'altitude', 'municipality'];
 
+const ALLOWED_ZONE_FIELDS = [
+  'name', 'island', 'municipality', 'category', 'subcategory',
+  'bortle_scale', 'sqm_estimate', 'seeing_estimate', 'transparency',
+  'avg_humidity', 'avg_cloudiness', 'clear_nights_per_year',
+  'latitude', 'longitude', 'altitude', 'access_type', 'accessibility',
+  'has_parking', 'has_bathrooms', 'has_cafe', 'has_mobile_coverage',
+  'has_electricity', 'has_water', 'safety_risk', 'has_cliffs', 'has_high_wind',
+  'night_access', 'permits_needed', 'landscape_quality', 'astro_orientation',
+  'photo_composition', 'photographer_access', 'milky_way_quality',
+  'milky_way_season', 'deep_sky_quality', 'star_trails_quality',
+  'lunar_quality', 'solar_quality', 'eclipse_quality',
+  'description', 'image_url', 'streaming_url', 'is_active',
+];
+
+const ALLOWED_USER_UPDATE_FIELDS = [
+  'first_name', 'last_name', 'email', 'bio', 'location',
+  'is_active', 'preferred_language',
+];
+
+const pick = (obj, keys) => keys.reduce((acc, key) => {
+  if (key in obj) acc[key] = obj[key];
+  return acc;
+}, {});
+
 export const adminGetAllZones = async (req, res, next) => {
   try {
     const sortBy = SORTABLE_FIELDS.includes(req.query.sortBy) ? req.query.sortBy : 'island';
@@ -29,7 +53,7 @@ export const adminGetAllZones = async (req, res, next) => {
 
 export const adminCreateZone = async (req, res, next) => {
   try {
-    const zone = await SkyQualityZone.create(req.body);
+    const zone = await SkyQualityZone.create(pick(req.body, ALLOWED_ZONE_FIELDS));
     res.status(201).json({ status: 'success', data: { zone: withScores(zone) } });
   } catch (error) { next(error); }
 };
@@ -38,7 +62,7 @@ export const adminUpdateZone = async (req, res, next) => {
   try {
     const zone = await SkyQualityZone.findByPk(req.params.id);
     if (!zone) return res.status(404).json({ status: 'error', code: 'ZONE_NOT_FOUND', message: 'Zona no encontrada' });
-    await zone.update(req.body);
+    await zone.update(pick(req.body, ALLOWED_ZONE_FIELDS));
     res.status(200).json({ status: 'success', data: { zone: withScores(zone) } });
   } catch (error) { next(error); }
 };
@@ -88,7 +112,8 @@ export const adminUpdateUser = async (req, res, next) => {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ status: 'error', code: 'USER_NOT_FOUND', message: 'Usuario no encontrado' });
 
-    const { password, ...updates } = req.body;
+    const { password, ...rawUpdates } = req.body;
+    const updates = pick(rawUpdates, ALLOWED_USER_UPDATE_FIELDS);
     if (password) {
       updates.password = await bcrypt.hash(password, 10);
     }

@@ -317,9 +317,9 @@ export default function CalendarPage() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
+    <div className="min-h-screen w-full bg-astroDark flex">
       <Sidebar />
-      <div className="flex-1 flex flex-col p-3 overflow-auto">
+      <div className="flex-1 flex flex-col p-3">
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-4 md:p-6 rounded-xl mb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>

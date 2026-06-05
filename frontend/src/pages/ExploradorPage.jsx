@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import InteractiveMap from '../components/InteractiveMap';
 import SanctuaryPanel from '../components/SanctuaryPanel';
@@ -6,6 +7,7 @@ import StreetViewPanel from '../components/StreetViewPanel';
 import Sidebar from '../components/Sidebar';
 
 const ExploradorPage = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [selectedZone, setSelectedZone] = useState(location.state?.selectedZone || null);
   const [clickedCoords, setClickedCoords] = useState(null);
@@ -38,10 +40,10 @@ const ExploradorPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-astroDark overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-astroDark">
       <Sidebar />
-      <main className="flex-1 relative flex flex-col md:flex-row p-3">
-        <div className="flex-1 relative min-h-[300px] md:min-h-0">
+      <main className="flex-1 relative flex flex-col md:flex-row p-3 overflow-hidden">
+        <div className="flex-1 relative h-full">
           <InformacionHeader
             zone={selectedZone}
             coords={clickedCoords}

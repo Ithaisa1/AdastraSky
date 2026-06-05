@@ -16,4 +16,12 @@ export default defineConfig({
     outDir: "dist",
     sourcemap: false,
   },
+  define: {
+    "import.meta.env.VITE_API_URL": '"http://localhost:5000"',
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/__tests__/setup.js"],
+  },
 });

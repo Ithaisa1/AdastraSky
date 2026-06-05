@@ -1,4 +1,5 @@
 import express from 'express';
+import { authenticateTokenOrApiKey } from '../middleware/apiKeyAuth.js';
 import { getAllZones, getZoneById, getZonesByIsland, getZonesByCategory, queryZones, recommendTonight, recommendForPhotography, getZonesGeoJSON, getAllZonesCSV } from '../controllers/sky.controller.js';
 import { saveSkyScore, getLatestSkyScore, getSkyScoreHistory } from '../controllers/skyScore.controller.js';
 
@@ -167,7 +168,7 @@ router.get('/category/:category', getZonesByCategory);
  *       201: { description: Score creado }
  *       200: { description: Score actualizado }
  */
-router.post('/score', saveSkyScore);
+router.post('/score', authenticateTokenOrApiKey, saveSkyScore);
 
 /**
  * @openapi

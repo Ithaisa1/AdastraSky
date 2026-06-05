@@ -4,17 +4,25 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { User, Settings, Bell, Trash2, Save, LogOut } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 
 const ProfilePage = () => {
+  const { t } = useTranslation();
   const { user, logout, updateUserData } = useAuth();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
   
+  const TABS = [
+    { id: 'profile', label: t('profile.personalInfo'), icon: 'User' },
+    { id: 'settings', label: t('profile.preferences'), icon: 'Settings' },
+    { id: 'notifications', label: 'Notificaciones', icon: 'Bell' },
+  ];
+
   const [activeTab, setActiveTab] = useState('profile');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   
@@ -85,7 +93,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
+    <div className="min-h-screen w-full bg-astroDark flex">
       <Sidebar />
       
       <div className="flex-1 flex flex-col p-3">

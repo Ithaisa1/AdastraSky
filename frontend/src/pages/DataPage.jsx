@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
 import { constellationsData, planetsData, astronomicalEvents, eventCategories } from '../data/astronomicalData';
 import { Star, Calendar, MapPin, Sparkles, Moon, Globe, Search, Sun, Filter, X, Orbit, Radar } from 'lucide-react';
 
 const DataPage = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('constellations');
   const [search, setSearch] = useState('');
   const [filterSeason, setFilterSeason] = useState('all');
@@ -32,11 +34,11 @@ const DataPage = () => {
   }, [search]);
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
+    <div className="min-h-screen w-full bg-astroDark flex">
       <Sidebar />
       <div className="flex-1 flex flex-col p-3">
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
-          <h1 className="text-3xl font-bold text-white">Base de datos del cielo</h1>
+          <h1 className="text-3xl font-bold text-white">{t('data.title')}</h1>
           <p className="text-gray-400 mt-1">88 constelaciones, 7 planetas + Luna + Sol, y eventos astronómicos</p>
         </div>
 

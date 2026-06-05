@@ -13,6 +13,7 @@ import CalendarPage from './pages/CalendarPage';
 import ContactPage from './pages/ContactPage';
 import ExploradorPage from './pages/ExploradorPage';
 import FAQPage from './pages/FAQPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // Componente protegido de ruta
 const ProtectedRoute = ({ children }) => {
@@ -149,8 +150,8 @@ function App() {
             }
           />
 
-          {/* Redirección por defecto */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Página 404 */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

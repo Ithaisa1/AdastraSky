@@ -5,14 +5,38 @@
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import Joi from 'joi';
 import User from '../models/User.js';
+
+const registerSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).max(128).required(),
+  first_name: Joi.string().trim().max(100).required(),
+  last_name: Joi.string().trim().max(100).required(),
+  preferred_language: Joi.string().valid('es', 'en', 'de').default('es'),
+});
+
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+});
 
 /**
  * Registrar un nuevo usuario
  */
 export const register = async (req, res, next) => {
   try {
-    const { email, password, first_name, last_name, preferred_language = 'es' } = req.body;
+    const { error, value } = registerSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'VALIDATION_ERROR',
+        message: 'Error de validación de datos',
+        details: error.details.map(d => ({ field: d.path.join('.'), message: d.message })),
+      });
+    }
+
+    const { email, password, first_name, last_name, preferred_language } = value;
 
     // Verificar si el usuario ya existe
     const existingUser = await User.findOne({ where: { email } });
@@ -68,7 +92,17 @@ export const register = async (req, res, next) => {
  */
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { error, value } = loginSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'VALIDATION_ERROR',
+        message: 'Error de validación de datos',
+        details: error.details.map(d => ({ field: d.path.join('.'), message: d.message })),
+      });
+    }
+
+    const { email, password } = value;
 
     // Buscar usuario
     const user = await User.findOne({ where: { email } });

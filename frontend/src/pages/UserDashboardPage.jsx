@@ -16,12 +16,12 @@ const UserDashboardPage = () => {
   const [alerts] = useState([]);
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
+    <div className="min-h-screen w-full bg-astroDark flex">
       {/* Sidebar de Navegación */}
       <Sidebar />
 
       {/* Contenido Principal */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1">
         {/* Header */}
         <div className="bg-astroCard border-b border-white/10 p-4">
           <div className="flex items-center justify-between max-w-6xl mx-auto">

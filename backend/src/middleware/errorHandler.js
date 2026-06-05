@@ -49,7 +49,6 @@ export const errorHandler = (err, req, res, next) => {
       status: 'error',
       code: 'FOREIGN_KEY_ERROR',
       message: 'Violación de clave foránea',
-      details: err.message
     });
   }
 

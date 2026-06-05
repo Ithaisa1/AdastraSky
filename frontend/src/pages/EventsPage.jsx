@@ -4,11 +4,13 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
 import { astronomicalEvents, eventCategories } from '../data/astronomicalData';
 import { Calendar, Clock, MapPin, Sparkles, Moon, Globe, Filter, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 const EventsPage = () => {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -61,14 +63,14 @@ const EventsPage = () => {
   const currentMonthEvents = getEventsForMonth(selectedMonth, selectedYear);
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
+    <div className="min-h-screen w-full bg-astroDark flex">
       <Sidebar />
       
       <div className="flex-1 flex flex-col p-3">
         {/* Header */}
-        <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
-          <h1 className="text-3xl font-bold text-white">Eventos Astronómicos</h1>
-          <p className="text-gray-400 mt-1">Calendario de fenómenos astronómicos próximos</p>
+        <div className="p-6 border-b border-white/10">
+          <h1 className="text-3xl font-bold text-white">{t('events.title')}</h1>
+          <p className="text-gray-400 mt-1">{t('calendar.subtitle')}</p>
         </div>
 
         {/* Filtros */}

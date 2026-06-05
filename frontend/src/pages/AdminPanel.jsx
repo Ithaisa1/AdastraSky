@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
@@ -25,6 +26,7 @@ const SUBCATEGORIES = ['volcano','cliff','forest','sea_of_clouds','caldera','coa
 const ACCESS_TYPES = ['car','4x4','trail','hike','restricted'];
 
 const AdminPanel = () => {
+  const { t } = useTranslation();
   const { role, user, token } = useAuth();
   const navigate = useNavigate();
 
@@ -198,13 +200,13 @@ const AdminPanel = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
+    <div className="min-h-screen w-full bg-astroDark flex">
       <Sidebar />
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 p-3">
         <div className="bg-astroCard border-b border-white/10 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Panel de Administración</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">{t('admin.title')}</h1>
               <p className="text-gray-400">Gestión de zonas astronómicas y usuarios del sistema</p>
             </div>
             <div className="flex items-center gap-3">

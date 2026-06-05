@@ -26,6 +26,7 @@ import chatRoutes from './src/routes/chat.routes.js';
 import islandRoutes from './src/routes/island.routes.js';
 import contactRoutes from './src/routes/contact.routes.js';
 import eventsRoutes from './src/routes/events.routes.js';
+import weatherRoutes from './src/routes/weather.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -82,8 +83,8 @@ if (NODE_ENV === 'development') {
 }
 
 // Parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // ============================================================
 // RUTAS DE SALUD Y DIAGNÓSTICO
@@ -134,15 +135,17 @@ app.get('/api', (req, res) => {
 // SWAGGER DOCS
 // ============================================================
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'AdAstra Sky API Docs',
-}));
+if (NODE_ENV !== 'production') {
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'AdAstra Sky API Docs',
+  }));
 
-app.get('/api/docs.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.json(swaggerSpec);
-});
+  app.get('/api/docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.json(swaggerSpec);
+  });
+}
 
 // ============================================================
 // RUTAS DE LA APLICACIÓN
@@ -155,6 +158,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/islands', islandRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/events', eventsRoutes);
+app.use('/api/weather', weatherRoutes);
 
 // ============================================================
 // MIDDLEWARES DE ERROR
@@ -215,6 +219,9 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-startServer();
+// Solo iniciar servidor si no estamos en test
+if (NODE_ENV !== 'test') {
+  startServer();
+}
 
 export default app;

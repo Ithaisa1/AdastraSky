@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 import { Mail, Phone, MapPin, Send, Star, Globe } from 'lucide-react';
@@ -13,6 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ContactPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,8 +28,8 @@ const ContactPage = () => {
 
   const validate = () => {
     const errs = {};
-    if (!formData.name || formData.name.length < 2) errs.name = 'Mínimo 2 caracteres';
-    if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = 'Email inválido';
+    if (!formData.name || formData.name.length < 2) errs.name = t('contact.nameError', 'Mínimo 2 caracteres');
+    if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = t('contact.emailError', 'Email inválido');
     if (!formData.subject) errs.subject = 'Selecciona un asunto';
     if (!formData.message || formData.message.length < 10) errs.message = 'Mínimo 10 caracteres';
     setErrors(errs);
@@ -69,14 +71,14 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex overflow-hidden">
+    <div className="min-h-screen w-full bg-astroDark flex">
       <Sidebar />
       
       <div className="flex-1 flex flex-col p-3">
         {/* Header */}
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
-          <h1 className="text-3xl font-bold text-white">Contacto</h1>
-          <p className="text-gray-400 mt-1">Estamos aquí para ayudarte</p>
+          <h1 className="text-3xl font-bold text-white">{t('contact.title')}</h1>
+          <p className="text-gray-400 mt-1">{t('contact.subtitle')}</p>
         </div>
 
         {/* Contenido Principal */}
@@ -85,9 +87,9 @@ const ContactPage = () => {
             {/* Información de Contacto */}
             <div className="space-y-6">
               <div className="bg-astroCard/50 backdrop-blur-lg rounded-lg border border-white/10 p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Información de Contacto</h2>
+                <h2 className="text-2xl font-bold text-white mb-4">{t('contact.title')}</h2>
                 <p className="text-gray-400 mb-6">
-                  ¿Tienes preguntas sobre observatorios, eventos astronómicos o necesitas ayuda con tu cuenta? Estamos aquí para ayudarte.
+                  {t('contact.subtitle')}
                 </p>
 
                 <div className="space-y-4">
@@ -149,11 +151,11 @@ const ContactPage = () => {
 
             {/* Formulario de Contacto */}
             <div className="bg-astroCard/50 backdrop-blur-lg rounded-lg border border-white/10 p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">Envíanos un Mensaje</h2>
+              <h2 className="text-2xl font-bold text-white mb-6">{t('contact.title')}</h2>
               
               {submitSuccess && (
                 <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-                  <p className="text-green-400 text-sm">¡Mensaje enviado correctamente! Nos pondremos en contacto contigo pronto.</p>
+                  <p className="text-green-400 text-sm">{t('contact.success')}</p>
                 </div>
               )}
               {submitError && (
