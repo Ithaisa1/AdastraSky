@@ -13,6 +13,7 @@ import CalendarPage from './pages/CalendarPage';
 import ContactPage from './pages/ContactPage';
 import ExploradorPage from './pages/ExploradorPage';
 import FAQPage from './pages/FAQPage';
+import ExperiencesPage from './pages/ExperiencesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Componente protegido de ruta
@@ -146,6 +147,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <FAQPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/experiencias"
+            element={
+              <ProtectedRoute>
+                <ExperiencesPage />
               </ProtectedRoute>
             }
           />

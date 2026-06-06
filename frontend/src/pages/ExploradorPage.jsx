@@ -55,13 +55,13 @@ const ExploradorPage = () => {
         </div>
 
         {panel === 'sanctuary' && selectedZone && (
-          <aside className="w-full md:w-[420px] md:border-l border-white/10 overflow-y-auto z-[1001] max-h-[50vh] md:max-h-none">
+          <aside className="w-full md:w-[420px] md:border-l border-white/10 z-[1001] max-h-[50vh] md:max-h-full h-full">
             <SanctuaryPanel zone={selectedZone} onClose={handleClose} />
           </aside>
         )}
 
         {panel === 'streetview' && clickedCoords && (
-          <aside className="w-full md:w-[420px] md:border-l border-white/10 overflow-y-auto z-[1001] max-h-[50vh] md:max-h-none">
+          <aside className="w-full md:w-[420px] md:border-l border-white/10 z-[1001] max-h-[50vh] md:max-h-full h-full">
             <StreetViewPanel latlng={clickedCoords} onClose={handleClose} />
           </aside>
         )}

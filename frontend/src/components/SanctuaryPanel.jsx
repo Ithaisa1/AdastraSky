@@ -1,15 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { X, Thermometer, Cloud, Wind, Eye, Droplets, Mountain, MapPin, Video, Camera, Globe, Star, Compass, Award } from 'lucide-react';
+import { X, Thermometer, Cloud, Wind, Eye, Droplets, Mountain, MapPin, Video, Camera, Globe, Star, Compass, Award, Users, Heart, Clock, Image as ImageIcon } from 'lucide-react';
 import ScorePanel from './ScoreBadge';
+import ExperienceForm from './ExperienceForm';
 import { calcGlobalScore } from '../utils/scoring';
 
 const SanctuaryPanel = ({ zone, onClose }) => {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const lang = i18n.language;
+  const [showForm, setShowForm] = useState(false);
   const [weatherData, setWeatherData] = useState(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
+  const [experiences, setExperiences] = useState([]);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -32,7 +37,11 @@ const SanctuaryPanel = ({ zone, onClose }) => {
       }
     };
     fetchWeatherData();
-  }, [zone.latitude, zone.longitude, lang]);
+    fetch(`${API_URL}/api/experiences?zone_id=${zone.id}&limit=6`)
+      .then(r => r.json())
+      .then(data => { if (data.status === 'success') setExperiences(data.data.experiences); })
+      .catch(() => {});
+  }, [zone.latitude, zone.longitude, lang, zone.id]);
 
   const getWindDirection = (degrees) => {
     const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
@@ -61,7 +70,10 @@ const SanctuaryPanel = ({ zone, onClose }) => {
     landscape_viewpoint: 'Mirador Paisajístico',
   };
 
-  const osmIframeUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${zone.longitude - 0.02}%2C${zone.latitude - 0.02}%2C${zone.longitude + 0.02}%2C${zone.latitude + 0.02}&layer=mapnik&marker=${zone.latitude}%2C${zone.longitude}`;
+  const hasCoords = zone.latitude != null && zone.longitude != null;
+  const osmIframeUrl = hasCoords
+    ? `https://www.openstreetmap.org/export/embed.html?bbox=${zone.longitude - 0.02}%2C${zone.latitude - 0.02}%2C${zone.longitude + 0.02}%2C${zone.latitude + 0.02}&layer=mapnik&marker=${zone.latitude}%2C${zone.longitude}`
+    : '';
 
   return (
     <div className="h-full overflow-y-auto bg-astroCard scrollbar-thin">
@@ -102,21 +114,23 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           <ScorePanel astro={scores.astro} photo={scores.photo} tourism={scores.tourism} global={scores.global} />
         </div>
 
-        <div>
-          <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-            <Globe className="w-5 h-5 text-astroAccent" />
-            Mapa 3D del lugar
-          </h3>
-          <div className="rounded-xl overflow-hidden border border-white/10 h-40">
-            <iframe
-              title="OSM Location"
-              src={osmIframeUrl}
-              className="w-full h-full"
-              style={{ filter: 'invert(0.9) hue-rotate(180deg)' }}
-              loading="lazy"
-            />
+        {hasCoords && (
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+              <Globe className="w-5 h-5 text-astroAccent" />
+              Mapa 3D del lugar
+            </h3>
+            <div className="rounded-xl overflow-hidden border border-white/10 h-40">
+              <iframe
+                title="OSM Location"
+                src={osmIframeUrl}
+                className="w-full h-full"
+                style={{ filter: 'invert(0.9) hue-rotate(180deg)' }}
+                loading="lazy"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
@@ -214,28 +228,55 @@ const SanctuaryPanel = ({ zone, onClose }) => {
 
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-            <Video className="w-5 h-5 text-astroAccent" />
-            Cámara en directo
+            <Users className="w-5 h-5 text-astroAccent" />
+            Experiencias de la comunidad
+            {experiences.length > 0 && (
+              <span className="text-xs font-normal text-gray-400 ml-1">({experiences.length})</span>
+            )}
           </h3>
-          <div className="bg-astroDark/50 p-4 rounded-lg border border-white/10">
-            {zone.streaming_url ? (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-medium text-green-400">EN VIVO</span>
-                </div>
-                <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                  <img src={zone.streaming_url} alt="Live camera" className="w-full h-full object-cover"
-                    onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500"><Video class="w-12 h-12" /><p class="text-sm ml-2">Cámara no disponible</p></div>'; }} />
+          <div className="space-y-3">
+            {experiences.length === 0 ? (
+              <div className="bg-astroDark/50 p-4 rounded-lg border border-white/10">
+                <div className="flex flex-col items-center justify-center py-4 text-gray-500">
+                  <Camera className="w-8 h-8 mb-2" />
+                  <p className="text-sm">Sé el primero en compartir</p>
+                  <p className="text-xs text-gray-600 mt-1">tu experiencia en este lugar</p>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-6 text-gray-500">
-                <Video className="w-10 h-10 mb-2" />
-                <p className="text-sm">No hay cámaras disponibles</p>
-                <p className="text-xs text-gray-600 mt-1">Este lugar no cuenta con transmisión en directo</p>
-              </div>
+              experiences.map(exp => (
+                <div key={exp.id} className="bg-astroDark/50 rounded-lg border border-white/10 overflow-hidden hover:border-astroAccent/20 transition-colors">
+                  {exp.images?.length > 0 && (
+                    <img src={exp.images[0].startsWith('http') ? exp.images[0] : `${API_URL}${exp.images[0]}`}
+                      alt={exp.title} className="w-full h-32 object-contain bg-astroDark" />
+                  )}
+                  <div className="p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-astroAccent to-cosmicPurple flex items-center justify-center flex-shrink-0">
+                        <span className="text-[10px] font-bold text-white">
+                          {exp.author?.first_name?.[0]}{exp.author?.last_name?.[0]}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-400">{exp.author?.first_name}</span>
+                      <span className="text-[10px] text-gray-600 ml-auto flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {new Date(exp.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-semibold text-white mt-1">{exp.title}</h4>
+                    {exp.description && (
+                      <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{exp.description}</p>
+                    )}
+                  </div>
+                </div>
+              ))
             )}
+            <button onClick={() => setShowForm(true)}
+              className="w-full py-2 text-sm text-astroAccent hover:text-astroAccent/80 border border-dashed border-astroAccent/30 hover:border-astroAccent/60 rounded-lg transition-colors">
+              {experiences.length === 0
+                ? 'Compartir experiencia'
+                : 'Ver todas las experiencias →'}
+            </button>
           </div>
         </div>
 
@@ -247,18 +288,22 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10">
               <p className="text-xs text-gray-400 mb-1">Latitud</p>
-              <p className="text-lg font-bold text-white font-mono">{zone.latitude.toFixed(4)}°</p>
+              <p className="text-lg font-bold text-white font-mono">
+                {zone.latitude != null ? `${Number(zone.latitude).toFixed(4)}°` : '—'}
+              </p>
             </div>
             <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10">
               <p className="text-xs text-gray-400 mb-1">Longitud</p>
-              <p className="text-lg font-bold text-white font-mono">{zone.longitude.toFixed(4)}°</p>
+              <p className="text-lg font-bold text-white font-mono">
+                {zone.longitude != null ? `${Number(zone.longitude).toFixed(4)}°` : '—'}
+              </p>
             </div>
             <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10 col-span-2">
               <div className="flex items-center gap-2">
                 <Mountain className="w-5 h-5 text-astroAccent" />
                 <div>
                   <p className="text-xs text-gray-400">Altitud</p>
-                  <p className="text-lg font-bold text-white">{zone.altitude} m</p>
+                  <p className="text-lg font-bold text-white">{zone.altitude != null ? `${zone.altitude} m` : '—'}</p>
                 </div>
               </div>
             </div>
@@ -272,6 +317,20 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           </div>
         )}
       </div>
+
+      {showForm && (
+        <ExperienceForm
+          initialZoneId={zone.id}
+          onClose={() => setShowForm(false)}
+          onCreated={() => {
+            setShowForm(false);
+            fetch(`${API_URL}/api/experiences?zone_id=${zone.id}&limit=6`)
+              .then(r => r.json())
+              .then(data => { if (data.status === 'success') setExperiences(data.data.experiences); })
+              .catch(() => {});
+          }}
+        />
+      )}
     </div>
   );
 };

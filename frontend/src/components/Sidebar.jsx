@@ -32,6 +32,7 @@ import {
   Mail,
   Shield,
   HelpCircle,
+  Camera,
 } from "lucide-react";
 
 // ============================================================================
@@ -62,6 +63,14 @@ const navigationRoutes = [
     path: "/map",
     category: "exploration",
     description: "Interactive archipelago map",
+  },
+  {
+    id: "experiences",
+    label: "Experiencias",
+    icon: Camera,
+    path: "/experiencias",
+    category: "exploration",
+    description: "Community experiences",
   },
   {
     id: "data",

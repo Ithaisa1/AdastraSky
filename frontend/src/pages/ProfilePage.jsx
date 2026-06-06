@@ -3,12 +3,14 @@
  * Gestión de perfil, configuración, notificaciones y eliminación de cuenta
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { User, Settings, Bell, Trash2, Save, LogOut } from 'lucide-react';
+import { X, User, Settings, Bell, Trash2, Save, LogOut, Camera, Image as ImageIcon, MapPin, Clock } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const ProfilePage = () => {
   const { t } = useTranslation();
@@ -16,15 +18,29 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
+  const [userExperiences, setUserExperiences] = useState([]);
+  const [loadingExp, setLoadingExp] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   
   const TABS = [
     { id: 'profile', label: t('profile.personalInfo'), icon: 'User' },
+    { id: 'gallery', label: t('experiences.myGallery'), icon: 'Camera' },
     { id: 'settings', label: t('profile.preferences'), icon: 'Settings' },
     { id: 'notifications', label: 'Notificaciones', icon: 'Bell' },
   ];
 
   const [activeTab, setActiveTab] = useState('profile');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    setLoadingExp(true);
+    fetch(`${API_URL}/api/experiences/user/${user.id}`)
+      .then(r => r.json())
+      .then(data => { if (data.status === 'success') setUserExperiences(data.data); })
+      .catch(() => {})
+      .finally(() => setLoadingExp(false));
+  }, [user?.id]);
   
   // Estado del formulario de perfil
   const [profileData, setProfileData] = useState({
@@ -108,39 +124,24 @@ const ProfilePage = () => {
           <div className="max-w-4xl mx-auto">
             {/* Tabs de Navegación */}
             <div className="flex gap-4 mb-6 border-b border-white/10 pb-4 overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  activeTab === 'profile'
-                    ? 'bg-astroAccent text-white'
-                    : 'text-gray-300 hover:bg-white/10'
-                }`}
-              >
-                <User className="w-5 h-5" />
-                Perfil
-              </button>
-              <button
-                onClick={() => setActiveTab('settings')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  activeTab === 'settings'
-                    ? 'bg-astroAccent text-white'
-                    : 'text-gray-300 hover:bg-white/10'
-                }`}
-              >
-                <Settings className="w-5 h-5" />
-                Configuración
-              </button>
-              <button
-                onClick={() => setActiveTab('notifications')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  activeTab === 'notifications'
-                    ? 'bg-astroAccent text-white'
-                    : 'text-gray-300 hover:bg-white/10'
-                }`}
-              >
-                <Bell className="w-5 h-5" />
-                Notificaciones
-              </button>
+              {TABS.map(tab => {
+                const Icon = tab.icon === 'User' ? User : tab.icon === 'Camera' ? Camera : tab.icon === 'Settings' ? Settings : Bell;
+                const label = tab.id === 'gallery'
+                  ? `${tab.label}${userExperiences.length > 0 ? ` (${userExperiences.reduce((s, e) => s + (e.images?.length || 0), 0)})` : ''}`
+                  : tab.label;
+                return (
+                  <button key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                      activeTab === tab.id
+                        ? 'bg-astroAccent text-white'
+                        : 'text-gray-300 hover:bg-white/10'
+                    }`}>
+                    <Icon className="w-5 h-5" />
+                    {label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Tab de Perfil */}
@@ -223,6 +224,79 @@ const ProfilePage = () => {
                     </button>
                   </div>
                 </form>
+              </div>
+            )}
+
+            {/* Tab de Galería */}
+            {activeTab === 'gallery' && (
+              <div className="bg-astroCard/50 backdrop-blur-lg rounded-lg border border-white/10 p-6">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Camera className="w-5 h-5 text-astroAccent" />
+                  {t('experiences.myGallery')}
+                </h2>
+                {loadingExp ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {[...Array(8)].map((_, i) => (
+                      <div key={i} className="aspect-square bg-astroDark rounded-xl animate-pulse" />
+                    ))}
+                  </div>
+                ) : userExperiences.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-astroDark/50 border border-white/10 flex items-center justify-center">
+                      <Camera className="w-6 h-6 text-gray-500" />
+                    </div>
+                    <h3 className="text-white font-medium mb-1">Aún no has compartido experiencias</h3>
+                    <p className="text-sm text-gray-400 mb-4">Comparte tus vivencias en los santuarios estelares</p>
+                    <button onClick={() => navigate('/experiencias')}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-astroAccent/20 text-astroAccent rounded-lg hover:bg-astroAccent/30 transition-colors text-sm">
+                      <Camera className="w-4 h-4" />
+                      Ir a Experiencias
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {userExperiences.flatMap(exp =>
+                      (exp.images || []).map((img, imgIdx) => (
+                        <button key={`${exp.id}-${imgIdx}`}
+                          onClick={() => setPreviewImage({ img, exp })}
+                          className="group relative aspect-square rounded-xl overflow-hidden border border-white/5 hover:border-astroAccent/40 transition-all">
+                          <img src={img.startsWith('http') ? img : `${API_URL}${img}`}
+                            alt={exp.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 p-2">
+                            <p className="text-sm font-medium text-white text-center leading-tight">{exp.title}</p>
+                            <p className="text-xs text-gray-300 mt-1">{new Date(exp.created_at).toLocaleDateString()}</p>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+                {previewImage && (
+                  <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
+                    <div className="max-w-3xl w-full bg-astroCard rounded-2xl overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
+                      <div className="relative bg-astroDark">
+                        <img src={previewImage.img.startsWith('http') ? previewImage.img : `${API_URL}${previewImage.img}`}
+                          alt={previewImage.exp.title}
+                          className="w-full max-h-[70vh] object-contain mx-auto" />
+                        <button onClick={() => setPreviewImage(null)}
+                          className="absolute top-3 right-3 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-white">{previewImage.exp.title}</h3>
+                        {previewImage.exp.description && (
+                          <p className="text-sm text-gray-400 mt-1">{previewImage.exp.description}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(previewImage.exp.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

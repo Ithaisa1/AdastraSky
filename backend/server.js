@@ -7,10 +7,20 @@
 
 import 'dotenv/config';
 import express from 'express';
+import path from 'path';
+import fs from 'fs';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './src/swagger.js';
@@ -27,6 +37,7 @@ import islandRoutes from './src/routes/island.routes.js';
 import contactRoutes from './src/routes/contact.routes.js';
 import eventsRoutes from './src/routes/events.routes.js';
 import weatherRoutes from './src/routes/weather.routes.js';
+import experienceRoutes from './src/routes/experiences.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -38,12 +49,13 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Seguridad HTTP
 app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", "data:", "http:", "https:"],
       connectSrc: ["'self'", process.env.AI_SERVICE_URL || "http://localhost:8001"],
     },
   },
@@ -159,6 +171,8 @@ app.use('/api/islands', islandRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/weather', weatherRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/experiences', experienceRoutes);
 
 // ============================================================
 // MIDDLEWARES DE ERROR
