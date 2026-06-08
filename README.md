@@ -67,7 +67,7 @@ cp .env.example .env
 npm install
 npm run migrate
 npm run seed
-npm run dev          # http://https://aadastra-sky-backend.onrender.com
+npm run dev          # https://aadastra-sky-backend.onrender.com
 ```
 
 ### 2. Frontend
@@ -97,7 +97,7 @@ python main.py             # http://localhost:8001
 
 ## APIs
 
-### Backend (`http://https://aadastra-sky-backend.onrender.com`)
+### Backend (`https://aadastra-sky-backend.onrender.com`)
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|

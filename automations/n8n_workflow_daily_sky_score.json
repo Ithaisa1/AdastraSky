@@ -37,7 +37,7 @@
       "position": [450, 450],
       "parameters": {
         "method": "GET",
-        "url": "={{ $json.backend_url || 'http://https://aadastra-sky-backend.onrender.com' }}/api/sky/zones",
+        "url": "={{ $json.backend_url || 'https://aadastra-sky-backend.onrender.com' }}/api/sky/zones",
         "authentication": "none",
         "options": {}
       }
@@ -114,7 +114,7 @@
       "position": [1050, 450],
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.backend_url || 'http://https://aadastra-sky-backend.onrender.com' }}/api/sky/score",
+        "url": "={{ $json.backend_url || 'https://aadastra-sky-backend.onrender.com' }}/api/sky/score",
         "authentication": "none",
         "sendBody": true,
         "bodyParameters": {

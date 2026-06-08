@@ -18,7 +18,7 @@ export default defineConfig({
   },
   define: {
     "import.meta.env.VITE_API_URL":
-      '"http://https://aadastra-sky-backend.onrender.com"',
+      '"https://aadastra-sky-backend.onrender.com"',
   },
   test: {
     environment: "jsdom",

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AdAstraSky API",
-    "description": "Colección completa de la API de AdAstraSky — Plataforma de Astroturismo con IA integrada.\n\n## Backend (Node + Express)\nBase URL: `http://https://aadastra-sky-backend.onrender.com`\n\n## AI Service (FastAPI)\nBase URL: `http://localhost:8001`\n\n## Autenticación\n- Registro: `POST /api/auth/register`\n- Login: `POST /api/auth/login` (devuelve token)\n- Usar token en header: `Authorization: Bearer <token>`\n- Admin: `admin@adastra.com / admin123`",
+    "description": "Colección completa de la API de AdAstraSky — Plataforma de Astroturismo con IA integrada.\n\n## Backend (Node + Express)\nBase URL: `https://aadastra-sky-backend.onrender.com`\n\n## AI Service (FastAPI)\nBase URL: `http://localhost:8001`\n\n## Autenticación\n- Registro: `POST /api/auth/register`\n- Login: `POST /api/auth/login` (devuelve token)\n- Usar token en header: `Authorization: Bearer <token>`\n- Admin: `admin@adastra.com / admin123`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "adastra-sky"
   },
@@ -375,7 +375,7 @@
   "variable": [
     {
       "key": "backend",
-      "value": "http://https://aadastra-sky-backend.onrender.com",
+      "value": "https://aadastra-sky-backend.onrender.com",
       "type": "string"
     },
     {
