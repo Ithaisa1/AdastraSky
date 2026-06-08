@@ -36,16 +36,21 @@ const baseOptions = {
   }
 };
 
-// Si DATABASE_URL está definido (Render, Neon, etc.), usarlo directamente
+// 🔥 FIX IMPORTANTE PARA RENDER / POSTGRES SSL
 const sequelize = DATABASE_URL
   ? new Sequelize(DATABASE_URL, {
       ...baseOptions,
-      ssl: NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      }
     })
   : new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
       ...baseOptions,
       host: DB_HOST,
-      port: DB_PORT,
+      port: DB_PORT
     });
 
 // Test de conexión
