@@ -1,20 +1,15 @@
 # Render Blueprint — AdAstra Sky
 # https://render.com/docs/blueprint-spec
-#
-# 1. Push this repo to GitHub
-# 2. Go to https://dashboard.render.com/blueprints
-# 3. Connect repo → Render auto-creates all services
-# 4. Set the missing env vars in each service dashboard
 
 services:
   # ─── Backend (Node.js + Express) ───────────────────────────
   - type: web
     name: adastra-sky-backend
     runtime: node
-    repo: https://github.com/tu-usuario/adastra-sky
+    repo: https://github.com/Ithaisa1/AdastraSky
     branch: main
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm install && npx sequelize-cli db:migrate
     startCommand: node server.js
     healthCheckPath: /health
     envVars:
@@ -23,7 +18,7 @@ services:
       - key: PORT
         value: 5000
       - key: JWT_SECRET
-        sync: false  # set manually in dashboard
+        sync: false
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: DATABASE_URL
@@ -31,17 +26,9 @@ services:
           name: adastra-sky-db
           property: connectionString
       - key: AI_SERVICE_URL
-        fromService:
-          name: adastra-sky-ai
-          type: web
-          property: host
-        value: https://adastra-sky-ai.onrender.com  # fallback
+        value: https://adastra-sky-ai.onrender.com
       - key: FRONTEND_URL
-        fromService:
-          name: adastra-sky-frontend
-          type: web
-          property: host
-        value: https://adastra-sky.vercel.app  # fallback
+        value: https://adastra-sky.vercel.app
       - key: OPENWEATHER_API_KEY
         sync: false
       - key: NASA_API_KEY
@@ -51,7 +38,7 @@ services:
   - type: web
     name: adastra-sky-ai
     runtime: python
-    repo: https://github.com/tu-usuario/adastra-sky
+    repo: https://github.com/Ithaisa1/AdastraSky
     branch: main
     rootDir: ai-service
     buildCommand: pip install -r requirements.txt
@@ -75,11 +62,7 @@ services:
       - key: CHROMA_PERSIST_DIR
         value: ./rag/chroma_db
       - key: FRONTEND_URL
-        fromService:
-          name: adastra-sky-frontend
-          type: web
-          property: host
-        value: https://adastra-sky.vercel.app
+        value: https://adastrasky.vercel.app
 
 databases:
   # ─── PostgreSQL ────────────────────────────────────────────
