@@ -38,6 +38,6 @@ services:
 databases:
   # ─── PostgreSQL ────────────────────────────────────────────
   - name: adastra-sky-db
-    databaseName: adastra-sky
+    databaseName: adastrasky
     plan: free
-    postgresMajorVersion: 16
+    postgresMajorVersion: 18
