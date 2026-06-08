@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Calendar, ChevronRight, Globe, Moon, Star, Sparkles, Map, Sun
+  Calendar, Globe, Moon, Star, Sparkles, Map, Sun
 } from 'lucide-react';
 import {
   getLunarPhase, calculateSkyScore, getNextEvent, getGreeting
@@ -199,13 +199,6 @@ const DashboardPage = () => {
                  lang === 'en' ? 'Best Sanctuaries Today' :
                  'Beste Heiligtümer Heute'}
               </h2>
-              <button
-                onClick={() => navigate('/explorador')}
-                className="text-sm text-astroAccent hover:text-astroAccent/80 flex items-center gap-1 transition-colors"
-              >
-                {lang === 'es' ? 'Ver todos' : lang === 'en' ? 'View all' : 'Alle anzeigen'}
-                <ChevronRight className="w-3 h-3" />
-              </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {topZones.map((zone) => (

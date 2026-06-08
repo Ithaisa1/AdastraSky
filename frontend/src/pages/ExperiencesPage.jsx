@@ -46,9 +46,9 @@ const ExperiencesPage = () => {
   const totalPhotos = experiences.reduce((sum, e) => sum + (e.images?.length || 0), 0);
 
   return (
-    <div className="min-h-screen w-full flex bg-deepSpace">
+    <div className="h-screen w-full flex bg-deepSpace overflow-hidden">
       <Sidebar />
-      <main className="flex-1 bg-gradient-dashboard p-3">
+      <main className="flex-1 bg-gradient-dashboard p-3 overflow-y-auto">
         <div className="p-6 max-w-6xl mx-auto space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>

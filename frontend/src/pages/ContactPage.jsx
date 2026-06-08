@@ -71,10 +71,10 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex">
+    <div className="h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       
-      <div className="flex-1 flex flex-col p-3">
+      <div className="flex-1 flex flex-col p-3 overflow-y-auto">
         {/* Header */}
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
           <h1 className="text-3xl font-bold text-white">{t('contact.title')}</h1>
