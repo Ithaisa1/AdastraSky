@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://https://aadastra-sky-backend.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();

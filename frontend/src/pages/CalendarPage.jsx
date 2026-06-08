@@ -5,7 +5,7 @@ import { Calendar, ChevronLeft, ChevronRight, Sparkles, Moon, Globe, Star, Exter
 import teideImg from '../assets/observatorio-teide.jpg';
 import roqueImg from '../assets/Observacion_estrellas_roque_muchachos_isla_bonita_tours.jpg';
 
-const API = import.meta.env.VITE_API_URL || 'http://https://aadastra-sky-backend.onrender.com';
+const API = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];

@@ -9,7 +9,7 @@ import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 import { Mail, Phone, MapPin, Send, Star, Globe } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://https://aadastra-sky-backend.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

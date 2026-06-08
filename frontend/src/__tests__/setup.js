@@ -17,4 +17,4 @@ vi.mock('react-i18next', () => ({
   default: vi.fn(),
 }));
 
-process.env = { ...process.env, VITE_API_URL: 'https://aadastra-sky-backend.onrender.com' };
+process.env = { ...process.env, VITE_API_URL: 'http://localhost:5000' };

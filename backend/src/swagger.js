@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://https://aadastra-sky-backend.onrender.com",
+        url: "https://aadastra-sky-backend.onrender.com",
         description: "Desarrollo local",
       },
     ],

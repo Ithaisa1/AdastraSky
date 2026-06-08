@@ -10,7 +10,7 @@ import { Send, Bot, User, Star } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://https://aadastra-sky-backend.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const ChatPage = () => {
   const { t, i18n } = useTranslation();
