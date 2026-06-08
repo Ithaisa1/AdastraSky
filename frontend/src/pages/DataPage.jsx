@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
-import { constellationsData, planetsData, astronomicalEvents, eventCategories } from '../data/astronomicalData';
-import { Star, Calendar, MapPin, Sparkles, Moon, Globe, Search, Sun, Filter, X, Orbit, Radar } from 'lucide-react';
+import { constellationsData, planetsData, astronomicalEvents } from '../data/astronomicalData';
+import { Star, Calendar, MapPin, Sparkles, Moon, Globe, Search, Filter, X, Radar } from 'lucide-react';
 
 const DataPage = () => {
   const { t } = useTranslation();
@@ -34,7 +34,7 @@ const DataPage = () => {
   }, [search]);
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex">
+    <div className="h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col p-3">
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
@@ -43,8 +43,8 @@ const DataPage = () => {
         </div>
 
         <div className="bg-astroCard/30 backdrop-blur-lg border-b border-white/10 p-4">
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex gap-2">
+          <div className="flex items-center gap-4 flex-wrap overflow-x-auto">
+            <div className="flex gap-2 whitespace-nowrap">
               {[['constellations','Estrellas',Star],['planets','Planetas',Globe],['events','Eventos',Calendar]].map(([tab,label,Icon]) => (
                 <button key={tab} onClick={() => { setActiveTab(tab); setSearch(''); }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${activeTab===tab ? 'bg-astroAccent text-white' : 'text-gray-300 hover:bg-white/10'}`}>

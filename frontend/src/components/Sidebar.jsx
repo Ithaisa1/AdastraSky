@@ -172,6 +172,7 @@ export default function Sidebar() {
 
   // Sidebar width classes
   const sidebarWidth = isExpanded ? "w-72" : "w-20";
+  const mobileWidth = "w-[85vw] max-w-sm";
   const transitionClass = "transition-all duration-300 ease-in-out";
 
   // ============================================================================
@@ -249,7 +250,7 @@ export default function Sidebar() {
           onMouseEnter={() => setHoveredRoute(route.id)}
           onMouseLeave={() => setHoveredRoute(null)}
           className={({ isActive: routeIsActive }) => `
-            flex items-center gap-3 px-4 py-3 rounded-lg
+            flex items-center gap-3 px-4 py-3 md:py-3 py-4 rounded-lg
             ${transitionClass}
             relative
             ${
@@ -451,7 +452,7 @@ export default function Sidebar() {
       {/* Sidebar Container */}
       <aside
         className={`
-          ${sidebarWidth}
+          ${isMobile ? mobileWidth : sidebarWidth}
           ${transitionClass}
           fixed md:relative
           h-screen
@@ -460,8 +461,8 @@ export default function Sidebar() {
           bg-astroCard/90 backdrop-blur-md
           border-r border-slate-800
           shadow-[0_0_25px_rgba(79,70,229,0.2)]
-          z-40
-          ${isMobileOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}
+          z-50
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
         `}
         style={{
           background: `linear-gradient(135deg, rgba(11, 15, 25, 0.95) 0%, rgba(21, 29, 48, 0.9) 100%), 

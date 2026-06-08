@@ -20,7 +20,7 @@ const StreetViewPanel = ({ latlng, onClose }) => {
         </div>
       </div>
 
-      <div className="flex-1 p-4 space-y-4">
+      <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         <div className="bg-astroDark/50 p-4 rounded-lg border border-white/10">
           <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
             <MapPin className="w-4 h-4" />
@@ -38,7 +38,7 @@ const StreetViewPanel = ({ latlng, onClose }) => {
           </div>
         </div>
 
-        <div className="rounded-xl overflow-hidden border border-white/10 h-[300px]">
+        <div className="rounded-xl overflow-hidden border border-white/10 h-[200px] sm:h-[250px] md:h-[300px]">
           <iframe
             title="Street View"
             src={googleMapsUrl}

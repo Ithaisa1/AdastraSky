@@ -98,7 +98,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           <img
             src={zone.image_url || `https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800&auto=format&fit=crop`}
             alt={zone.name}
-            className="w-full h-48 object-cover"
+            className="w-full h-36 sm:h-48 object-cover"
           />
           <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-white flex items-center gap-1">
             <Camera className="w-3 h-3" />
@@ -245,10 +245,10 @@ const SanctuaryPanel = ({ zone, onClose }) => {
               </div>
             ) : (
               experiences.map(exp => (
-                <div key={exp.id} className="bg-astroDark/50 rounded-lg border border-white/10 overflow-hidden hover:border-astroAccent/20 transition-colors">
+                <div key={exp.id} className="bg-astroDark/50 rounded-lg border border-white/10 overflow-hidden md:hover:border-astroAccent/20 transition-colors">
                   {exp.images?.length > 0 && (
                     <img src={exp.images[0].startsWith('http') ? exp.images[0] : `${API_URL}${exp.images[0]}`}
-                      alt={exp.title} className="w-full h-32 object-contain bg-astroDark" />
+                      alt={exp.title} className="w-full h-24 sm:h-32 object-contain bg-astroDark" />
                   )}
                   <div className="p-3">
                     <div className="flex items-center gap-2 mb-1">

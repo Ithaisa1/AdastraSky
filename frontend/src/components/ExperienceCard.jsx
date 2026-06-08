@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, MapPin, Clock, Trash2, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { MapPin, Clock, Trash2, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -26,7 +26,9 @@ const ExperienceCard = ({ experience, onDelete, onZoneClick }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       onDelete?.(experience.id);
-    } catch {} finally {
+    } catch {
+      alert('Error al eliminar la experiencia');
+    } finally {
       setDeleting(false);
     }
   };
@@ -43,17 +45,17 @@ const ExperienceCard = ({ experience, onDelete, onZoneClick }) => {
           <img
             src={images[currentImage].startsWith('http') ? images[currentImage] : `${API_URL}${images[currentImage]}`}
             alt={experience.title}
-            className="w-full h-full object-contain bg-astroDark transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-contain bg-astroDark transition-transform duration-500 md:group-hover:scale-105"
           />
           {images.length > 1 && (
-            <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 flex items-center justify-between px-1 md:px-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
               <button onClick={() => setCurrentImage(i => (i - 1 + images.length) % images.length)}
-                className="p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
-                <ChevronLeft className="w-4 h-4" />
+                className="p-2 md:p-1.5 rounded-full bg-black/70 text-white hover:bg-black/90 transition-colors shadow-lg">
+                <ChevronLeft className="w-5 h-5 md:w-4 md:h-4" />
               </button>
               <button onClick={() => setCurrentImage(i => (i + 1) % images.length)}
-                className="p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
-                <ChevronRight className="w-4 h-4" />
+                className="p-2 md:p-1.5 rounded-full bg-black/70 text-white hover:bg-black/90 transition-colors shadow-lg">
+                <ChevronRight className="w-5 h-5 md:w-4 md:h-4" />
               </button>
             </div>
           )}
@@ -86,7 +88,7 @@ const ExperienceCard = ({ experience, onDelete, onZoneClick }) => {
           </div>
           {isOwner && (
             <button onClick={handleDelete} disabled={deleting}
-              className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100">
+              className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100">
               <Trash2 className="w-4 h-4" />
             </button>
           )}

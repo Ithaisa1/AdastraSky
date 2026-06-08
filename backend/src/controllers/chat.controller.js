@@ -3,7 +3,7 @@
  * Proxy hacia el microservicio de IA (Python FastAPI)
  */
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import axios from 'axios';
 import ChatHistory from '../models/ChatHistory.js';
 
@@ -23,6 +23,15 @@ export const sendMessage = async (req, res, next) => {
         status: 'error',
         code: 'EMPTY_MESSAGE',
         message: 'El mensaje no puede estar vacío'
+      });
+    }
+
+    // Validar session_id si se proporciona
+    if (session_id && !uuidValidate(session_id)) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'INVALID_SESSION_ID',
+        message: 'El formato de session_id no es válido'
       });
     }
 
@@ -82,22 +91,31 @@ export const getChatHistory = async (req, res, next) => {
   try {
     const user_id = req.user.id;
     const session_id = req.params.session_id || req.query.session_id;
-    const { limit = 50 } = req.query;
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
+    const offset = parseInt(req.query.offset) || 0;
 
     const whereClause = { user_id };
     if (session_id) {
+      if (!uuidValidate(session_id)) {
+        return res.status(400).json({
+          status: 'error',
+          code: 'INVALID_SESSION_ID',
+          message: 'El formato de session_id no es válido'
+        });
+      }
       whereClause.session_id = session_id;
     }
 
-    const history = await ChatHistory.findAll({
+    const { rows: history, count: total } = await ChatHistory.findAndCountAll({
       where: whereClause,
       order: [['created_at', 'DESC']],
-      limit: parseInt(limit)
+      limit,
+      offset
     });
 
     res.status(200).json({
       status: 'success',
-      count: history.length,
+      pagination: { total, limit, offset },
       data: { history }
     });
   } catch (error) {

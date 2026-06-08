@@ -261,7 +261,7 @@ const LoginPage = () => {
       </div>
 
       {/* Regulador Atmosférico Flotante - Parte Inferior Derecha */}
-      <div className="absolute bottom-8 right-8 z-20 bg-astroCard/90 backdrop-blur-lg rounded-lg p-4 border border-white/10 shadow-xl">
+      <div className="hidden md:block absolute bottom-8 right-8 z-20 bg-astroCard/90 backdrop-blur-lg rounded-lg p-4 border border-white/10 shadow-xl">
         <label className="block text-sm font-medium text-gray-300 mb-2">
           Opacidad Atmosférica
         </label>

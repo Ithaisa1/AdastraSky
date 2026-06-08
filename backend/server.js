@@ -171,7 +171,14 @@ app.use('/api/islands', islandRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/weather', weatherRoutes);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  maxAge: '7d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+  }
+}));
 app.use('/api/experiences', experienceRoutes);
 
 // ============================================================
@@ -187,15 +194,18 @@ app.use(errorHandler);
 
 async function startServer() {
   try {
+    // Validar JWT_SECRET en producción
+    if (NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET es obligatorio en producción. Configúralo en las variables de entorno.');
+    }
+
     // Verificar conexión a PostgreSQL
     console.log('🔌 Conectando a PostgreSQL...');
     await sequelize.authenticate();
     console.log('✅ Conexión a PostgreSQL establecida correctamente');
 
-    // Sincronizar modelos (desarrollo) - en producción usar migraciones
     if (NODE_ENV === 'development') {
       await sequelize.sync({ alter: true });
-      console.log('🔄 Modelos sincronizados con la base de datos');
     }
 
     // Iniciar servidor

@@ -89,7 +89,7 @@ const ChatPage = () => {
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-white">{t('chat.title')}</h1>
-                <p className="text-xs text-gray-400">Conectado como {user?.email}</p>
+                <p className="text-xs text-gray-400 truncate max-w-[200px] sm:max-w-none">Conectado como {user?.email}</p>
               </div>
             </div>
           </div>
@@ -119,7 +119,7 @@ const ChatPage = () => {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl p-4 ${
+                  className={`max-w-[90%] sm:max-w-[80%] rounded-2xl p-4 ${
                     message.role === 'user'
                       ? 'bg-astroAccent text-white'
                       : 'bg-astroCard text-gray-100 border border-white/10'

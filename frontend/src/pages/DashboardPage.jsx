@@ -15,7 +15,7 @@ import Sidebar from '../components/Sidebar';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const DashboardPage = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const lang = i18n.language;
@@ -59,7 +59,7 @@ const DashboardPage = () => {
   return (
     <div className="min-h-screen w-full flex bg-deepSpace">
       <Sidebar />
-      <main className="flex-1 bg-gradient-dashboard p-3">
+      <main className="flex-1 bg-gradient-dashboard p-3 overflow-y-auto h-screen">
         <div className="p-6 space-y-6 max-w-7xl mx-auto">
 
           {/* HERO SECTION */}
