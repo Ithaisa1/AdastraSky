@@ -12,7 +12,7 @@ import { santuariosData } from '../data/santuariosData';
 import { astronomicalEvents } from '../data/astronomicalData';
 import Sidebar from '../components/Sidebar';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://https://aadastra-sky-backend.onrender.com';
 
 const DashboardPage = () => {
   const { i18n } = useTranslation();

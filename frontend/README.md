@@ -40,7 +40,7 @@ npm run preview      # Vista previa del build
 ## Variables de entorno
 
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://https://aadastra-sky-backend.onrender.com
 VITE_OPENWEATHER_API_KEY=tu_clave
 ```
 

@@ -16,7 +16,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
   const [experiences, setExperiences] = useState([]);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
   useEffect(() => {
     const fetchWeatherData = async () => {

@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, User, Settings, Bell, Trash2, Save, LogOut, Camera, Image as ImageIcon, MapPin, Clock } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const ProfilePage = () => {
   const { t } = useTranslation();
@@ -67,7 +67,7 @@ const ProfilePage = () => {
     setSaveMessage(null);
     try {
       const token = localStorage.getItem('adastra_session');
-      const res = await fetch('http://localhost:5000/api/auth/profile', {
+      const res = await fetch('http://https://aadastra-sky-backend.onrender.com/api/auth/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

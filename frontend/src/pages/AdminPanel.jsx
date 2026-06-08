@@ -9,7 +9,7 @@ import {
   X, Save, Search, Users, MapPin, ToggleLeft, ToggleRight, ArrowUp, ArrowDown
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://https://aadastra-sky-backend.onrender.com';
 
 const INITIAL_ZONE = {
   name: '', island: 'Tenerife', municipality: '', category: 'observatory',

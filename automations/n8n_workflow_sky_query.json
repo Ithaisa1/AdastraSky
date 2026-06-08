@@ -40,7 +40,7 @@
       "position": [650, 200],
       "parameters": {
         "method": "GET",
-        "url": "={{ $json.backend_url || 'http://localhost:5000' }}/api/sky/zones/query",
+        "url": "={{ $json.backend_url || 'http://https://aadastra-sky-backend.onrender.com' }}/api/sky/zones/query",
         "authentication": "none",
         "queryParameters": {
           "parameters": [

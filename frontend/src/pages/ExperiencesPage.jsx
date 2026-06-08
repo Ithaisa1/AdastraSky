@@ -7,7 +7,7 @@ import ExperienceCard from '../components/ExperienceCard';
 import ExperienceForm from '../components/ExperienceForm';
 import { santuariosData } from '../data/santuariosData';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://https://aadastra-sky-backend.onrender.com';
 
 const ExperiencesPage = () => {
   const navigate = useNavigate();

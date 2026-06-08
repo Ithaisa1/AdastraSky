@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MapPin, Clock, Trash2, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const ExperienceCard = ({ experience, onDelete, onZoneClick }) => {
   const { user } = useAuth();

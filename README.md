@@ -67,7 +67,7 @@ cp .env.example .env
 npm install
 npm run migrate
 npm run seed
-npm run dev          # http://localhost:5000
+npm run dev          # http://https://aadastra-sky-backend.onrender.com
 ```
 
 ### 2. Frontend
@@ -97,7 +97,7 @@ python main.py             # http://localhost:8001
 
 ## APIs
 
-### Backend (`http://localhost:5000`)
+### Backend (`http://https://aadastra-sky-backend.onrender.com`)
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
@@ -192,7 +192,7 @@ CHROMA_PERSIST_DIR=./rag/chroma_db
 
 ### Frontend (`.env`)
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://https://aadastra-sky-backend.onrender.com
 ```
 
 ---
