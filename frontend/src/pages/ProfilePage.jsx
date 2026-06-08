@@ -67,7 +67,7 @@ const ProfilePage = () => {
     setSaveMessage(null);
     try {
       const token = localStorage.getItem('adastra_session');
-      const res = await fetch('http://https://aadastra-sky-backend.onrender.com/api/auth/profile', {
+      const res = await fetch(`${API_URL}/api/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
