@@ -10,7 +10,7 @@ services:
     branch: main
     rootDir: backend
     plan: free
-    buildCommand: npm install && npx sequelize-cli db:migrate
+    buildCommand: npm install
     startCommand: node server.js
     healthCheckPath: /health
     envVars:

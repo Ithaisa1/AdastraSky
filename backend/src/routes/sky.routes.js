@@ -126,23 +126,9 @@ router.get('/zones/:id', getZoneById);
  *     responses:
  *       200: { description: Zonas de la isla }
  */
-router.get('/islands/:island', getZonesByIsland);
+router.get('/zones/islands/:island', getZonesByIsland);
 
-/**
- * @openapi
- * /api/sky/zones/category/{category}:
- *   get:
- *     tags: [Sky Zones]
- *     summary: Zonas por categoría
- *     parameters:
- *       - in: path
- *         name: category
- *         required: true
- *         schema: { type: string }
- *     responses:
- *       200: { description: Zonas de la categoría }
- */
-router.get('/category/:category', getZonesByCategory);
+router.get('/zones/category/:category', getZonesByCategory);
 
 /**
  * @openapi

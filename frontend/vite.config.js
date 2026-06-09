@@ -7,7 +7,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "http://https://aadastra-sky-backend.onrender.com",
+        target: "http://localhost:5000",
         changeOrigin: true,
       },
     },
@@ -15,10 +15,6 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
-  },
-  define: {
-    "import.meta.env.VITE_API_URL":
-      '"https://aadastra-sky-backend.onrender.com"',
   },
   test: {
     environment: "jsdom",

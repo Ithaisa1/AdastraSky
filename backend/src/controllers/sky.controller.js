@@ -114,7 +114,10 @@ export const getAllZonesCSV = async (req, res, next) => {
   try {
     const zones = await SkyQualityZone.findAll({ where: { is_active: true } });
     const header = 'id,name,island,municipality,category,subcategory,latitude,longitude,altitude,bortle_scale,access_type,has_parking,has_bathrooms,has_cafe,has_mobile_coverage,safety_risk,astro_score,photo_score,tourism_score,global_score';
-    const rows = zones.map(z => `"${z.id}","${z.name}","${z.island}","${z.municipality || ''}","${z.category}","${z.subcategory || ''}",${z.latitude},${z.longitude},${z.altitude},${z.bortle_scale},"${z.access_type || ''}",${z.has_parking},${z.has_bathrooms},${z.has_cafe},${z.has_mobile_coverage},${z.safety_risk},${z.astro_score || ''},${z.photo_score || ''},${z.tourism_score || ''},${z.global_score || ''}`);
+    const rows = zones.map(z => {
+      const s = calcGlobalScore(z);
+      return `"${z.id}","${z.name}","${z.island}","${z.municipality || ''}","${z.category}","${z.subcategory || ''}",${z.latitude},${z.longitude},${z.altitude},${z.bortle_scale},"${z.access_type || ''}",${z.has_parking},${z.has_bathrooms},${z.has_cafe},${z.has_mobile_coverage},${z.safety_risk},${s.astro},${s.photo},${s.tourism},${s.global}`;
+    });
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename=adastra_zones.csv');
     res.status(200).send([header, ...rows].join('\n'));

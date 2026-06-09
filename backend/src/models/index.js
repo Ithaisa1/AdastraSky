@@ -9,6 +9,7 @@ import ChatHistory from './ChatHistory.js';
 import SkyScore from './SkyScore.js';
 import Event from './Event.js';
 import Experience from './Experience.js';
+import ContactMessage from './ContactMessage.js';
 
 // Definir relaciones entre modelos
 ChatHistory.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
@@ -23,7 +24,8 @@ export {
   ChatHistory,
   SkyScore,
   Event,
-  Experience
+  Experience,
+  ContactMessage
 };
 
 export default {
@@ -32,5 +34,6 @@ export default {
   ChatHistory,
   SkyScore,
   Event,
-  Experience
+  Experience,
+  ContactMessage
 };

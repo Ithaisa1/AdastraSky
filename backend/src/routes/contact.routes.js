@@ -1,5 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import ContactMessage from '../models/ContactMessage.js';
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.post('/', contactLimiter, async (req, res, next) => {
     if (!name || !email || !subject || !message) {
       return res.status(400).json({ status: 'error', code: 'MISSING_FIELDS', message: 'Todos los campos son obligatorios' });
     }
-    console.log(`[CONTACT] Mensaje recibido de ${email.substring(0, 3)}***`);
+    await ContactMessage.create({ name, email, subject, message });
     res.status(200).json({ status: 'success', message: 'Mensaje recibido correctamente' });
   } catch (err) {
     next(err);

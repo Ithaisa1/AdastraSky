@@ -52,6 +52,7 @@ const seedUsers = async () => {
       first_name: 'Administrador',
       last_name: 'Sistema',
       preferred_language: 'es',
+      role: 'admin',
       is_active: true,
     });
 

@@ -36,7 +36,7 @@ const baseOptions = {
   }
 };
 
-// 🔥 FIX IMPORTANTE PARA RENDER / POSTGRES SSL
+// 🔥 CONEXIÓN A POSTGRES (LOCAL + RENDER)
 const sequelize = DATABASE_URL
   ? new Sequelize(DATABASE_URL, {
       ...baseOptions,
@@ -53,7 +53,7 @@ const sequelize = DATABASE_URL
       port: DB_PORT
     });
 
-// Test de conexión
+// Test de conexión (opcional pero útil)
 export const testConnection = async () => {
   try {
     await sequelize.authenticate();
