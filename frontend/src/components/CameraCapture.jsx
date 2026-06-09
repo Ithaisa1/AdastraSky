@@ -93,7 +93,7 @@ const CameraCapture = ({ onCapture, onClose }) => {
         ) : captured ? (
           <>
             <img src={captured} alt="Captura" className="max-h-full max-w-full object-contain" />
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+            <div className="absolute bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2">
               <button onClick={retake}
                 className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors">
                 <RefreshCw className="w-5 h-5" />
@@ -106,7 +106,7 @@ const CameraCapture = ({ onCapture, onClose }) => {
             <video ref={videoRef} autoPlay playsInline muted
               className="max-h-full max-w-full object-contain"
               style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }} />
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+            <div className="absolute bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2">
               <button onClick={capturePhoto}
                 className="w-16 h-16 rounded-full border-4 border-white bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center shadow-lg shadow-black/50">
                 <div className="w-12 h-12 rounded-full bg-white" />
