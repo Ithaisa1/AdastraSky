@@ -99,7 +99,7 @@ const CameraCapture = ({ onCapture, onClose }) => {
         )}
       </div>
 
-      <div className="flex items-center justify-center p-6 bg-black/80">
+      <div className="flex items-center justify-center p-6 bg-black/80 shrink-0">
         {captured ? (
           <button onClick={retake}
             className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors">

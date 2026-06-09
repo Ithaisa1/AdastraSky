@@ -141,21 +141,27 @@ export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [hoveredRoute, setHoveredRoute] = useState(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Handle window resize for responsive behavior
   useEffect(() => {
+    const mobile = window.innerWidth < 768;
+    setIsMobile(mobile);
+    if (mobile) setIsExpanded(false);
+
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (mobile && isExpanded) {
+      if (mobile) {
         setIsExpanded(false);
+      } else {
+        setIsExpanded(true);
       }
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isExpanded]);
+  }, []);
 
   // Close mobile drawer on route change
   const handleNavClick = () => {

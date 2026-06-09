@@ -257,17 +257,17 @@ const AdminPanel = () => {
             </div>
           </div>
 
-          <div className="flex gap-1 mb-4">
-            <button onClick={() => { setActiveTab('zones'); setSearch(''); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'zones' ? 'bg-astroAccent text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+          <div className="flex gap-1 mb-4 overflow-x-auto">
+            <button onClick={() => { setActiveTab('zones'); setSearch(''); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'zones' ? 'bg-astroAccent text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
               <MapPin className="w-4 h-4" /> Zonas
             </button>
-            <button onClick={() => { setActiveTab('users'); setSearch(''); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'users' ? 'bg-astroAccent text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+            <button onClick={() => { setActiveTab('users'); setSearch(''); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'users' ? 'bg-astroAccent text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
               <Users className="w-4 h-4" /> Usuarios
             </button>
           </div>
 
           <div className="bg-astroCard rounded-lg border border-white/10 overflow-hidden">
-            <div className="p-4 border-b border-white/10 flex items-center justify-between gap-4">
+            <div className="p-4 border-b border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input
@@ -277,7 +277,7 @@ const AdminPanel = () => {
                 />
               </div>
               {activeTab === 'zones' && (
-                <button onClick={openCreateModal} className="flex items-center gap-2 px-4 py-2 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-lg transition-colors text-sm">
+                <button onClick={openCreateModal} className="flex items-center justify-center gap-2 px-4 py-2 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-lg transition-colors text-sm whitespace-nowrap">
                   <Plus className="w-4 h-4" /> Nueva Zona
                 </button>
               )}

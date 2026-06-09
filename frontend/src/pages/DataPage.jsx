@@ -52,7 +52,7 @@ const DataPage = () => {
                 </button>
               ))}
             </div>
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-w-[140px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                 placeholder={activeTab==='planets'?'Buscar planeta...':'Buscar constelación...'}
@@ -62,20 +62,20 @@ const DataPage = () => {
         </div>
 
         {activeTab==='constellations' && (
-          <div className="bg-astroCard/20 border-b border-white/10 p-3">
-            <div className="flex gap-3 flex-wrap items-center">
-              <Filter className="w-4 h-4 text-gray-500" />
+          <div className="bg-astroCard/20 border-b border-white/10 p-2 sm:p-3">
+            <div className="flex gap-2 sm:gap-3 flex-wrap items-center">
+              <Filter className="w-4 h-4 text-gray-500 hidden sm:block" />
               <select value={filterSeason} onChange={e=>setFilterSeason(e.target.value)}
-                className="bg-astroDark/50 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white">
+                className="bg-astroDark/50 border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs text-white max-w-[130px] sm:max-w-none">
                 <option value="all">Todas las temporadas</option>
                 {seasons.map(s=><option key={s} value={s}>{s}</option>)}
               </select>
               <select value={filterHemi} onChange={e=>setFilterHemi(e.target.value)}
-                className="bg-astroDark/50 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white">
+                className="bg-astroDark/50 border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs text-white max-w-[130px] sm:max-w-none">
                 <option value="all">Todos los hemisferios</option>
                 {hemisferios.map(h=><option key={h} value={h}>{h}</option>)}
               </select>
-              <span className="text-xs text-gray-500">{filteredConstellations.length} constelaciones</span>
+              <span className="text-xs text-gray-500 whitespace-nowrap">{filteredConstellations.length} constelaciones</span>
             </div>
           </div>
         )}
