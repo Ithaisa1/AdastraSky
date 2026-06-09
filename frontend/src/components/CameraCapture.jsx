@@ -91,26 +91,28 @@ const CameraCapture = ({ onCapture, onClose }) => {
               className="px-4 py-2 bg-astroAccent text-white rounded-lg text-sm">Reintentar</button>
           </div>
         ) : captured ? (
-          <img src={captured} alt="Captura" className="max-h-full max-w-full object-contain" />
+          <>
+            <img src={captured} alt="Captura" className="max-h-full max-w-full object-contain" />
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+              <button onClick={retake}
+                className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors">
+                <RefreshCw className="w-5 h-5" />
+                Repetir
+              </button>
+            </div>
+          </>
         ) : (
-          <video ref={videoRef} autoPlay playsInline muted
-            className="max-h-full max-w-full object-contain"
-            style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }} />
-        )}
-      </div>
-
-      <div className="flex items-center justify-center p-6 bg-black/80 shrink-0">
-        {captured ? (
-          <button onClick={retake}
-            className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors">
-            <RefreshCw className="w-5 h-5" />
-            Repetir
-          </button>
-        ) : (
-          <button onClick={capturePhoto} disabled={!!error}
-            className="w-16 h-16 rounded-full border-4 border-white bg-white/20 hover:bg-white/30 transition-colors disabled:opacity-50 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-white" />
-          </button>
+          <>
+            <video ref={videoRef} autoPlay playsInline muted
+              className="max-h-full max-w-full object-contain"
+              style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }} />
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+              <button onClick={capturePhoto}
+                className="w-16 h-16 rounded-full border-4 border-white bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center shadow-lg shadow-black/50">
+                <div className="w-12 h-12 rounded-full bg-white" />
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
