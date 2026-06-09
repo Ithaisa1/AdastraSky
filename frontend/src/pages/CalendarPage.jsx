@@ -367,6 +367,9 @@ export default function CalendarPage() {
               )}
             </div>
           </div>
+          <p className="text-[10px] text-gray-600 text-center mt-2">
+            Datos: NASA/JPL HORIZONS · IMO · NASA Eclipse Web Site
+          </p>
         )}
 
         {tab === 'reservas' && (

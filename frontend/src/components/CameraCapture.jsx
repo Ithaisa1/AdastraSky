@@ -72,10 +72,10 @@ const CameraCapture = ({ onCapture, onClose }) => {
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
       <div className="flex items-center justify-between p-4 bg-black/80">
         <button onClick={() => { stopCamera(); onClose(); }}
-          className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+          className=" p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
           <X className="w-5 h-5" />
         </button>
-        <span className="text-white text-sm font-medium">Tomar foto</span>
+        <button onClick={capturePhoto} className="text-white text-sm font-medium">Tomar foto</button>
         <button onClick={switchCamera}
           className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
           <RefreshCw className="w-5 h-5" />

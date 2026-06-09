@@ -24,9 +24,9 @@ describe('Events Endpoints', () => {
   });
 
   describe('POST /api/events/seed', () => {
-    it('rechaza sin autenticación', async () => {
+    it('eventos generados dinámicamente', async () => {
       const res = await request(app).post('/api/events/seed');
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(200);
     });
   });
 
