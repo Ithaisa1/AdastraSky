@@ -19,8 +19,8 @@ const markerConfig = {
 
 const createCustomIcon = (category) => {
   const m = markerConfig[category] || markerConfig.landscape_viewpoint;
-  const iconHtml = `<div class="${m.bg} p-2 rounded-full shadow-lg border-2 ${m.border}">${m.icon}</div>`;
-  return new DivIcon({ html: iconHtml, className: 'custom-marker', iconSize: [40, 40], iconAnchor: [20, 20] });
+  const iconHtml = `<div class="${m.bg} p-1 rounded-full shadow-lg border-2 ${m.border} text-sm leading-none">${m.icon}</div>`;
+  return new DivIcon({ html: iconHtml, className: 'custom-marker', iconSize: [28, 28], iconAnchor: [14, 14] });
 };
 
 const MapClickHandler = ({ onCoordinateClick }) => {
