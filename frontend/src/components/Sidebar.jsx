@@ -176,6 +176,9 @@ export default function Sidebar() {
     navigate("/login");
   };
 
+  // Show labels when expanded on desktop OR when mobile drawer is open
+  const showLabels = isExpanded || isMobileOpen;
+
   // Sidebar width classes
   const sidebarWidth = isExpanded ? "w-72" : "w-20";
   const mobileWidth = "w-[85vw] max-w-sm";
@@ -227,7 +230,7 @@ export default function Sidebar() {
       </div>
 
       {/* Title and Subtitle */}
-      {isExpanded && (
+      {showLabels && (
         <div className="text-center px-2">
           <h1 className="text-sm font-bold text-slate-100 tracking-widest uppercase font-mono">
             ADASTRA CONTROL
@@ -265,7 +268,7 @@ export default function Sidebar() {
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
             }
           `}
-          title={!isExpanded ? route.label : undefined}
+          title={!showLabels ? route.label : undefined}
           aria-label={route.label}
         >
           {/* Active indicator pulse */}
@@ -279,21 +282,21 @@ export default function Sidebar() {
             className={`flex-shrink-0 ${transitionClass} ${isActive ? "text-cyan-400" : "text-slate-500 group-hover:text-cyan-400"}`}
           />
 
-          {/* Label (visible when expanded) */}
-          {isExpanded && (
+          {/* Label (visible when expanded or mobile drawer open) */}
+          {showLabels && (
             <span className={`text-sm font-medium ${transitionClass}`}>
               {route.label}
             </span>
           )}
 
           {/* Glow effect on hover */}
-          {isActive && isExpanded && (
+          {isActive && showLabels && (
             <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-r from-indigo-500/10 to-transparent blur-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
           )}
         </NavLink>
 
-        {/* Tooltip (visible in collapsed mode) */}
-        {!isExpanded && hoveredRoute === route.id && (
+        {/* Tooltip (visible in collapsed desktop mode) */}
+        {!isExpanded && !isMobile && hoveredRoute === route.id && (
           <div className="absolute left-20 top-1/2 -translate-y-1/2 bg-slate-900/95 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg whitespace-nowrap backdrop-blur-sm shadow-lg z-50 font-mono pointer-events-none animate-fadeIn">
             {route.label}
             <div className="absolute right-full top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900/95 border-t border-l border-slate-700 rotate-45 -mr-1" />
@@ -311,12 +314,11 @@ export default function Sidebar() {
     <nav className={`flex-1 py-6 px-2 overflow-y-auto scrollbar-hide`}>
       {/* Main Navigation */}
       <div className="mb-8">
-        {isExpanded && (
+        {showLabels ? (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             Explorar
           </div>
-        )}
-        {!isExpanded && (
+        ) : (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             NAV
           </div>
@@ -330,12 +332,11 @@ export default function Sidebar() {
 
       {/* Science & Data */}
       <div className="mb-8">
-        {isExpanded && (
+        {showLabels ? (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             Ciencia & Datos
           </div>
-        )}
-        {!isExpanded && (
+        ) : (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             DATA
           </div>
@@ -349,12 +350,11 @@ export default function Sidebar() {
 
       {/* System */}
       <div className="mb-8">
-        {isExpanded && (
+        {showLabels ? (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             Sistema
           </div>
-        )}
-        {!isExpanded && (
+        ) : (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             SYS
           </div>
@@ -378,7 +378,7 @@ export default function Sidebar() {
       <div
         className={`px-4 py-3 mb-4 rounded-lg bg-slate-900/30 border border-green-900/30 ${!isExpanded && "flex justify-center"}`}
       >
-        {isExpanded ? (
+        {showLabels ? (
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 flex-1">
               <Radio size={12} className="text-green-400 animate-pulse" />
@@ -406,7 +406,7 @@ export default function Sidebar() {
         </div>
 
         {/* User Info */}
-        {isExpanded && (
+        {showLabels && (
           <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate('/settings')}>
             <p className="text-sm font-medium text-slate-200 truncate hover:text-cyan-400 transition-colors">
               {user?.first_name} {user?.last_name}
