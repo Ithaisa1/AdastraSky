@@ -193,3 +193,33 @@ input, select, textarea, button {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Sidebar mobile drawer above all page elements (z-[1000]+ in ExploradorPage) */
+@media (max-width: 767px) {
+  aside.fixed {
+    z-index: 1100 !important;
+  }
+  div.fixed.z-50 {
+    z-index: 1150 !important;
+  }
+}
+
+/* Responsive table/data containers - prevent overflow */
+@media (max-width: 768px) {
+  .grid {
+    max-width: 100%;
+  }
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Ensure cards don't overflow on small screens */
+@media (max-width: 480px) {
+  .gap-3 {
+    gap: 0.5rem;
+  }
+  .p-6 {
+    padding: 0.75rem;
+  }
+}
+

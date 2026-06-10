@@ -36,7 +36,7 @@ const DataPage = () => {
   return (
     <div className="h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col p-3">
+      <div className="flex-1 flex flex-col p-3 overflow-y-auto">
         <div className="bg-astroCard/50 backdrop-blur-lg border-b border-white/10 p-6">
           <h1 className="text-3xl font-bold text-white">{t('data.title')}</h1>
           <p className="text-gray-400 mt-1">88 constelaciones, 7 planetas + Luna + Sol, y eventos astronómicos</p>
@@ -200,7 +200,7 @@ const DetailModal = ({ item, onClose }) => {
   if (item.type === 'constellation') {
     const c = item.data;
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
         <div className="bg-astroCard rounded-lg border border-white/10 max-w-2xl w-full max-h-[85vh] overflow-auto" onClick={e=>e.stopPropagation()}>
           <div className="sticky top-0 bg-astroCard/95 border-b border-white/10 p-4 flex items-center justify-between">
             <div>
@@ -251,7 +251,7 @@ const DetailModal = ({ item, onClose }) => {
   if (item.type === 'planet') {
     const p = item.data;
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
         <div className="bg-astroCard rounded-lg border border-white/10 max-w-lg w-full" onClick={e=>e.stopPropagation()}>
           <div className="p-5 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -283,7 +283,7 @@ const DetailModal = ({ item, onClose }) => {
 
   const e = item.data;
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={onClose}>
       <div className="bg-astroCard rounded-lg border border-white/10 max-w-lg w-full" onClick={e=>e.stopPropagation()}>
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-white">{e.name}</h2>

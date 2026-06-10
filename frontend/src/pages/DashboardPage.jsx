@@ -57,9 +57,9 @@ const DashboardPage = () => {
   const gaugeOffset = gaugeCircumference - (skyScore.score / 10) * gaugeCircumference;
 
   return (
-    <div className="min-h-screen w-full flex bg-deepSpace">
+    <div className="h-screen w-full flex bg-deepSpace overflow-hidden">
       <Sidebar />
-      <main className="flex-1 bg-gradient-dashboard p-3 overflow-y-auto h-screen">
+      <main className="flex-1 bg-gradient-dashboard p-3 overflow-y-auto">
         <div className="p-6 space-y-6 max-w-7xl mx-auto">
 
           {/* HERO SECTION */}

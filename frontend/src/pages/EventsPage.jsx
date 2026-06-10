@@ -63,10 +63,10 @@ const EventsPage = () => {
   const currentMonthEvents = getEventsForMonth(selectedMonth, selectedYear);
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex">
+    <div className="h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
       
-      <div className="flex-1 flex flex-col p-3">
+      <div className="flex-1 flex flex-col p-3 overflow-y-auto">
         {/* Header */}
         <div className="p-6 border-b border-white/10">
           <h1 className="text-3xl font-bold text-white">{t('events.title')}</h1>
@@ -206,7 +206,7 @@ const EventsPage = () => {
 
       {/* Modal de Detalles */}
       {selectedEvent && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="bg-astroCard rounded-lg border border-white/10 max-w-2xl w-full max-h-[90vh] overflow-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">

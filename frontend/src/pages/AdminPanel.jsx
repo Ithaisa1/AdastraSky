@@ -200,9 +200,9 @@ const AdminPanel = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex">
+    <div className="h-screen w-full bg-astroDark flex overflow-hidden">
       <Sidebar />
-      <div className="flex-1 p-3">
+      <div className="flex-1 p-3 overflow-y-auto">
         <div className="bg-astroCard border-b border-white/10 p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -406,7 +406,7 @@ const AdminPanel = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]" onClick={() => setShowModal(false)}>
           <div className="bg-astroCard rounded-lg border border-white/10 p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-white">{editingZone ? 'Editar Zona' : 'Nueva Zona'}</h3>
@@ -500,7 +500,7 @@ const AdminPanel = () => {
       )}
 
       {showUserModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowUserModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]" onClick={() => setShowUserModal(false)}>
           <div className="bg-astroCard rounded-lg border border-white/10 p-6 max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-white">Editar Usuario</h3>
@@ -553,7 +553,7 @@ const AdminPanel = () => {
       )}
 
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
           <div className="bg-astroCard rounded-lg border border-white/10 p-6 max-w-md w-full mx-4">
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-8 h-8 text-red-400" />

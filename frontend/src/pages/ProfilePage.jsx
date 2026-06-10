@@ -273,7 +273,7 @@ const ProfilePage = () => {
                   </div>
                 )}
                 {previewImage && (
-                  <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
+                  <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
                     <div className="max-w-3xl w-full bg-astroCard rounded-2xl overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>
                       <div className="relative bg-astroDark">
                         <img src={previewImage.img.startsWith('http') ? previewImage.img : `${API_URL}${previewImage.img}`}
@@ -453,7 +453,7 @@ const ProfilePage = () => {
 
       {/* Modal de Eliminación de Cuenta */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
           <div className="bg-astroCard rounded-lg border border-white/10 p-6 max-w-md w-full mx-4">
             <h2 className="text-xl font-bold text-white mb-4">Eliminar Cuenta</h2>
             <p className="text-gray-300 mb-6">

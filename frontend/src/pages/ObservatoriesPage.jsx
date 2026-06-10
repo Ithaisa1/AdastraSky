@@ -118,7 +118,7 @@ const ObservatoriesPage = () => {
 
       {/* Modal de Detalles */}
       {selectedObservatory && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="bg-astroCard rounded-lg border border-white/10 max-w-4xl w-full max-h-[90vh] overflow-auto">
             {/* Header con imagen */}
             <div className="relative h-48 md:h-64 overflow-hidden">

@@ -400,7 +400,7 @@ export default function CalendarPage() {
         )}
 
         {selectedEvent && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedEvent(null)}>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setSelectedEvent(null)}>
             <div className="bg-astroCard rounded-xl border border-white/10 max-w-lg w-full max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">

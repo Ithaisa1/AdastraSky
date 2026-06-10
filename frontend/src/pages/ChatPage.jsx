@@ -74,12 +74,12 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-astroDark flex">
+    <div className="h-screen w-full bg-astroDark flex overflow-hidden">
       {/* Sidebar de Navegación */}
       <Sidebar />
 
       {/* Contenido Principal */}
-      <div className="flex-1 flex flex-col p-3">
+      <div className="flex-1 flex flex-col p-3 overflow-y-auto">
         {/* Header */}
         <div className="bg-astroCard border-b border-white/10 p-4">
           <div className="flex items-center gap-4">
