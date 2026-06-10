@@ -342,34 +342,36 @@ export default function CalendarPage() {
         </div>
 
         {tab === 'calendar' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 relative">
-              {loading && (
-                <div className="absolute inset-0 bg-astroDark/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
-                  <div className="text-cyan-400 text-sm font-mono animate-pulse">{t('calendar.loading')}</div>
-                </div>
-              )}
-              <CalendarGrid
-                events={events} month={month} year={year}
-                onPrevMonth={handlePrevMonth} onNextMonth={handleNextMonth}
-                onEventClick={setSelectedEvent}
-              />
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-white font-semibold">{t('calendar.eventsIn')} {MONTHS[month]}</h3>
-                <button onClick={handleGoToday} className="text-xs text-cyan-400 hover:text-cyan-300 px-2 py-1 bg-cyan-500/10 rounded-lg">{t('calendar.today')}</button>
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-2 relative">
+                {loading && (
+                  <div className="absolute inset-0 bg-astroDark/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
+                    <div className="text-cyan-400 text-sm font-mono animate-pulse">{t('calendar.loading')}</div>
+                  </div>
+                )}
+                <CalendarGrid
+                  events={events} month={month} year={year}
+                  onPrevMonth={handlePrevMonth} onNextMonth={handleNextMonth}
+                  onEventClick={setSelectedEvent}
+                />
               </div>
-              {loading ? (
-                <div className="text-gray-500 text-sm animate-pulse py-8 text-center">{t('calendar.loading')}</div>
-              ) : (
-                <EventList events={events} onEventClick={setSelectedEvent} />
-              )}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-white font-semibold">{t('calendar.eventsIn')} {MONTHS[month]}</h3>
+                  <button onClick={handleGoToday} className="text-xs text-cyan-400 hover:text-cyan-300 px-2 py-1 bg-cyan-500/10 rounded-lg">{t('calendar.today')}</button>
+                </div>
+                {loading ? (
+                  <div className="text-gray-500 text-sm animate-pulse py-8 text-center">{t('calendar.loading')}</div>
+                ) : (
+                  <EventList events={events} onEventClick={setSelectedEvent} />
+                )}
+              </div>
             </div>
-          </div>
-          <p className="text-[10px] text-gray-600 text-center mt-2">
-            Datos: NASA/JPL HORIZONS · IMO · NASA Eclipse Web Site
-          </p>
+            <p className="text-[10px] text-gray-600 text-center mt-2">
+              Datos: NASA/JPL HORIZONS · IMO · NASA Eclipse Web Site
+            </p>
+          </>
         )}
 
         {tab === 'reservas' && (
