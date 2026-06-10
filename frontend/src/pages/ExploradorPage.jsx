@@ -39,14 +39,24 @@ const ExploradorPage = () => {
     setPanel(null);
   };
 
+  const hasPanel = panel !== null;
+
   return (
     <div className="flex h-screen overflow-hidden bg-astroDark">
       <Sidebar />
-      <main className="flex-1 relative flex flex-col md:flex-row p-3 overflow-hidden">
+
+      {/*
+        En móvil el botón hamburguesa es fixed top-4 left-4,
+        así que compensamos con pt-14. En md+ no hace falta.
+      */}
+      <main className="flex-1 relative flex flex-row pt-14 md:pt-0 overflow-hidden">
+
+        {/* Mapa: siempre ocupa todo el espacio disponible */}
         <div className="flex-1 relative h-full">
           <InformacionHeader
             zone={selectedZone}
             coords={clickedCoords}
+            hasPanel={hasPanel}
           />
           <InteractiveMap
             onZoneSelect={handleZoneSelect}
@@ -54,23 +64,45 @@ const ExploradorPage = () => {
           />
         </div>
 
+        {/* ── PANEL EN TABLET / DESKTOP: columna lateral derecha ── */}
         {panel === 'sanctuary' && selectedZone && (
-          <aside className="w-full md:w-[420px] md:border-l border-white/10 z-[1001] max-h-[50vh] md:max-h-full h-full">
+          <aside className="hidden md:flex md:w-[420px] md:border-l border-white/10 z-[1001] h-full flex-col">
             <SanctuaryPanel zone={selectedZone} onClose={handleClose} />
           </aside>
         )}
 
         {panel === 'streetview' && clickedCoords && (
-          <aside className="w-full md:w-[420px] md:border-l border-white/10 z-[1001] max-h-[50vh] md:max-h-full h-full">
+          <aside className="hidden md:flex md:w-[420px] md:border-l border-white/10 z-[1001] h-full flex-col">
             <StreetViewPanel latlng={clickedCoords} onClose={handleClose} />
           </aside>
+        )}
+
+        {/* ── PANEL EN MÓVIL: bottom sheet superpuesto al mapa ── */}
+        {panel === 'sanctuary' && selectedZone && (
+          <div className="md:hidden fixed inset-x-0 bottom-0 z-[1002] h-[60vh] rounded-t-2xl overflow-hidden border-t border-white/10 shadow-2xl bg-astroCard">
+            <SanctuaryPanel zone={selectedZone} onClose={handleClose} />
+          </div>
+        )}
+
+        {panel === 'streetview' && clickedCoords && (
+          <div className="md:hidden fixed inset-x-0 bottom-0 z-[1002] h-[60vh] rounded-t-2xl overflow-hidden border-t border-white/10 shadow-2xl bg-astroCard">
+            <StreetViewPanel latlng={clickedCoords} onClose={handleClose} />
+          </div>
+        )}
+
+        {/* Overlay semitransparente detrás del bottom sheet en móvil */}
+        {hasPanel && (
+          <div
+            className="md:hidden fixed inset-0 z-[1001] bg-black/40 backdrop-blur-sm"
+            onClick={handleClose}
+          />
         )}
       </main>
     </div>
   );
 };
 
-const InformacionHeader = ({ zone, coords }) => {
+const InformacionHeader = ({ zone, coords, hasPanel }) => {
   const getLabel = () => {
     if (zone) return `${zone.name} · Bortle ${zone.bortle_scale} · ${zone.altitude}m`;
     if (coords) return `${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}° · Explorando zona`;
@@ -78,7 +110,16 @@ const InformacionHeader = ({ zone, coords }) => {
   };
 
   return (
-    <div className="absolute top-4 left-4 right-4 md:left-auto md:right-4 z-[1000] bg-astroCard/80 backdrop-blur-md rounded-lg px-4 py-2 border border-white/10 shadow-lg">
+    /*
+      En móvil con panel abierto subimos el header un poco
+      para que no quede pegado al borde del bottom sheet.
+      En desktop siempre top-4.
+    */
+    <div
+      className={`absolute left-4 right-4 z-[1000] bg-astroCard/80 backdrop-blur-md rounded-lg px-4 py-2 border border-white/10 shadow-lg transition-all duration-300 ${
+        hasPanel ? 'top-2 md:top-4' : 'top-4'
+      }`}
+    >
       <p className="text-xs text-gray-400 font-mono truncate">{getLabel()}</p>
     </div>
   );

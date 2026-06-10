@@ -256,7 +256,7 @@ export default function Sidebar() {
           onMouseEnter={() => setHoveredRoute(route.id)}
           onMouseLeave={() => setHoveredRoute(null)}
           className={({ isActive: routeIsActive }) => `
-            flex items-center gap-3 px-4 py-3 md:py-3 py-4 rounded-lg
+            flex items-center gap-3 px-4 py-3 rounded-lg
             ${transitionClass}
             relative
             ${
@@ -311,6 +311,11 @@ export default function Sidebar() {
     <nav className={`flex-1 py-6 px-2 overflow-y-auto scrollbar-hide`}>
       {/* Main Navigation */}
       <div className="mb-8">
+        {isExpanded && (
+          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+            Explorar
+          </div>
+        )}
         {!isExpanded && (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             NAV
@@ -325,6 +330,11 @@ export default function Sidebar() {
 
       {/* Science & Data */}
       <div className="mb-8">
+        {isExpanded && (
+          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+            Ciencia & Datos
+          </div>
+        )}
         {!isExpanded && (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             DATA
@@ -339,6 +349,11 @@ export default function Sidebar() {
 
       {/* System */}
       <div className="mb-8">
+        {isExpanded && (
+          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+            Sistema
+          </div>
+        )}
         {!isExpanded && (
           <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
             SYS
@@ -424,8 +439,8 @@ export default function Sidebar() {
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="absolute -right-4 top-20 p-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:bg-slate-700 transition-all duration-200 shadow-lg hidden md:flex items-center justify-center"
-        aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-        title={isExpanded ? "Collapse" : "Expand"}
+        aria-label="Collapse sidebar"
+        title="Collapse"
       >
         <ChevronLeft size={16} />
       </button>
@@ -436,8 +451,8 @@ export default function Sidebar() {
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="absolute -right-4 top-20 p-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:bg-slate-700 transition-all duration-200 shadow-lg hidden md:flex items-center justify-center"
-        aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-        title={isExpanded ? "Collapse" : "Expand"}
+        aria-label="Expand sidebar"
+        title="Expand"
       >
         <ChevronRight size={16} />
       </button>
@@ -505,24 +520,3 @@ export default function Sidebar() {
     </>
   );
 }
-
-// ============================================================================
-// STYLING NOTES
-// ============================================================================
-
-/*
-  Color Scheme:
-  - Primary Background: #0B0F19 (astroCard)
-  - Secondary Background: #151D30
-  - Border: #334155 (slate-700)
-  - Accent: #06B6D4 (cyan-500)
-  - Accent Secondary: #4F46E5 (indigo-500)
-  
-  Effects:
-  - Glassmorphic: backdrop-blur-md
-  - Glow: shadow-[0_0_15px_rgba(79,70,229,0.1)]
-  - Scan lines: repeating-linear-gradient
-  - Smooth transitions: transition-all duration-300
-  
-  Icons from lucide-react ensure consistent 20px sizing and scalability
-*/
