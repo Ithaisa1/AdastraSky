@@ -106,7 +106,7 @@ const InformacionHeader = ({ zone, coords, hasPanel }) => {
   const getLabel = () => {
     if (zone) return `${zone.name} · Bortle ${zone.bortle_scale} · ${zone.altitude}m`;
     if (coords) return `${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}° · Explorando zona`;
-    return 'Archipiélago Canarias · 95 zonas · Haz clic en un marcador o en cualquier punto';
+    return 'Archipielago Canario · 95 zonas · Haz clic en un marcador o en cualquier punto';
   };
 
   return (
