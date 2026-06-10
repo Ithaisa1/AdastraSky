@@ -5,6 +5,14 @@ import tartaImg from '../assets/mirador de la tarta.jpg';
 import sanJoseImg from '../assets/Mirador san jose.jpg';
 import naricesImg from '../assets/narices del teide-pico viejo.jpg';
 import ucancaImg from '../assets/llano de ucanca.jpg';
+import hidalgoImg from '../assets/Mirador de punta de hidalgo.jpg';
+import jardinaImg from '../assets/Mirador de jardina.jpg';
+import sicasumbreImg from '../assets/Mirador-Sicasumbre - fuerteventura.jpg';
+import ayosaImg from '../assets/Mirador-de-Ayosa.jpg';
+import balconImg from '../assets/mirador-balcon-gc.jpg';
+import degolladaYeguasImg from '../assets/mirador-degollada-yeguas.jpg';
+import guiseAyoseImg from '../assets/mirador-guise-ayose.jpg';
+import elTimeImg from '../assets/mirador-time.jpg';
 
 export const santuariosData = [
   {
@@ -243,7 +251,7 @@ export const santuariosData = [
     "bortle_scale": 6,
     "description": "Mirador costero en el extremo norte con vistas del océano y acantilados",
     "accessibility": "Público",
-    "image_url": "",
+    "image_url": hidalgoImg,
     "streaming_url": "",
     "is_active": true
   },
@@ -258,7 +266,7 @@ export const santuariosData = [
     "bortle_scale": 2,
     "description": "Mirador de alta montaña con excelentes condiciones para observación astronómica y vistas del Teide",
     "accessibility": "Público",
-    "image_url": "",
+    "image_url": ayosaImg,
     "streaming_url": "",
     "is_active": true
   },
@@ -288,7 +296,7 @@ export const santuariosData = [
     "bortle_scale": 4,
     "description": "Mirador con vistas del Valle de La Orotava y la costa norte",
     "accessibility": "Público",
-    "image_url": "",
+    "image_url": jardinaImg,
     "streaming_url": "",
     "is_active": true
   },
@@ -408,7 +416,7 @@ export const santuariosData = [
     "bortle_scale": 5,
     "description": "Mirador con vistas del valle de Aridane y la costa oeste",
     "accessibility": "Público",
-    "image_url": "",
+    "image_url": elTimeImg,
     "streaming_url": "",
     "is_active": true
   },
@@ -558,7 +566,7 @@ export const santuariosData = [
     "bortle_scale": 2,
     "description": "Mirador certificado Starlight con condiciones óptimas para astronomía",
     "accessibility": "Público",
-    "image_url": "",
+    "image_url": degolladaYeguasImg,
     "streaming_url": "",
     "is_active": true
   },
@@ -648,7 +656,7 @@ export const santuariosData = [
     "bortle_scale": 6,
     "description": "Acantilado con impresionantes vistas del océano Atlántico",
     "accessibility": "Público",
-    "image_url": "",
+    "image_url": balconImg,
     "streaming_url": "",
     "is_active": true
   },
@@ -918,7 +926,7 @@ export const santuariosData = [
     "bortle_scale": 3,
     "description": "Mirador astronómico certificado con buenas condiciones de observación",
     "accessibility": "Público",
-    "image_url": "",
+    "image_url": sicasumbreImg,
     "streaming_url": "",
     "is_active": true
   },
@@ -948,7 +956,7 @@ export const santuariosData = [
     "bortle_scale": 5,
     "description": "Mirador con vistas del paisaje desértico y montañas centrales",
     "accessibility": "Público",
-    "image_url": "",
+    "image_url": guiseAyoseImg,
     "streaming_url": "",
     "is_active": true
   },
