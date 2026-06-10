@@ -37,8 +37,14 @@ const baseOptions = {
 };
 
 // 🔥 CONEXIÓN A POSTGRES (LOCAL + RENDER)
+// Sanitizar DATABASE_URL: eliminar sslmode para evitar conflicto con dialectOptions
+const sanitizeUrl = (url) => {
+  if (!url) return url;
+  return url.replace(/(\?|&)sslmode=[^&]+/g, '').replace(/[?&]$/, '');
+};
+
 const sequelize = DATABASE_URL
-  ? new Sequelize(DATABASE_URL, {
+  ? new Sequelize(sanitizeUrl(DATABASE_URL), {
       ...baseOptions,
       dialectOptions: {
         ssl: {
