@@ -92,8 +92,12 @@ def call_model(state: AgentState) -> dict:
 
     system_msg = SystemMessage(content=SYSTEM_PROMPT)
     llm_with_tools = llm.bind_tools(tools)
-    response = llm_with_tools.invoke([system_msg] + list(state["messages"]))
-    return {"messages": [response]}
+    try:
+        response = llm_with_tools.invoke([system_msg] + list(state["messages"]))
+        return {"messages": [response]}
+    except Exception:
+        response_text = _simple_rag_response(state["messages"])
+        return {"messages": [AIMessage(content=response_text)]}
 
 
 def call_tool(state: AgentState) -> dict:

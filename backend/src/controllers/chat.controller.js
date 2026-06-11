@@ -80,6 +80,15 @@ export const sendMessage = async (req, res, next) => {
       });
     }
 
+    if (error.response) {
+      const aiDetail = error.response.data?.detail || error.response.statusText;
+      return res.status(502).json({
+        status: 'error',
+        code: 'AI_SERVICE_ERROR',
+        message: `Error del servicio de IA: ${aiDetail}`
+      });
+    }
+
     next(error);
   }
 };
