@@ -18,13 +18,13 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from rag.ingest import ingest
+    from rag.vector_store import get_vector_store
     try:
-        ingest()
-        print("[OK] ChromaDB lista con documentos IAC")
+        get_vector_store()
+        print("[OK] RAG ligero listo con documentos IAC")
     except Exception as e:
-        print(f"[WARN] No se pudo poblar ChromaDB: {e}")
-        print("[INFO] El chat funcionará en modo offline RAG")
+        print(f"[WARN] No se pudo inicializar RAG: {e}")
+        print("[INFO] El chat funcionará en modo offline")
     yield
 
 

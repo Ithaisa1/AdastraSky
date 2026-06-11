@@ -1,7 +1,5 @@
 from langchain_core.tools import tool
-from langchain_core.documents import Document
 import httpx
-from typing import Optional
 
 from rag.vector_store import get_vector_store
 from config import get_settings

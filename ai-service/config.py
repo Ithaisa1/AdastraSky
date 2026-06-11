@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     hf_model: str = "mistralai/Mistral-7B-Instruct-v0.3"
     database_url: str = ""
     openweather_api_key: str = ""
-    chroma_persist_dir: str = str(Path(__file__).parent / "rag" / "chroma_db")
     frontend_url: str = "https://adastra-sky.vercel.app"
 
     class Config:
