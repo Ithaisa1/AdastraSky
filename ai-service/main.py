@@ -1,10 +1,11 @@
 """
-AdAstraSky AI Service — FastAPI + LangGraph + ChromaDB
+AdAstraSky AI Service — FastAPI + LangGraph + RAG
 Microservicio de agente astronómico con RAG
 """
 
 import os
 import sys
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -12,6 +13,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers import health, chat, sky
 from config import get_settings
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
+logger = logging.getLogger("adastra-ai")
 
 settings = get_settings()
 
@@ -21,10 +25,10 @@ async def lifespan(app: FastAPI):
     from rag.vector_store import get_vector_store
     try:
         get_vector_store()
-        print("[OK] RAG ligero listo con documentos IAC")
+        logger.info("RAG ligero listo con documentos IAC")
     except Exception as e:
-        print(f"[WARN] No se pudo inicializar RAG: {e}")
-        print("[INFO] El chat funcionará en modo offline")
+        logger.warning("No se pudo inicializar RAG: %s", e)
+        logger.info("El chat funcionará en modo offline")
     yield
 
 

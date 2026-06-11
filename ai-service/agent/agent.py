@@ -81,28 +81,8 @@ def _simple_rag_response(messages) -> str:
 
 tools_by_name = {t.name: t for t in tools}
 
-
-# def call_model(state: AgentState) -> dict:
-#     models = _get_models()
-#     if not models:
-#         response_text = _simple_rag_response(state["messages"])
-#         return {"messages": [AIMessage(content=response_text)]}
-
-#     system_msg = SystemMessage(content=SYSTEM_PROMPT)
-#     last_error = None
-#     for llm in models:
-#         try:
-#             llm_with_tools = llm.bind_tools(tools)
-#             response = llm_with_tools.invoke([system_msg] + list(state["messages"]))
-#             return {"messages": [response]}
-#         except Exception as e:
-#             last_error = e
-#             continue
-#     response_text = _simple_rag_response(state["messages"])
-#     return {"messages": [AIMessage(content=response_text)]}
-
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("adastra-ai.agent")
 
 def call_model(state: AgentState) -> dict:
     models = _get_models()
