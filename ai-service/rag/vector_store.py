@@ -26,7 +26,7 @@ class InMemoryVectorStore:
         self.chunks: list[Document] = []
         self.vectorizer = TfidfVectorizer(
             max_features=2000,
-            stop_words="spanish",
+            stop_words=None,
             lowercase=True,
             analyzer="word",
         )
