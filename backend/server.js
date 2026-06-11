@@ -195,13 +195,22 @@ async function startServer() {
     console.log('🧱 Tablas sincronizadas');
 
     app.listen(PORT, () => {
-      console.log(`
+  console.log(`
 🌌 AdastraSky Backend running
 ➡️ Port: ${PORT}
 ➡️ Env: ${NODE_ENV}
 ➡️ API: /api
-      `);
+  `);
+
+  // Warm-up del ai-service para evitar cold start
+  if (process.env.AI_SERVICE_URL) {
+    import('axios').then(({ default: axios }) => {
+      axios.get(`${process.env.AI_SERVICE_URL}/health`, { timeout: 30000 })
+        .then(() => console.log('🤖 AI Service warm-up OK'))
+        .catch(() => console.log('⚠️ AI Service dormido, se despertará con la primera petición'));
     });
+  }
+});
 
   } catch (error) {
     console.error('❌ Server error:', error);

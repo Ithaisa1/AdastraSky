@@ -42,7 +42,7 @@ export const sendMessage = async (req, res, next) => {
       user_id,
       session_id
     }, {
-      timeout: 30000,
+      timeout: 120000,
       headers: {
         'Content-Type': 'application/json'
       }

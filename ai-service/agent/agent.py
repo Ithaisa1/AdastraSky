@@ -19,32 +19,28 @@ Reglas:
 """
 
 
-def _build_model() -> Optional[BaseChatModel]:
+def _get_models() -> list[BaseChatModel]:
+    """Devuelve todos los LLMs disponibles en orden de prioridad."""
     from config import get_settings
     s = get_settings()
-    if s.groq_api_key:
+    import os
+    models = []
+    groq_key = os.environ.get("GROQ_API_KEY") or s.groq_api_key or ""
+    openai_key = os.environ.get("OPENAI_API_KEY") or s.openai_api_key or ""
+    hf_key = os.environ.get("HF_TOKEN") or s.hf_token or ""
+    groq_model = os.environ.get("GROQ_MODEL") or s.groq_model or "llama-3.3-70b-versatile"
+    hf_model = os.environ.get("HF_MODEL") or s.hf_model or "mistralai/Mistral-7B-Instruct-v0.3"
+    openai_model = os.environ.get("OPENAI_MODEL") or s.openai_model or "gpt-4o-mini"
+    if groq_key:
         from langchain_groq import ChatGroq
-        return ChatGroq(
-            model=s.groq_model,
-            api_key=s.groq_api_key,
-            temperature=0.3,
-        )
-    if s.openai_api_key:
+        models.append(ChatGroq(model=groq_model, api_key=groq_key, temperature=0.3))
+    if openai_key:
         from langchain_openai import ChatOpenAI
-        return ChatOpenAI(
-            model=s.openai_model,
-            api_key=s.openai_api_key,
-            temperature=0.3,
-        )
-    if s.hf_token:
+        models.append(ChatOpenAI(model=openai_model, api_key=openai_key, temperature=0.3))
+    if hf_key:
         from langchain_huggingface import HuggingFaceEndpoint
-        return HuggingFaceEndpoint(
-            repo_id=s.hf_model,
-            huggingfacehub_api_token=s.hf_token,
-            temperature=0.3,
-            max_new_tokens=512,
-        )
-    return None
+        models.append(HuggingFaceEndpoint(repo_id=hf_model, huggingfacehub_api_token=hf_key, temperature=0.3, max_new_tokens=512))
+    return models
 
 
 def _simple_rag_response(messages) -> str:
@@ -68,15 +64,17 @@ def _simple_rag_response(messages) -> str:
             "• Astroturismo y mejores lugares para observar\n"
             "• Normativa de protección del cielo (Ley del Cielo)\n"
             "• Eventos astronómicos y constelaciones\n\n"
-            "_Para respuestas más completas, configura GROQ_API_KEY o OPENAI_API_KEY en el .env_"
+            "Para respuestas más completas, configura GROQ_API_KEY o OPENAI_API_KEY en el .env"
         )
 
+    import re
     answers = []
     for r in results:
         title = r.get("title", "Documento IAC")
         content = r.get("content", "")
-        snippet = content.strip()[:600]
-        answers.append(f"📄 **{title}**\n{snippet}\n\n_(Fuente: Documento IAC — {title})_")
+        clean = re.sub(r"#{1,6}\s*", "", content)
+        snippet = clean.strip()[:500]
+        answers.append(f"📄 **{title}**\n{snippet}\n_(Fuente: Documento IAC — {title})_")
 
     return "\n\n---\n\n".join(answers)
 
@@ -85,19 +83,23 @@ tools_by_name = {t.name: t for t in tools}
 
 
 def call_model(state: AgentState) -> dict:
-    llm = _build_model()
-    if llm is None:
+    models = _get_models()
+    if not models:
         response_text = _simple_rag_response(state["messages"])
         return {"messages": [AIMessage(content=response_text)]}
 
     system_msg = SystemMessage(content=SYSTEM_PROMPT)
-    llm_with_tools = llm.bind_tools(tools)
-    try:
-        response = llm_with_tools.invoke([system_msg] + list(state["messages"]))
-        return {"messages": [response]}
-    except Exception:
-        response_text = _simple_rag_response(state["messages"])
-        return {"messages": [AIMessage(content=response_text)]}
+    last_error = None
+    for llm in models:
+        try:
+            llm_with_tools = llm.bind_tools(tools)
+            response = llm_with_tools.invoke([system_msg] + list(state["messages"]))
+            return {"messages": [response]}
+        except Exception as e:
+            last_error = e
+            continue
+    response_text = _simple_rag_response(state["messages"])
+    return {"messages": [AIMessage(content=response_text)]}
 
 
 def call_tool(state: AgentState) -> dict:
