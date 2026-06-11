@@ -82,9 +82,32 @@ def _simple_rag_response(messages) -> str:
 tools_by_name = {t.name: t for t in tools}
 
 
+# def call_model(state: AgentState) -> dict:
+#     models = _get_models()
+#     if not models:
+#         response_text = _simple_rag_response(state["messages"])
+#         return {"messages": [AIMessage(content=response_text)]}
+
+#     system_msg = SystemMessage(content=SYSTEM_PROMPT)
+#     last_error = None
+#     for llm in models:
+#         try:
+#             llm_with_tools = llm.bind_tools(tools)
+#             response = llm_with_tools.invoke([system_msg] + list(state["messages"]))
+#             return {"messages": [response]}
+#         except Exception as e:
+#             last_error = e
+#             continue
+#     response_text = _simple_rag_response(state["messages"])
+#     return {"messages": [AIMessage(content=response_text)]}
+
+import logging
+logger = logging.getLogger(__name__)
+
 def call_model(state: AgentState) -> dict:
     models = _get_models()
     if not models:
+        logger.warning("No hay modelos disponibles, usando RAG simple")
         response_text = _simple_rag_response(state["messages"])
         return {"messages": [AIMessage(content=response_text)]}
 
@@ -96,11 +119,13 @@ def call_model(state: AgentState) -> dict:
             response = llm_with_tools.invoke([system_msg] + list(state["messages"]))
             return {"messages": [response]}
         except Exception as e:
+            logger.error(f"Error con LLM {llm.__class__.__name__}: {str(e)}")
             last_error = e
             continue
+    
+    logger.error(f"Todos los LLMs fallaron. Último error: {last_error}")
     response_text = _simple_rag_response(state["messages"])
     return {"messages": [AIMessage(content=response_text)]}
-
 
 def call_tool(state: AgentState) -> dict:
     last_msg = state["messages"][-1]
