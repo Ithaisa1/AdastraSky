@@ -36,6 +36,14 @@ def _build_model() -> Optional[BaseChatModel]:
             api_key=s.openai_api_key,
             temperature=0.3,
         )
+    if s.hf_token:
+        from langchain_huggingface import HuggingFaceEndpoint
+        return HuggingFaceEndpoint(
+            repo_id=s.hf_model,
+            huggingfacehub_api_token=s.hf_token,
+            temperature=0.3,
+            max_new_tokens=512,
+        )
     return None
 
 

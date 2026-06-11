@@ -35,6 +35,31 @@ services:
       - key: NASA_API_KEY
         sync: false
 
+  # ─── AI Service (FastAPI + LangGraph) ──────────────────────
+  - type: web
+    name: adastra-sky-ai
+    runtime: python
+    repo: https://github.com/Ithaisa1/AdastraSky
+    branch: main
+    rootDir: ai-service
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: HF_TOKEN
+        sync: false
+      - key: HF_MODEL
+        value: mistralai/Mistral-7B-Instruct-v0.3
+      - key: FRONTEND_URL
+        value: https://adastra-sky.vercel.app
+
 databases:
   # ─── PostgreSQL ────────────────────────────────────────────
   - name: adastra-sky-db

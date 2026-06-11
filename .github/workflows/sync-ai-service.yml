@@ -1,0 +1,30 @@
+name: Sync ai-service to HF Spaces
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ai-service/**'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push ai-service to HF Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd ai-service
+          git init
+          git config user.email "athysangon@gmail.com"
+          git config user.name "Ithaisa"
+          git add .
+          git commit -m "sync from main repo"
+          git push --force https://Ithaisa:$HF_TOKEN@huggingface.co/spaces/Ithaisa/adastrasky-ai-service main

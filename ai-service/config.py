@@ -4,16 +4,17 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    port: int = 8000
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
+    port: int = 7860  # HF Spaces
     groq_api_key: str = ""
     groq_model: str = "llama-3.3-70b-versatile"
-    database_url: str = "postgresql://postgres:postgres@localhost:5432/adastra_sky"
-    chroma_persist_dir: str = str(Path(__file__).parent / "rag" / "chroma_db")
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+    hf_token: str = ""
+    hf_model: str = "mistralai/Mistral-7B-Instruct-v0.3"
+    database_url: str = ""
     openweather_api_key: str = ""
-    nasa_api_key: str = ""
-    frontend_url: str = "http://localhost:5173"
+    chroma_persist_dir: str = str(Path(__file__).parent / "rag" / "chroma_db")
+    frontend_url: str = "https://adastra-sky.vercel.app"
 
     class Config:
         env_file = Path(__file__).parent / ".env"
