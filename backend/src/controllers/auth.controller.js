@@ -164,6 +164,57 @@ export const login = async (req, res, next) => {
 };
 
 /**
+ * Actualizar rol del usuario autenticado (dev tool)
+ */
+export const updateRole = async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    if (!role || !['user', 'admin'].includes(role)) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'VALIDATION_ERROR',
+        message: 'Rol inválido. Valores permitidos: user, admin'
+      });
+    }
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        code: 'USER_NOT_FOUND',
+        message: 'Usuario no encontrado'
+      });
+    }
+
+    await user.update({ role });
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Rol actualizado correctamente',
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          preferred_language: user.preferred_language,
+          role: user.role
+        },
+        token
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Obtener perfil del usuario autenticado
  */
 export const updateProfile = async (req, res, next) => {

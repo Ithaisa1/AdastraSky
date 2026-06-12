@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getProfile, updateProfile } from '../controllers/auth.controller.js';
+import { register, login, getProfile, updateProfile, updateRole } from '../controllers/auth.controller.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import rateLimit from 'express-rate-limit';
 
@@ -77,5 +77,6 @@ router.post('/login', authLimiter, login);
  */
 router.get('/profile', authenticateToken, getProfile);
 router.put('/profile', authenticateToken, updateProfile);
+router.put('/role', authenticateToken, updateRole);
 
 export default router;
