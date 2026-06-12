@@ -198,9 +198,9 @@ async function startServer() {
     if (userCount === 0) {
       const bcrypt = await import('bcryptjs');
       const hash = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || 'admin123', 10);
-      await User.create({ username: 'admin', email: 'admin@adastra.sky', password: hash, role: 'admin' });
+      await User.create({ email: 'admin@adastra.sky', password: hash, role: 'admin', first_name: 'Admin', last_name: 'AdAstra', preferred_language: 'es' });
       const hashDemo = await bcrypt.hash(process.env.SEED_DEMO_PASSWORD || 'demo123', 10);
-      await User.create({ username: 'demo', email: 'demo@adastra.sky', password: hashDemo, role: 'user' });
+      await User.create({ email: 'demo@adastra.sky', password: hashDemo, role: 'user', first_name: 'Demo', last_name: 'User', preferred_language: 'es' });
       console.log('🧑‍💻 Usuarios semilla creados (admin/demo)');
     }
 
