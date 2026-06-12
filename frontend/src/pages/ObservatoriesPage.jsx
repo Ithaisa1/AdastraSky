@@ -216,20 +216,7 @@ const ObservatoriesPage = () => {
                 </div>
               </div>
 
-              {/* Botón de acción */}
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setSelectedObservatory(null)}
-                  className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
-                >
-                  Cerrar
-                </button>
-                {selectedObservatory.visitor_info.open_to_public && (
-                  <button className="px-6 py-3 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-lg transition-colors">
-                    Reservar Visita
-                  </button>
-                )}
-              </div>
+
             </div>
           </div>
         </div>
