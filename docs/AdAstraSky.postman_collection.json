@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AdAstraSky API",
-    "description": "Colección completa de la API de AdAstraSky — Plataforma de Astroturismo con IA integrada.\n\n## Backend (Node + Express)\nBase URL: `https://aadastra-sky-backend.onrender.com`\n\n## AI Service (FastAPI)\nBase URL: `http://localhost:8001`\n\n## Autenticación\n- Registro: `POST /api/auth/register`\n- Login: `POST /api/auth/login` (devuelve token)\n- Usar token en header: `Authorization: Bearer <token>`\n- Admin: `admin@adastra.com / admin123`",
+    "description": "Colección completa de la API de AdAstraSky — Plataforma de Astroturismo con IA integrada.\n\n## Backend (Node + Express)\nBase URL: `https://aadastra-sky-backend.onrender.com`\n\n## AI Service (FastAPI)\nBase URL: `https://adastra-sky-ai.onrender.com`\n\n## Autenticación\n- Registro: `POST /api/auth/register`\n- Login: `POST /api/auth/login` (devuelve token)\n- Usar token en header: `Authorization: Bearer <token>`\n- Admin por defecto: `admin@adastra.sky / (usar login primero)`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "adastra-sky"
   },
@@ -16,19 +16,31 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"usuario@ejemplo.com\",\n  \"password\": \"123456\",\n  \"first_name\": \"Usuario\",\n  \"last_name\": \"Ejemplo\",\n  \"preferred_language\": \"es\"\n}"
+              "raw": "{\n  \"email\": \"usuario@ejemplo.com\",\n  \"password\": \"Usuario1pass\",\n  \"first_name\": \"Usuario\",\n  \"last_name\": \"Ejemplo\",\n  \"preferred_language\": \"es\"\n}"
             },
             "url": { "raw": "{{backend}}/api/auth/register", "host": ["{{backend}}"], "path": ["api", "auth", "register"] }
           }
         },
         {
-          "name": "Login",
+          "name": "Login (user)",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@adastra.com\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"demo@adastra.sky\",\n  \"password\": \"{{demo_password}}\"\n}"
+            },
+            "url": { "raw": "{{backend}}/api/auth/login", "host": ["{{backend}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login (admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@adastra.sky\",\n  \"password\": \"{{admin_password}}\"\n}"
             },
             "url": { "raw": "{{backend}}/api/auth/login", "host": ["{{backend}}"], "path": ["api", "auth", "login"] }
           }
@@ -63,13 +75,6 @@
           "request": {
             "method": "GET",
             "url": { "raw": "{{backend}}/api/sky/zones", "host": ["{{backend}}"], "path": ["api", "sky", "zones"] }
-          }
-        },
-        {
-          "name": "Zona por ID",
-          "request": {
-            "method": "GET",
-            "url": { "raw": "{{backend}}/api/sky/zones/1", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "1"] }
           }
         },
         {
@@ -111,14 +116,14 @@
           "name": "Por isla",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{backend}}/api/sky/islands/Tenerife", "host": ["{{backend}}"], "path": ["api", "sky", "islands", "Tenerife"] }
+            "url": { "raw": "{{backend}}/api/sky/zones/islands/Tenerife", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "islands", "Tenerife"] }
           }
         },
         {
           "name": "Por categoría",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{backend}}/api/sky/category/observatory", "host": ["{{backend}}"], "path": ["api", "sky", "category", "observatory"] }
+            "url": { "raw": "{{backend}}/api/sky/zones/category/observatory", "host": ["{{backend}}"], "path": ["api", "sky", "zones", "category", "observatory"] }
           }
         }
       ]
@@ -141,13 +146,13 @@
           }
         },
         {
-          "name": "Guardar score (n8n)",
+          "name": "Guardar score (Auth requerido)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"date\": \"2026-06-04\",\n  \"overall_score\": 8.5,\n  \"astro_score\": 8.7,\n  \"photo_score\": 8.2,\n  \"tourism_score\": 7.9\n}"
+              "raw": "{\n  \"date\": \"2026-06-12\",\n  \"overall_score\": 8.5,\n  \"astro_score\": 8.7,\n  \"photo_score\": 8.2,\n  \"tourism_score\": 7.9\n}"
             },
             "url": { "raw": "{{backend}}/api/sky/score", "host": ["{{backend}}"], "path": ["api", "sky", "score"] }
           }
@@ -158,7 +163,7 @@
       "name": "🤖 Chat / IA",
       "item": [
         {
-          "name": "Enviar mensaje (Backend)",
+          "name": "Enviar mensaje (Backend proxy)",
           "request": {
             "method": "POST",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
@@ -221,7 +226,7 @@
           }
         },
         {
-          "name": "Seed eventos",
+          "name": "Seed eventos (stub)",
           "request": {
             "method": "POST",
             "url": { "raw": "{{backend}}/api/events/seed", "host": ["{{backend}}"], "path": ["api", "events", "seed"] }
@@ -232,6 +237,18 @@
           "request": {
             "method": "GET",
             "url": { "raw": "{{backend}}/api/events/nasa/apod", "host": ["{{backend}}"], "path": ["api", "events", "nasa", "apod"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌤️ Clima",
+      "item": [
+        {
+          "name": "Clima actual",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/weather/current?lat=28.33&lon=-16.49", "host": ["{{backend}}"], "path": ["api", "weather", "current"] }
           }
         }
       ]
@@ -249,6 +266,34 @@
               "raw": "{\n  \"name\": \"Usuario Ejemplo\",\n  \"email\": \"user@ejemplo.com\",\n  \"subject\": \"Consulta sobre observatorios\",\n  \"message\": \"Me gustaría saber más sobre las visitas guiadas al Observatorio del Teide.\"\n}"
             },
             "url": { "raw": "{{backend}}/api/contact", "host": ["{{backend}}"], "path": ["api", "contact"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 Experiencias",
+      "item": [
+        {
+          "name": "Todas las experiencias",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{backend}}/api/experiences", "host": ["{{backend}}"], "path": ["api", "experiences"] }
+          }
+        },
+        {
+          "name": "Crear experiencia (Auth)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Noche increíble en el Teide", "type": "text" },
+                { "key": "description", "value": "Observamos Júpiter y Saturno con un telescopio de 8 pulgadas.", "type": "text" },
+                { "key": "zone_id", "value": "zona-teide", "type": "text" }
+              ]
+            },
+            "url": { "raw": "{{backend}}/api/experiences", "host": ["{{backend}}"], "path": ["api", "experiences"] }
           }
         }
       ]
@@ -285,15 +330,27 @@
               "mode": "raw",
               "raw": "{\n  \"bortle_scale\": 2,\n  \"description\": \"Actualizado\"\n}"
             },
-            "url": { "raw": "{{backend}}/api/admin/zones/1", "host": ["{{backend}}"], "path": ["api", "admin", "zones", "1"] }
+            "url": { "raw": "{{backend}}/api/admin/zones/{{zone_id}}", "host": ["{{backend}}"], "path": ["api", "admin", "zones", "{{zone_id}}"] }
           }
         },
         {
-          "name": "Zonas - Eliminar",
+          "name": "Zonas - Eliminar (soft)",
           "request": {
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
-            "url": { "raw": "{{backend}}/api/admin/zones/1", "host": ["{{backend}}"], "path": ["api", "admin", "zones", "1"] }
+            "url": { "raw": "{{backend}}/api/admin/zones/{{zone_id}}", "host": ["{{backend}}"], "path": ["api", "admin", "zones", "{{zone_id}}"] }
+          }
+        },
+        {
+          "name": "Zonas - Seed desde JSON",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"force\": true\n}"
+            },
+            "url": { "raw": "{{backend}}/api/admin/zones/seed", "host": ["{{backend}}"], "path": ["api", "admin", "zones", "seed"] }
           }
         },
         {
@@ -309,7 +366,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
-            "url": { "raw": "{{backend}}/api/admin/users/1", "host": ["{{backend}}"], "path": ["api", "admin", "users", "1"] }
+            "url": { "raw": "{{backend}}/api/admin/users/{{user_id}}", "host": ["{{backend}}"], "path": ["api", "admin", "users", "{{user_id}}"] }
           }
         }
       ]
@@ -380,7 +437,7 @@
     },
     {
       "key": "ai_service",
-      "value": "http://localhost:8001",
+      "value": "https://adastra-sky-ai.onrender.com",
       "type": "string"
     },
     {
@@ -394,7 +451,27 @@
       "type": "string"
     },
     {
+      "key": "demo_password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_password",
+      "value": "",
+      "type": "string"
+    },
+    {
       "key": "session_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "zone_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
       "value": "",
       "type": "string"
     }
