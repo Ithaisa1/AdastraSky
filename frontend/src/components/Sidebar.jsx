@@ -383,7 +383,9 @@ export default function Sidebar() {
         {/* Avatar */}
         <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/30 to-indigo-600/30 border border-cyan-500/50 flex items-center justify-center flex-shrink-0 overflow-hidden">
           <div className="absolute inset-0 animate-pulse bg-cyan-500/10" />
-          <span className="text-sm font-bold text-cyan-300 z-10">AS</span>
+          <span className="text-sm font-bold text-cyan-300 z-10">
+            {(user?.first_name?.[0] || 'A') + (user?.last_name?.[0] || 'S')}
+          </span>
           {!showLabels && (
             <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse border border-slate-900" title="System Online" />
           )}
