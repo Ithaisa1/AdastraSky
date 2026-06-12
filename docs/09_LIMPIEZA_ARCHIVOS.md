@@ -27,7 +27,7 @@
 | excursions.json | `frontend/src/data/excursions.json` | Dato | Bajo |
 | islas.json | `frontend/src/data/islas.json` | Dato | Bajo |
 
-**Total: 15 archivos, riesgo bajo confirmado.**
+**Total: 15 archivos, riesgo bajo confirmado. ✅ ELIMINADOS (commit 72c9a64)**
 
 ---
 
