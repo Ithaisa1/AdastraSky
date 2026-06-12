@@ -72,19 +72,21 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
         - En móvil: botón toggle que expande/colapsa para no tapar el mapa
         - En md+: siempre visible como antes
       */}
-      <div className="absolute bottom-4 left-2 md:left-4 z-[1000] flex items-end gap-2">
-
-        {/* Texto informativo — visible en md+ al lado de la leyenda */}
-        <div className="hidden md:block bg-astroCard/80 backdrop-blur-md rounded-lg px-4 py-2 border border-white/10 shadow-lg">
+      {/* Texto informativo — abajo a la derecha */}
+      <div className="absolute bottom-4 right-2 md:right-4 z-[1000]">
+        <div className="bg-astroCard/80 backdrop-blur-md rounded-lg px-4 py-2 border border-white/10 shadow-lg">
           <p className="text-xs text-gray-400 font-mono truncate">Haz clic en un marcador o en cualquier punto para explorar</p>
         </div>
+      </div>
 
-        {/* Botón toggle — solo visible en móvil */}
+      {/* Botón toggle móvil + Leyenda — abajo a la izquierda */}
+      <div className="absolute bottom-4 left-2 md:left-4 z-[1000]">
+
         <button
           className="md:hidden mb-1 bg-astroCard/90 backdrop-blur-lg rounded-lg px-3 py-2 border border-white/10 text-[10px] text-gray-400 font-mono flex items-center gap-2 w-full"
           onClick={() => setLegendOpen((v) => !v)}
         >
-          <span className="text-[10px] text-gray-500">Haz clic en un marcador o en cualquier punto para explorar</span>
+          <span className="text-[10px] text-gray-500">L E Y E N D A</span>
           <span className="ml-auto">{legendOpen ? '▲' : '▼'}</span>
         </button>
 
