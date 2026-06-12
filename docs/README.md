@@ -15,8 +15,13 @@
 | [04_FRONTEND.md](./04_FRONTEND.md) | Frontend React/Vite: pages, components, services, data, hooks |
 | [05_AI_SERVICE.md](./05_AI_SERVICE.md) | AI Service FastAPI/Python: agente LangGraph, RAG, sky engine, routers |
 | [06_BASE_DE_DATOS.md](./06_BASE_DE_DATOS.md) | Base de datos PostgreSQL: esquema, modelos, asociaciones, seeds |
-| [07_DESPLIEGUE_Y_SEGURIDAD.md](./07_DESPLIEGUE_Y_SEGURIDAD.md) | Despliegue (Render + Vercel), variables de entorno, seguridad, JWT, CORS |
-| [08_ANEXOS.md](./08_ANEXOS.md) | Glosario, comandos útiles, referencia de variables de entorno |
+| [07_DESPLIEGUE_Y_SEGURIDAD.md](./07_DESPLIEGUE_Y_SEGURIDAD.md) | Despliegue (Render + Vercel), variables de entorno, seguridad, JWT, CORS, auditoría |
+| [08_FUTURAS_Y_ANEXOS.md](./08_FUTURAS_Y_ANEXOS.md) | Glosario, comandos útiles, referencia de variables de entorno, mejoras futuras |
+| [09_LIMPIEZA_ARCHIVOS.md](./09_LIMPIEZA_ARCHIVOS.md) | Auditoría de archivos no utilizados con clasificación de riesgo |
+| [10_AUDITORIA_TECNICA.md](./10_AUDITORIA_TECNICA.md) | Auditoría técnica general con clasificación CRÍTICO/ALTO/MEDIO/BAJO |
+| [11_PRESENTACION_FINAL.md](./11_PRESENTACION_FINAL.md) | Presentación del proyecto: arquitectura, decisiones, retos, demo |
+| [12_MANUAL_USUARIO.md](./12_MANUAL_USUARIO.md) | Manual de usuario: registro, navegación, funcionalidades |
+| [13_MANUAL_INSTALACION.md](./13_MANUAL_INSTALACION.md) | Manual de instalación: setup local, despliegue, scripts |
 
 ---
 

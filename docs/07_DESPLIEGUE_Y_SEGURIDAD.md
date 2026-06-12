@@ -211,3 +211,70 @@ render logs adastra-sky-ai --tail
 # Ver estado deploy
 render deploy list
 ```
+
+## 7.8 Auditoría de Seguridad Completa (12/06/2026)
+
+### CRÍTICOS
+
+| # | Vulnerabilidad | Archivo | Líneas |
+|---|---------------|---------|--------|
+| 1 | GROQ_API_KEY expuesta en `.env` local | `ai-service/.env` | 2 |
+| 2 | HF_TOKEN expuesto en `.env` local | `ai-service/.env` | 4 |
+| 3 | JWT_SECRET en `.env` local (rotación necesaria) | `backend/.env` | 14 |
+| 4 | N8N_API_KEY expuesta | `backend/.env` | 21 |
+| 5 | OPENWEATHER_API_KEY expuesta | `backend/.env` | 28 |
+| 6 | NASA_API_KEY expuesta | `backend/.env` | 29 |
+| 7 | Admin creds en Postman collection | `docs/AdAstraSky.postman_collection.json` | 31 |
+
+### ALTOS
+
+| # | Vulnerabilidad | Archivo | Líneas |
+|---|---------------|---------|--------|
+| 8 | JWT en localStorage (accesible vía XSS) | `frontend/src/context/AuthContext.jsx` | 25-26, 61-62, 93-94 |
+| 9 | Componentes leen token directamente de localStorage | ProfilePage.jsx, ContactPage.jsx, ExperienceForm.jsx, ExperienceCard.jsx | Varias |
+| 10 | Axios default global Authorization header | `frontend/src/context/AuthContext.jsx` | 39-45 |
+| 11 | Sin refresh token / token revocation | `backend/src/controllers/auth.controller.js` | 64-68 |
+| 12 | Contact form sin validación Joi | `backend/src/routes/contact.routes.js` | 21-24 |
+| 13 | Experience uploads sin sanitización | `backend/src/routes/experiences.routes.js` | 120 |
+
+### MEDIOS
+
+| # | Vulnerabilidad | Archivo | Líneas |
+|---|---------------|---------|--------|
+| 14 | CSP permite `unsafe-inline` styles | `backend/server.js` | 66 |
+| 15 | SSL DB no validado por defecto | `backend/src/config/database.js` | 52 |
+| 16 | 50MB file upload limit (DoS risk) | `backend/src/routes/experiences.routes.js` | 27 |
+| 17 | Axios 1.6.2 (CVE-2023-45857) | `backend/package.json`, `frontend/package.json` | - |
+| 18 | Error handler expone DB field names | `backend/src/middleware/errorHandler.js` | 28-29 |
+| 19 | Sin rate limiting en admin/experiences | `backend/src/routes/admin.routes.js`, `experiences.routes.js` | - |
+| 20 | Auto-seed admin/demo en producción | `backend/server.js` | 196-212 |
+| 21 | Sin antivirus en uploads | `backend/src/routes/experiences.routes.js` | 25-34 |
+
+### BAJOS
+
+| # | Vulnerabilidad | Archivo | Líneas |
+|---|---------------|---------|--------|
+| 22 | 404 handler expone request URL | `backend/src/middleware/notFound.js` | 10 |
+| 23 | Events controller expone raw error.message | `backend/src/controllers/events.controller.js` | 35 |
+| 24 | Secrets parcialmente referenciados en docs | `docs/07_DESPLIEGUE_Y_SEGURIDAD.md` | 161-164 |
+| 25 | Sin Permissions-Policy header | `backend/server.js` | 60-71 |
+| 26 | Uploads static sin helmet | `backend/server.js` | 168 |
+
+### Acciones Recomendadas
+
+#### Inmediatas (hoy)
+1. **Rotar TODAS las API keys** en cada proveedor (Groq, HuggingFace, OpenWeather, NASA)
+2. **Regenerar JWT_SECRET** y actualizar en Render dashboard
+3. **Actualizar axios** a ^1.7.0 en backend y frontend (`npm install axios@^1.7.0`)
+4. **Ocultar field names** en errores Joi/Sequelize del errorHandler
+
+#### Corto plazo
+5. Migrar JWT a httpOnly cookies o al menos unificar uso de AuthContext
+6. Añadir Joi validation a contact form
+7. Reducir upload limit a 10MB
+8. Eliminar archivos muertos (ver docs/09_LIMPIEZA_ARCHIVOS.md)
+
+#### Medio plazo
+9. Añadir rate limiting en admin endpoints
+10. Añadir CSRF protection
+11. Añadir DOMPurify para sanitización de HTML en contenido usuario
