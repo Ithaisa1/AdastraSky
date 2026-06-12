@@ -311,7 +311,7 @@ export default function Sidebar() {
   );
 
   const NavigationMenu = () => (
-    <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-hide overscroll-contain py-6 px-2">
+    <nav className="flex-1 py-6 px-2">
       {/* Main Navigation */}
       <div className="mb-8">
         {showLabels ? (
@@ -374,27 +374,6 @@ export default function Sidebar() {
 
   const UserProfileSection = () => (
     <div className={`mt-auto pt-6 border-t border-slate-800/50`}>
-      {/* System Status */}
-      <div
-        className={`px-4 py-3 mb-4 rounded-lg bg-slate-900/30 border border-green-900/30 ${!isExpanded && "flex justify-center"}`}
-      >
-        {showLabels ? (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 flex-1">
-              <Radio size={12} className="text-green-400 animate-pulse" />
-              <span className="text-xs font-mono text-green-400 uppercase tracking-widest">
-                System Online
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div
-            className="w-2 h-2 rounded-full bg-green-400 animate-pulse"
-            title="System Online"
-          />
-        )}
-      </div>
-
       {/* User Avatar & Logout */}
       <div
         className={`flex items-center gap-3 px-4 py-2 ${!isExpanded && "justify-center"}`}
@@ -403,14 +382,20 @@ export default function Sidebar() {
         <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/30 to-indigo-600/30 border border-cyan-500/50 flex items-center justify-center flex-shrink-0 overflow-hidden">
           <div className="absolute inset-0 animate-pulse bg-cyan-500/10" />
           <span className="text-sm font-bold text-cyan-300 z-10">AS</span>
+          {!showLabels && (
+            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse border border-slate-900" title="System Online" />
+          )}
         </div>
 
         {/* User Info */}
         {showLabels && (
           <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate('/settings')}>
-            <p className="text-sm font-medium text-slate-200 truncate hover:text-cyan-400 transition-colors">
-              {user?.first_name} {user?.last_name}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-slate-200 truncate hover:text-cyan-400 transition-colors">
+                {user?.first_name} {user?.last_name}
+              </p>
+              <Radio size={10} className="text-green-400 animate-pulse shrink-0" title="System Online" />
+            </div>
             <p className="text-xs text-slate-500 truncate">
               {role === 'admin' ? 'Comandante de Misión' : 'Especialista de Misión'}
             </p>
