@@ -89,14 +89,17 @@ export const adminHardDeleteZone = async (req, res, next) => {
 export const adminSeedZones = async (req, res, next) => {
   try {
     const existing = await SkyQualityZone.count();
-    if (existing > 0) {
+    if (existing > 0 && req.query.force !== 'true') {
       return res.status(409).json({
         status: 'error',
         code: 'ZONES_EXIST',
-        message: `Ya existen ${existing} zonas en la base de datos. Elimínalas primero si deseas resemillar.`
+        message: `Ya existen ${existing} zonas. Usa ?force=true para reemplazarlas.`
       });
     }
-    const created = await SkyQualityZone.bulkCreate(ZONES_SEED);
+    if (existing > 0) {
+      await SkyQualityZone.destroy({ where: {} });
+    }
+    const created = await SkyQualityZone.bulkCreate(ZONES_SEED, { validate: false });
     res.status(201).json({
       status: 'success',
       message: `${created.length} zonas creadas correctamente`,
