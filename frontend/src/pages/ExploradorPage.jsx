@@ -53,11 +53,6 @@ const ExploradorPage = () => {
 
         {/* Mapa: siempre ocupa todo el espacio disponible */}
         <div className="flex-1 relative h-full">
-          <InformacionHeader
-            zone={selectedZone}
-            coords={clickedCoords}
-            hasPanel={hasPanel}
-          />
           <InteractiveMap
             onZoneSelect={handleZoneSelect}
             onCoordinateClick={handleCoordinateClick}
@@ -98,29 +93,6 @@ const ExploradorPage = () => {
           />
         )}
       </main>
-    </div>
-  );
-};
-
-const InformacionHeader = ({ zone, coords, hasPanel }) => {
-  const getLabel = () => {
-    if (zone) return `${zone.name} · Bortle ${zone.bortle_scale} · ${zone.altitude}m`;
-    if (coords) return `${coords.lat.toFixed(4)}°, ${coords.lng.toFixed(4)}° · Explorando zona`;
-    return 'Haz clic en un marcador o en cualquier punto para explorar';
-  };
-
-  return (
-    /*
-      En móvil con panel abierto subimos el header un poco
-      para que no quede pegado al borde del bottom sheet.
-      En desktop siempre top-4.
-    */
-    <div
-      className={`absolute left-4 right-4 z-[1000] bg-astroCard/80 backdrop-blur-md rounded-lg px-4 py-2 border border-white/10 shadow-lg transition-all duration-300 ${
-        hasPanel ? 'top-2 md:top-4' : 'top-4'
-      }`}
-    >
-      <p className="text-xs text-gray-400 font-mono truncate">{getLabel()}</p>
     </div>
   );
 };
