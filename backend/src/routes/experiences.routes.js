@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs/promises';
@@ -86,7 +87,15 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-router.post('/', authenticateToken, upload.array('images', 5), async (req, res) => {
+const createLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: { status: 'error', code: 429, message: 'Demasiadas experiencias. Máximo 10 por hora.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.post('/', authenticateToken, createLimiter, upload.array('images', 5), async (req, res) => {
   try {
     const { title, description, zone_id } = req.body;
     if (!title || !zone_id) {

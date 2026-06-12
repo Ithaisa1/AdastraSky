@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 import {
@@ -9,8 +10,16 @@ import {
 
 const router = express.Router();
 
-// All admin routes require authentication + admin role
-router.use(authenticateToken, requireAdmin);
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  message: { status: 'error', code: 429, message: 'Demasiadas solicitudes. Intenta de nuevo en 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// All admin routes require authentication + admin role + rate limiting
+router.use(authenticateToken, requireAdmin, adminLimiter);
 
 // ============================================================
 // ZONES MANAGEMENT
