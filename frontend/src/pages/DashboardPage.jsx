@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Calendar, Globe, Moon, Star, Sparkles, Map, Sun
+  Calendar, Globe, Moon, Star, Sparkles, Map, Sun, Download
 } from 'lucide-react';
 import {
   getLunarPhase, calculateSkyScore, getNextEvent, getGreeting
@@ -52,6 +52,21 @@ const DashboardPage = () => {
   }, []);
 
   const nextEvent = getNextEvent(astronomicalEvents);
+
+  const handleExport = async (format) => {
+    const ext = format === 'csv' ? 'csv' : 'geojson';
+    try {
+      const res = await fetch(`${API_URL}/api/sky/zones/${ext}`);
+      if (!res.ok) throw new Error('Error al exportar');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `adastra-zones.${ext}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {}
+  };
 
   const gaugeCircumference = 283;
   const gaugeOffset = gaugeCircumference - (skyScore.score / 10) * gaugeCircumference;
@@ -187,6 +202,24 @@ const DashboardPage = () => {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* EXPORT TOOLBAR */}
+          <div className="bg-gradient-card rounded-2xl border border-white/5 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <Download className="w-4 h-4 text-astroAccent" />
+              <span>{lang === 'es' ? 'Exportar zonas de observación' : lang === 'en' ? 'Export observation zones' : 'Beobachtungszonen exportieren'}</span>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => handleExport('csv')}
+                className="px-4 py-2 text-xs font-mono bg-astroDark/50 border border-white/10 rounded-lg text-gray-300 hover:text-white hover:border-astroAccent/50 transition-all">
+                CSV
+              </button>
+              <button onClick={() => handleExport('geojson')}
+                className="px-4 py-2 text-xs font-mono bg-astroDark/50 border border-white/10 rounded-lg text-gray-300 hover:text-white hover:border-astroAccent/50 transition-all">
+                GeoJSON
+              </button>
             </div>
           </div>
 
