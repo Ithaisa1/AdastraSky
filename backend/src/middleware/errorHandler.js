@@ -13,7 +13,6 @@ export const errorHandler = (err, req, res, next) => {
       code: 'VALIDATION_ERROR',
       message: 'Error de validación de datos',
       details: err.details.map(detail => ({
-        field: detail.path.join('.'),
         message: detail.message
       }))
     });
@@ -24,11 +23,7 @@ export const errorHandler = (err, req, res, next) => {
     return res.status(400).json({
       status: 'error',
       code: 'DATABASE_VALIDATION_ERROR',
-      message: 'Error de validación en base de datos',
-      details: err.errors.map(error => ({
-        field: error.path,
-        message: error.message
-      }))
+      message: 'Error de validación en base de datos'
     });
   }
 
@@ -36,11 +31,7 @@ export const errorHandler = (err, req, res, next) => {
     return res.status(409).json({
       status: 'error',
       code: 'DUPLICATE_ENTRY',
-      message: 'El registro ya existe',
-      details: err.errors.map(error => ({
-        field: error.path,
-        message: error.message
-      }))
+      message: 'El registro ya existe'
     });
   }
 

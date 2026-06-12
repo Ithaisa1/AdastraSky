@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.on
 
 const ProfilePage = () => {
   const { t } = useTranslation();
-  const { user, logout, updateUserData } = useAuth();
+  const { user, token, logout, updateUserData } = useAuth();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
@@ -66,7 +66,6 @@ const ProfilePage = () => {
     setSaving(true);
     setSaveMessage(null);
     try {
-      const token = localStorage.getItem('adastra_session');
       const res = await fetch(`${API_URL}/api/auth/profile`, {
         method: 'PUT',
         headers: {

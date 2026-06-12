@@ -7,7 +7,7 @@ export const notFound = (req, res, next) => {
   res.status(404).json({
     status: 'error',
     code: 'NOT_FOUND',
-    message: `Ruta no encontrada: ${req.method} ${req.originalUrl}`,
+    message: 'Ruta no encontrada',
     timestamp: new Date().toISOString()
   });
 };

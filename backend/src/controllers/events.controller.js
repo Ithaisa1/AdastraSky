@@ -32,7 +32,7 @@ export async function getAllEvents(req, res) {
 
     res.json({ success: true, count: events.length, data: events, source: 'nasa_jpl_imo' });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: 'Error al obtener eventos astronómicos' });
   }
 }
 
@@ -52,7 +52,7 @@ export async function getNasaApod(req, res) {
     }
     res.json({ success: true, data: Array.isArray(data) ? data : [data] });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: 'Error al obtener imagen astronómica del día' });
   }
 }
 

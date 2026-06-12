@@ -2,10 +2,12 @@ import { useState, useRef } from 'react';
 import { X, Upload, Image, MapPin, Camera } from 'lucide-react';
 import { santuariosData } from '../data/santuariosData';
 import CameraCapture from './CameraCapture';
+import { useAuth } from '../context/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const ExperienceForm = ({ onClose, onCreated, initialZoneId }) => {
+  const { token } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [zoneId, setZoneId] = useState(initialZoneId || '');
@@ -58,7 +60,6 @@ const ExperienceForm = ({ onClose, onCreated, initialZoneId }) => {
     setError('');
 
     try {
-      const token = localStorage.getItem('adastra_session');
       const formData = new FormData();
       formData.append('title', title.trim());
       formData.append('description', description.trim());

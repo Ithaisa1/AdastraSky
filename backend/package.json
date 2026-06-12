@@ -11,7 +11,7 @@
     "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watchAll",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "seed": "node database/seed.js",
+    "seed": "node src/seed/seedUsers.js",
     "seed:users": "node backend/src/seed/seedUsers.js",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo:all"

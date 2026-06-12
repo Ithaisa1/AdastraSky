@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const ExperienceCard = ({ experience, onDelete, onZoneClick }) => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [currentImage, setCurrentImage] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
@@ -20,7 +20,6 @@ const ExperienceCard = ({ experience, onDelete, onZoneClick }) => {
     if (!window.confirm('¿Eliminar esta experiencia?')) return;
     setDeleting(true);
     try {
-      const token = localStorage.getItem('adastra_session');
       await fetch(`${API_URL}/api/experiences/${experience.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }

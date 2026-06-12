@@ -44,12 +44,7 @@ const ContactPage = () => {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('adastra_session');
-      await axios.post(
-        `${API_URL}/api/contact`,
-        formData,
-        token ? { headers: { Authorization: `Bearer ${token}` } } : {}
-      );
+      await axios.post(`${API_URL}/api/contact`, formData);
       setSubmitSuccess(true);
       setErrors({});
       setFormData({ name: '', email: '', subject: '', message: '' });

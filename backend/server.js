@@ -90,8 +90,8 @@ app.use(cors({
 // ============================================================
 
 app.use('/api/', rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   standardHeaders: true,
   legacyHeaders: false,
 }));
