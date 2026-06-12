@@ -54,7 +54,7 @@ const DashboardPage = () => {
   const nextEvent = getNextEvent(astronomicalEvents);
 
   const handleExport = async (format) => {
-    const ext = format === 'csv' ? 'csv' : 'geojson';
+    const ext = format === 'pdf' ? 'pdf' : format === 'csv' ? 'csv' : 'geojson';
     try {
       const res = await fetch(`${API_URL}/api/sky/zones/${ext}`);
       if (!res.ok) throw new Error('Error al exportar');
@@ -206,30 +206,52 @@ const DashboardPage = () => {
           </div>
 
           {/* EXPORT TOOLBAR */}
-          <div className="bg-gradient-card rounded-2xl border border-white/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+          <div className="bg-gradient-card rounded-2xl border border-white/5 p-5">
+            <div className="flex items-center gap-3 mb-4">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-indigo-600/20 border border-cyan-500/30 flex items-center justify-center">
                 <Download className="w-4 h-4 text-cyan-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-200">{lang === 'es' ? 'Exportar zonas' : lang === 'en' ? 'Export zones' : 'Zonen exportieren'}</p>
-                <p className="text-xs text-gray-500">{lang === 'es' ? 'CSV · GeoJSON' : 'CSV · GeoJSON'}</p>
+                <p className="text-sm font-medium text-slate-200">{lang === 'es' ? 'Exportar zonas de observación' : lang === 'en' ? 'Export observation zones' : 'Beobachtungszonen exportieren'}</p>
+                <p className="text-xs text-gray-500">{lang === 'es' ? 'Descarga los datos para tus herramientas' : lang === 'en' ? 'Download data for your tools' : 'Daten für Ihre Werkzeuge herunterladen'}</p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button onClick={() => handleExport('csv')}
-                className="group relative px-4 py-2 text-xs font-mono bg-emerald-900/20 border border-emerald-700/30 rounded-lg text-emerald-300 hover:bg-emerald-900/40 hover:border-emerald-500/50 transition-all overflow-hidden">
-                <span className="relative z-10 flex items-center gap-1.5">
-                  <Download className="w-3 h-3" />
-                  CSV
-                </span>
+                className="group text-left p-3 rounded-xl bg-emerald-900/10 border border-emerald-700/20 hover:bg-emerald-900/25 hover:border-emerald-500/40 transition-all">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Download className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-sm font-mono font-semibold text-emerald-300">CSV</span>
+                </div>
+                <p className="text-[11px] text-gray-500 leading-tight">
+                  {lang === 'es' ? 'Abre en Excel, Google Sheets o cualquier analizador de datos. Ideal para filtrar, ordenar y hacer gráficos.' :
+                   lang === 'en' ? 'Open in Excel, Google Sheets or any data analyzer. Ideal for filtering, sorting and charting.' :
+                   'Öffnen in Excel, Google Sheets oder einem Datenanalyse-Tool. Ideal zum Filtern, Sortieren und Erstellen von Diagrammen.'}
+                </p>
               </button>
               <button onClick={() => handleExport('geojson')}
-                className="group relative px-4 py-2 text-xs font-mono bg-indigo-900/20 border border-indigo-700/30 rounded-lg text-indigo-300 hover:bg-indigo-900/40 hover:border-indigo-500/50 transition-all overflow-hidden">
-                <span className="relative z-10 flex items-center gap-1.5">
-                  <Download className="w-3 h-3" />
-                  GeoJSON
-                </span>
+                className="group text-left p-3 rounded-xl bg-indigo-900/10 border border-indigo-700/20 hover:bg-indigo-900/25 hover:border-indigo-500/40 transition-all">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Download className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className="text-sm font-mono font-semibold text-indigo-300">GeoJSON</span>
+                </div>
+                <p className="text-[11px] text-gray-500 leading-tight">
+                  {lang === 'es' ? 'Carga en QGIS, Google Earth, Mapbox o cualquier SIG. Compatible con sistemas de información geográfica.' :
+                   lang === 'en' ? 'Load in QGIS, Google Earth, Mapbox or any GIS. Compatible with geographic information systems.' :
+                   'Laden in QGIS, Google Earth, Mapbox oder jedes GIS. Kompatibel mit geografischen Informationssystemen.'}
+                </p>
+              </button>
+              <button onClick={() => handleExport('pdf')}
+                className="group text-left p-3 rounded-xl bg-rose-900/10 border border-rose-700/20 hover:bg-rose-900/25 hover:border-rose-500/40 transition-all">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Download className="w-3.5 h-3.5 text-rose-400" />
+                  <span className="text-sm font-mono font-semibold text-rose-300">PDF</span>
+                </div>
+                <p className="text-[11px] text-gray-500 leading-tight">
+                  {lang === 'es' ? 'Informe imprimible con resumen de todas las zonas organizadas por isla. Perfecto para llevar en campo.' :
+                   lang === 'en' ? 'Printable report with summary of all zones organized by island. Perfect to take in the field.' :
+                   'Druckbarer Bericht mit Zusammenfassung aller Zonen, nach Inseln organisiert. Perfekt für unterwegs.'}
+                </p>
               </button>
             </div>
           </div>

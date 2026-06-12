@@ -1,3 +1,4 @@
+import PDFDocument from 'pdfkit';
 import SkyQualityZone from '../models/SkyQualityZone.js';
 import { Op } from 'sequelize';
 import { calcGlobalScore, findBestZone } from '../utils/skyScoring.js';
@@ -142,5 +143,86 @@ export const getAllZonesCSV = async (req, res, next) => {
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename=adastra_zones.csv');
     res.status(200).send(banner + '\n' + [header, ...rows].join('\n'));
+  } catch (error) { next(error); }
+};
+
+export const getAllZonesPDF = async (req, res, next) => {
+  try {
+    const zones = await SkyQualityZone.findAll({ where: { is_active: true }, order: [['island', 'ASC'], ['name', 'ASC']] });
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=adastra_zones.pdf');
+    doc.pipe(res);
+
+    const primary = '#06B6D4';
+    const dark = '#0F172A';
+    const gray = '#64748B';
+
+    doc.rect(0, 0, doc.page.width, 140).fill(dark);
+    doc.fontSize(28).font('Helvetica-Bold').fillColor(primary).text('ADASTRA SKY', 50, 35);
+    doc.fontSize(11).font('Helvetica').fillColor('#94A3B8').text('Canary Islands Observatory Network', 50, 70);
+    doc.fontSize(9).fillColor(gray).text('Red de zonas de observación astronómica · ' + new Date().toISOString().slice(0, 10), 50, 90);
+    doc.fontSize(9).fillColor(gray).text('https://adastra-sky.vercel.app', 50, 105);
+
+    const total = zones.length;
+    const bortle1 = zones.filter(z => z.bortle_scale <= 2).length;
+    const observatories = zones.filter(z => z.category === 'observatory').length;
+    const viewpoints = zones.filter(z => z.category === 'astronomical_viewpoint').length;
+    const islands = [...new Set(zones.map(z => z.island))];
+
+    doc.fontSize(14).font('Helvetica-Bold').fillColor(primary).text('Resumen', 50, 170);
+    doc.fontSize(10).font('Helvetica').fillColor('#E2E8F0');
+    const stats = [
+      `Total zonas: ${total}`,
+      `Observatorios: ${observatories}`,
+      `Miradores astronómicos: ${viewpoints}`,
+      `Santuarios Bortle 1-2: ${bortle1}`,
+      `Islas: ${islands.length}`,
+    ];
+    stats.forEach((s, i) => doc.text(s, 50, 195 + i * 16));
+
+    doc.fontSize(14).font('Helvetica-Bold').fillColor(primary).text('Zonas por isla', 50, 300);
+
+    let y = 325;
+    const pageHeight = doc.page.height - 50;
+    const colWidth = 220;
+    const leftX = 50;
+    let col = 0;
+
+    islands.sort().forEach((island) => {
+      const islandZones = zones.filter(z => z.island === island);
+      if (y > pageHeight - 30) {
+        doc.addPage();
+        y = 50;
+        col = 0;
+      }
+      const x = leftX + col * (colWidth + 30);
+      doc.fontSize(10).font('Helvetica-Bold').fillColor(primary).text(island, x, y);
+      y += 16;
+
+      islandZones.forEach((zone) => {
+        if (y > pageHeight - 16) {
+          if (col === 0) {
+            col = 1;
+            y = 325;
+          } else {
+            doc.addPage();
+            y = 50;
+            col = 0;
+          }
+          doc.fontSize(10).font('Helvetica-Bold').fillColor(primary).text(island, x, y);
+          y += 16;
+        }
+        const cat = zone.category === 'observatory' ? '🔭' : zone.category === 'astronomical_viewpoint' ? '🌌' : '🏞️';
+        const bortleLabel = 'B' + zone.bortle_scale;
+        doc.fontSize(8).font('Helvetica').fillColor('#E2E8F0').text(`  ${cat} ${zone.name}  [${bortleLabel}]`, x, y);
+        y += 13;
+      });
+      y += 8;
+    });
+
+    doc.fontSize(8).fillColor(gray).text('Generado por AdAstra Sky · ' + new Date().toISOString().slice(0, 10), 50, doc.page.height - 30);
+
+    doc.end();
   } catch (error) { next(error); }
 };

@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateTokenOrApiKey } from '../middleware/apiKeyAuth.js';
-import { getAllZones, getZoneById, getZonesByIsland, getZonesByCategory, queryZones, recommendTonight, recommendForPhotography, getZonesGeoJSON, getAllZonesCSV } from '../controllers/sky.controller.js';
+import { getAllZones, getZoneById, getZonesByIsland, getZonesByCategory, queryZones, recommendTonight, recommendForPhotography, getZonesGeoJSON, getAllZonesCSV, getAllZonesPDF } from '../controllers/sky.controller.js';
 import { saveSkyScore, getLatestSkyScore, getSkyScoreHistory } from '../controllers/skyScore.controller.js';
 
 const router = express.Router();
@@ -37,6 +37,7 @@ router.get('/zones/geojson', getZonesGeoJSON);
  *       200: { description: Archivo CSV }
  */
 router.get('/zones/csv', getAllZonesCSV);
+router.get('/zones/pdf', getAllZonesPDF);
 
 /**
  * @openapi
