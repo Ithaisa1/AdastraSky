@@ -192,6 +192,18 @@ async function startServer() {
     // 🔥 CLAVE: crear tablas SIEMPRE (fix del error users)
     await sequelize.sync();
 
+    // Auto-seed: crear usuarios por defecto si la tabla está vacía
+    const { default: User } = await import('./src/models/User.js');
+    const userCount = await User.count();
+    if (userCount === 0) {
+      const bcrypt = await import('bcryptjs');
+      const hash = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || 'admin123', 10);
+      await User.create({ username: 'admin', email: 'admin@adastra.sky', password: hash, role: 'admin' });
+      const hashDemo = await bcrypt.hash(process.env.SEED_DEMO_PASSWORD || 'demo123', 10);
+      await User.create({ username: 'demo', email: 'demo@adastra.sky', password: hashDemo, role: 'user' });
+      console.log('🧑‍💻 Usuarios semilla creados (admin/demo)');
+    }
+
     console.log('🧱 Tablas sincronizadas');
 
     app.listen(PORT, () => {
