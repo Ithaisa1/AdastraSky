@@ -311,7 +311,9 @@ export default function Sidebar() {
   );
 
   const NavigationMenu = () => (
-    <nav className="flex-1 py-6 px-2">
+    <nav className="flex-1 min-h-0 overflow-y-auto py-6 px-2"
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
       {/* Main Navigation */}
       <div className="mb-8">
         {showLabels ? (
