@@ -106,13 +106,34 @@ export const getZonesGeoJSON = async (req, res, next) => {
       properties: { id: z.id, name: z.name, island: z.island, category: z.category, bortle: z.bortle_scale, altitude: z.altitude, access: z.access_type, has_parking: z.has_parking },
       geometry: { type: 'Point', coordinates: [parseFloat(z.longitude), parseFloat(z.latitude)] }
     }));
-    res.status(200).json({ type: 'FeatureCollection', features });
+    res.status(200).json({
+      type: 'FeatureCollection',
+      metadata: {
+        title: 'AdAstra Sky — Zonas de Observación Astronómica',
+        source: 'AdAstra Sky Platform · Canary Islands Observatory Network',
+        exported_at: new Date().toISOString(),
+        total_zones: zones.length,
+        url: 'https://adastra-sky.vercel.app',
+      },
+      features,
+    });
   } catch (error) { next(error); }
 };
 
 export const getAllZonesCSV = async (req, res, next) => {
   try {
     const zones = await SkyQualityZone.findAll({ where: { is_active: true } });
+    const now = new Date();
+    const banner = [
+      '# ============================================================',
+      '# ADASTRA SKY — Zonas de Observación Astronómica',
+      '# Canary Islands Observatory Network',
+      '# Exportado: ' + now.toISOString().slice(0, 10),
+      '# Total zonas: ' + zones.length,
+      '# Web: https://adastra-sky.vercel.app',
+      '# ============================================================',
+      '#',
+    ].join('\n');
     const header = 'id,name,island,municipality,category,subcategory,latitude,longitude,altitude,bortle_scale,access_type,has_parking,has_bathrooms,has_cafe,has_mobile_coverage,safety_risk,astro_score,photo_score,tourism_score,global_score';
     const rows = zones.map(z => {
       const s = calcGlobalScore(z);
@@ -120,6 +141,6 @@ export const getAllZonesCSV = async (req, res, next) => {
     });
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename=adastra_zones.csv');
-    res.status(200).send([header, ...rows].join('\n'));
+    res.status(200).send(banner + '\n' + [header, ...rows].join('\n'));
   } catch (error) { next(error); }
 };

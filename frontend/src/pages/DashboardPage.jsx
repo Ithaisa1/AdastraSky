@@ -206,19 +206,30 @@ const DashboardPage = () => {
           </div>
 
           {/* EXPORT TOOLBAR */}
-          <div className="bg-gradient-card rounded-2xl border border-white/5 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-gray-400">
-              <Download className="w-4 h-4 text-astroAccent" />
-              <span>{lang === 'es' ? 'Exportar zonas de observación' : lang === 'en' ? 'Export observation zones' : 'Beobachtungszonen exportieren'}</span>
+          <div className="bg-gradient-card rounded-2xl border border-white/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-indigo-600/20 border border-cyan-500/30 flex items-center justify-center">
+                <Download className="w-4 h-4 text-cyan-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-200">{lang === 'es' ? 'Exportar zonas' : lang === 'en' ? 'Export zones' : 'Zonen exportieren'}</p>
+                <p className="text-xs text-gray-500">{lang === 'es' ? 'CSV · GeoJSON' : 'CSV · GeoJSON'}</p>
+              </div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => handleExport('csv')}
-                className="px-4 py-2 text-xs font-mono bg-astroDark/50 border border-white/10 rounded-lg text-gray-300 hover:text-white hover:border-astroAccent/50 transition-all">
-                CSV
+                className="group relative px-4 py-2 text-xs font-mono bg-emerald-900/20 border border-emerald-700/30 rounded-lg text-emerald-300 hover:bg-emerald-900/40 hover:border-emerald-500/50 transition-all overflow-hidden">
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <Download className="w-3 h-3" />
+                  CSV
+                </span>
               </button>
               <button onClick={() => handleExport('geojson')}
-                className="px-4 py-2 text-xs font-mono bg-astroDark/50 border border-white/10 rounded-lg text-gray-300 hover:text-white hover:border-astroAccent/50 transition-all">
-                GeoJSON
+                className="group relative px-4 py-2 text-xs font-mono bg-indigo-900/20 border border-indigo-700/30 rounded-lg text-indigo-300 hover:bg-indigo-900/40 hover:border-indigo-500/50 transition-all overflow-hidden">
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <Download className="w-3 h-3" />
+                  GeoJSON
+                </span>
               </button>
             </div>
           </div>
