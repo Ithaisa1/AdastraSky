@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Globe } from 'lucide-react';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_RE = /^.{6,}$/;
+const PASSWORD_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 const NAME_RE = /^.{2,}$/;
 
 const LoginPage = () => {
@@ -46,7 +46,7 @@ const LoginPage = () => {
   const validate = () => {
     const errs = {};
     if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = 'Email inválido';
-    if (!formData.password || !PASSWORD_RE.test(formData.password)) errs.password = 'Mínimo 6 caracteres';
+    if (!formData.password || !PASSWORD_RE.test(formData.password)) errs.password = 'Mínimo 8 caracteres, mayúscula, minúscula y número';
     if (!isLogin) {
       if (!formData.firstName || !NAME_RE.test(formData.firstName)) errs.firstName = 'Mínimo 2 caracteres';
       if (!formData.lastName || !NAME_RE.test(formData.lastName)) errs.lastName = 'Mínimo 2 caracteres';
