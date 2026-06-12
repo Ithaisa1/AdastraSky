@@ -76,6 +76,8 @@ const LoginPage = () => {
       );
       if (!result.success) {
         setApiError(result.error);
+      } else {
+        setIsLogin(true);
       }
     }
 
