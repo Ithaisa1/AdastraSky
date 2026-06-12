@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import { Op } from 'sequelize';
 import { calcGlobalScore } from '../utils/skyScoring.js';
 import bcrypt from 'bcryptjs';
+import ZONES_SEED from '../seed/seedZones.js';
 
 const withScores = (zone) => {
   const plain = zone.dataValues || zone;
@@ -83,6 +84,40 @@ export const adminHardDeleteZone = async (req, res, next) => {
     await zone.destroy();
     res.status(200).json({ status: 'success', message: 'Zona eliminada permanentemente' });
   } catch (error) { next(error); }
+};
+
+export const adminSeedZones = async (req, res, next) => {
+  try {
+    const existing = await SkyQualityZone.count();
+    if (existing > 0) {
+      return res.status(409).json({
+        status: 'error',
+        code: 'ZONES_EXIST',
+        message: `Ya existen ${existing} zonas en la base de datos. Elimínalas primero si deseas resemillar.`
+      });
+    }
+    const created = await SkyQualityZone.bulkCreate(ZONES_SEED);
+    res.status(201).json({
+      status: 'success',
+      message: `${created.length} zonas creadas correctamente`,
+      count: created.length,
+      data: { zones: created.map(withScores) }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const adminClearZones = async (req, res, next) => {
+  try {
+    const deleted = await SkyQualityZone.destroy({ where: {} });
+    res.status(200).json({
+      status: 'success',
+      message: `${deleted} zonas eliminadas permanentemente`
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // ============================================================

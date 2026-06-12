@@ -3,6 +3,7 @@ import { authenticateToken } from '../middleware/authMiddleware.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 import {
   adminGetAllZones, adminCreateZone, adminUpdateZone, adminDeleteZone, adminHardDeleteZone,
+  adminSeedZones, adminClearZones,
   adminGetAllUsers, adminGetUserById, adminUpdateUser, adminDeleteUser, adminHardDeleteUser
 } from '../controllers/admin.controller.js';
 
@@ -20,6 +21,8 @@ router.post('/zones', adminCreateZone);
 router.put('/zones/:id', adminUpdateZone);
 router.delete('/zones/:id', adminDeleteZone);
 router.delete('/zones/:id/hard', adminHardDeleteZone);
+router.post('/zones/seed', adminSeedZones);
+router.delete('/zones/clear', adminClearZones);
 
 // ============================================================
 // USERS MANAGEMENT
