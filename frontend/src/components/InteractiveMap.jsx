@@ -72,14 +72,19 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
         - En móvil: botón toggle que expande/colapsa para no tapar el mapa
         - En md+: siempre visible como antes
       */}
-      <div className="absolute bottom-4 left-2 md:left-4 z-[1000]">
+      <div className="absolute bottom-4 left-2 md:left-4 z-[1000] flex items-end gap-2">
+
+        {/* Texto Archipiélago — visible en md+ al lado de la leyenda */}
+        <p className="hidden md:block text-[10px] text-gray-500 font-mono bg-astroCard/70 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/5 whitespace-nowrap">
+          Archipiélago Canario · 95 zonas
+        </p>
 
         {/* Botón toggle — solo visible en móvil */}
         <button
           className="md:hidden mb-1 bg-astroCard/90 backdrop-blur-lg rounded-lg px-3 py-2 border border-white/10 text-[10px] text-gray-400 font-mono flex items-center gap-2 w-full"
           onClick={() => setLegendOpen((v) => !v)}
         >
-          <span>L E Y E N D A</span>
+          <span className="text-[10px] text-gray-500">Archipiélago Canario · 95 zonas</span>
           <span className="ml-auto">{legendOpen ? '▲' : '▼'}</span>
         </button>
 
