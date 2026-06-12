@@ -124,7 +124,7 @@ El flujo de una consulta al chat es:
 - **33 miradores astronómicos**
 - **60 miradores paisajísticos**
 - Filtros por isla, categoría y escala Bortle
-- Exportación a GeoJSON y CSV
+- Exportación a CSV, GeoJSON y PDF
 - Panel de santuarios estelares (Bortle 1-2)
 
 ### Fase Lunar
@@ -246,6 +246,21 @@ Tres formatos de exportación disponibles desde el Dashboard:
 | **CSV** | Abrir en Excel, Google Sheets o cualquier analizador de datos |
 | **GeoJSON** | Cargar en QGIS, Google Earth, Mapbox o cualquier SIG |
 | **PDF** | Informe imprimible con resumen de zonas organizadas por isla |
+
+---
+
+## Roles del Sistema
+
+Actualmente existen **2 roles** con permisos diferenciados:
+
+| Rol | Acceso | Descripción |
+|-----|--------|-------------|
+| `user` | Rutas públicas + perfil propio + crear experiencias | Rol por defecto al registrarse |
+| `admin` | Todo lo anterior + panel de administración (CRUD zonas, gestión de usuarios) | Asignado solo mediante seed o directamente en base de datos |
+
+El rol se incluye en el payload del JWT en el momento del login (`{ id, email, role, iat, exp }`). El middleware `requireAdmin` verifica `req.user.role !== 'admin'` sin necesidad de consultar la base de datos en cada petición.
+
+No existe un endpoint público para promocionar un usuario a admin — solo puede hacerse mediante el panel de administración (usando una cuenta admin) o directamente en la base de datos.
 
 ---
 
