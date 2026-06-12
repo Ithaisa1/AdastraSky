@@ -509,6 +509,21 @@ Ver `docs/13_MANUAL_INSTALACION.md` para instrucciones detalladas de despliegue.
 
 ---
 
+## Herramientas de IA Utilizadas
+
+Este proyecto se desarrolló con asistencia de inteligencia artificial como parte del flujo de trabajo:
+
+| Herramienta | Uso |
+|-------------|-----|
+| **OpenCode** | Asistente principal de codificación, refactorización, depuración y gestión del proyecto directamente desde la terminal |
+| **Claude (Anthropic)** | Generación de documentación técnica, revisión de arquitectura y asistencia en diseño de componentes |
+| **ChatGPT (OpenAI)** | Soporte en algoritmos astronómicos (fase lunar, sky score), generación de datos de prueba y revisión de código |
+| **Gemini (Google)** | Validación de documentación técnica y apoyo en la estructura de presentación del proyecto |
+
+Todas las decisiones de implementación, revisión de seguridad y despliegue fueron supervisadas y validadas por el desarrollador.
+
+---
+
 ## Licencia
 
 MIT
