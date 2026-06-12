@@ -81,7 +81,11 @@ def call_model(state: AgentState) -> dict:
 
     system_msg = SystemMessage(content=SYSTEM_PROMPT + context_block)
 
-    models = _get_models()
+    try:
+        models = _get_models()
+    except Exception as e:
+        logger.error(f"Error obteniendo modelos: {str(e)}")
+        models = []
     if not models:
         response_text = _format_rag_results(rag_results) if rag_results else (
             "Soy AdAstra, tu guía astronómico.\n\n"
