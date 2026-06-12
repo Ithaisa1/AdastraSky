@@ -35,15 +35,15 @@
 
 | Archivo | Ruta | Motivo | Riesgo |
 |---------|------|--------|--------|
-| EventsPage.jsx | `frontend/src/pages/EventsPage.jsx` | Importado en App.jsx línea 12 pero SIN ruta asignada | Medio |
-| weather.json | `frontend/src/data/weather.json` | Solo importado por weatherService.js (no usado) | Bajo |
-| islands.json | `frontend/src/data/islands.json` | Solo importado por mapService.js (no usado) | Bajo |
-| observationPoints.json | `frontend/src/data/observationPoints.json` | Solo importado por mapService.js (no usado) | Bajo |
-| lightPollution.json | `frontend/src/data/lightPollution.json` | Solo importado por mapService.js (no usado) | Bajo |
-| events.json | `frontend/src/data/events.json` | Solo importado por astronomyService.js (no usado) | Bajo |
-| constellations.json | `frontend/src/data/constellations.json` | Solo importado por astronomyService.js (no usado) | Bajo |
+~~EventsPage.jsx~~ | ~~`frontend/src/pages/EventsPage.jsx`~~ | ✅ ELIMINADO | — |
+~~weather.json~~ | ~~`frontend/src/data/weather.json`~~ | ✅ ELIMINADO | — |
+~~islands.json~~ | ~~`frontend/src/data/islands.json`~~ | ✅ ELIMINADO | — |
+~~observationPoints.json~~ | ~~`frontend/src/data/observationPoints.json`~~ | ✅ ELIMINADO | — |
+~~lightPollution.json~~ | ~~`frontend/src/data/lightPollution.json`~~ | ✅ ELIMINADO | — |
+~~events.json~~ | ~~`frontend/src/data/events.json`~~ | ✅ ELIMINADO | — |
+~~constellations.json~~ | ~~`frontend/src/data/constellations.json`~~ | ✅ ELIMINADO | — |
 
-**Total: 7 archivos, revisión manual requerida.**
+**Total: 7 archivos, todos eliminados.**
 
 ---
 
