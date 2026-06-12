@@ -273,7 +273,7 @@ Blueprint: `render.yaml` — despliegue automatizado desde `main`.
 
 | Email | Contraseña | Rol |
 |-------|-----------|-----|
-| `admin@adastra.sky` | `admin123` | admin |
+| `admin@adastra.sky` | `Admin123` | admin |
 
 ---
 
