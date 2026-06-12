@@ -193,14 +193,15 @@ async function startServer() {
     await sequelize.sync();
 
     // Auto-seed: crear usuarios por defecto si la tabla está vacía
-    const { default: User } = await import('./src/models/User.js');
-    const userCount = await User.count();
+    const { default: UserModel } = await import('./src/models/User.js');
+    const userCount = await UserModel.count();
     if (userCount === 0) {
-      const bcrypt = await import('bcryptjs');
+      const bcryptMod = await import('bcryptjs');
+      const bcrypt = bcryptMod.default;
       const hash = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || 'admin123', 10);
-      await User.create({ email: 'admin@adastra.sky', password: hash, role: 'admin', first_name: 'Admin', last_name: 'AdAstra', preferred_language: 'es' });
+      await UserModel.create({ email: 'admin@adastra.sky', password: hash, role: 'admin', first_name: 'Admin', last_name: 'AdAstra', preferred_language: 'es' });
       const hashDemo = await bcrypt.hash(process.env.SEED_DEMO_PASSWORD || 'demo123', 10);
-      await User.create({ email: 'demo@adastra.sky', password: hashDemo, role: 'user', first_name: 'Demo', last_name: 'User', preferred_language: 'es' });
+      await UserModel.create({ email: 'demo@adastra.sky', password: hashDemo, role: 'user', first_name: 'Demo', last_name: 'User', preferred_language: 'es' });
       console.log('🧑‍💻 Usuarios semilla creados (admin/demo)');
     }
 
