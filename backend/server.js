@@ -126,7 +126,7 @@ app.get('/health', async (req, res) => {
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
-      error: error.message
+      error: 'Database unavailable'
     });
   }
 });
@@ -198,9 +198,15 @@ async function startServer() {
     if (userCount === 0) {
       const bcryptMod = await import('bcryptjs');
       const bcrypt = bcryptMod.default;
-      const hash = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || 'admin123', 10);
+      const adminPw = process.env.SEED_ADMIN_PASSWORD;
+      const demoPw = process.env.SEED_DEMO_PASSWORD;
+      if (!adminPw || !demoPw) {
+        console.log('⚠️  SEED_ADMIN_PASSWORD y SEED_DEMO_PASSWORD requeridos para auto-seed');
+        return;
+      }
+      const hash = await bcrypt.hash(adminPw, 10);
       await UserModel.create({ email: 'admin@adastra.sky', password: hash, role: 'admin', first_name: 'Admin', last_name: 'AdAstra', preferred_language: 'es' });
-      const hashDemo = await bcrypt.hash(process.env.SEED_DEMO_PASSWORD || 'demo123', 10);
+      const hashDemo = await bcrypt.hash(demoPw, 10);
       await UserModel.create({ email: 'demo@adastra.sky', password: hashDemo, role: 'user', first_name: 'Demo', last_name: 'User', preferred_language: 'es' });
       console.log('🧑‍💻 Usuarios semilla creados (admin/demo)');
     }

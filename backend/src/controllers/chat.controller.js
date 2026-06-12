@@ -17,12 +17,18 @@ export const sendMessage = async (req, res, next) => {
     const { message, language = 'es', session_id } = req.body;
     const user_id = req.user.id;
 
-    // Validar mensaje
     if (!message || message.trim().length === 0) {
       return res.status(400).json({
         status: 'error',
         code: 'EMPTY_MESSAGE',
         message: 'El mensaje no puede estar vacío'
+      });
+    }
+    if (message.length > 4000) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'MESSAGE_TOO_LONG',
+        message: 'El mensaje no puede exceder 4000 caracteres'
       });
     }
 

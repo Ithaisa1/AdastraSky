@@ -10,7 +10,7 @@ import User from '../models/User.js';
 
 const registerSchema = Joi.object({
   email: Joi.string().email().required(),
-  password: Joi.string().min(8).max(128).required(),
+  password: Joi.string().min(8).max(128).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'must contain uppercase, lowercase and number').required(),
   first_name: Joi.string().trim().max(100).required(),
   last_name: Joi.string().trim().max(100).required(),
   preferred_language: Joi.string().valid('es', 'en', 'de').default('es'),
@@ -164,62 +164,28 @@ export const login = async (req, res, next) => {
 };
 
 /**
- * Actualizar rol del usuario autenticado (dev tool)
+ * Obtener perfil del usuario autenticado
  */
-export const updateRole = async (req, res, next) => {
+const updateProfileSchema = Joi.object({
+  first_name: Joi.string().trim().max(100),
+  last_name: Joi.string().trim().max(100),
+  email: Joi.string().email(),
+  bio: Joi.string().trim().max(500),
+  location: Joi.string().trim().max(255),
+});
+
+export const updateProfile = async (req, res, next) => {
   try {
-    const { role } = req.body;
-    if (!role || !['user', 'admin'].includes(role)) {
+    const { error, value } = updateProfileSchema.validate(req.body, { abortEarly: false });
+    if (error) {
       return res.status(400).json({
         status: 'error',
         code: 'VALIDATION_ERROR',
-        message: 'Rol inválido. Valores permitidos: user, admin'
+        message: 'Error de validación',
+        details: error.details.map(d => ({ field: d.path.join('.'), message: d.message })),
       });
     }
-
-    const user = await User.findByPk(req.user.id);
-    if (!user) {
-      return res.status(404).json({
-        status: 'error',
-        code: 'USER_NOT_FOUND',
-        message: 'Usuario no encontrado'
-      });
-    }
-
-    await user.update({ role });
-
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-    );
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Rol actualizado correctamente',
-      data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          preferred_language: user.preferred_language,
-          role: user.role
-        },
-        token
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * Obtener perfil del usuario autenticado
- */
-export const updateProfile = async (req, res, next) => {
-  try {
-    const { first_name, last_name, email, bio, location } = req.body;
+    const { first_name, last_name, email, bio, location } = value;
     const user = await User.findByPk(req.user.id);
 
     if (!user) {
