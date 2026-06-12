@@ -327,15 +327,22 @@ const SanctuaryPanel = ({ zone, onClose }) => {
                 {experiences[carouselIdx].description && (
                   <p className="text-sm text-gray-400 mt-1">{experiences[carouselIdx].description}</p>
                 )}
-                <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-astroAccent to-cosmicPurple flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-white">
-                      {experiences[carouselIdx].author?.first_name?.[0]}{experiences[carouselIdx].author?.last_name?.[0]}
-                    </span>
+                <div className="flex items-center gap-3 mt-3 text-xs text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-astroAccent to-cosmicPurple flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-white">
+                        {experiences[carouselIdx].author?.first_name?.[0]}{experiences[carouselIdx].author?.last_name?.[0]}
+                      </span>
+                    </div>
+                    <span>{experiences[carouselIdx].author?.first_name}</span>
                   </div>
-                  <span>{experiences[carouselIdx].author?.first_name}</span>
-                  <span className="ml-auto">{new Date(experiences[carouselIdx].created_at).toLocaleDateString()}</span>
+                  <button onClick={() => { setShowCarousel(false); navigate('/map', { state: { selectedZone: experiences[carouselIdx].zone_id } }); }}
+                    className="flex items-center gap-1 text-astroAccent hover:text-astroAccent/80 transition-colors ml-auto">
+                    <MapPin className="w-3.5 h-3.5" />
+                    Ver ubicación
+                  </button>
                 </div>
+                <p className="text-[10px] text-gray-600 mt-1">{new Date(experiences[carouselIdx].created_at).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
