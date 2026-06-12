@@ -138,7 +138,6 @@ AI_SERVICE_URL=http://localhost:8001
 
 # APIs Externas
 OPENWEATHER_API_KEY=tu_clave_openweather_aqui
-ASTRONOMY_API_KEY=tu_clave_astronomy_api_aqui
 NASA_API_KEY=tu_clave_nasa_api_aqui
 
 # Frontend

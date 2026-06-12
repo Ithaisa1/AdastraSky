@@ -1,15 +1,15 @@
-# API Specification — AdAstra Sky
+# Especificacion de la API — AdAstra Sky
 
-## Base URLs
+## URLs base
 
 | Entorno | URL |
 |---------|-----|
-| Backend (Node) | `https://adastra-sky-backend.onrender.com` |
+| Backend (Node) | `https://aadastra-sky-backend.onrender.com` |
 | AI Service | `https://adastra-sky-ai.onrender.com` |
 
 ---
 
-## Authentication
+## Autenticacion
 
 ### POST /api/auth/register
 Registro de nuevo usuario.
@@ -51,10 +51,10 @@ Perfil del usuario autenticado. **Requiere JWT.**
 
 ---
 
-## Sky Zones
+## Zonas de Observacion (Sky Zones)
 
 ### GET /api/sky/zones
-Lista todas las zonas astronómicas.
+Lista todas las zonas astronómicas activas.
 
 ### GET /api/sky/zones/:id
 Detalle de una zona por UUID.
@@ -65,20 +65,23 @@ Búsqueda inteligente con filtros.
 **Query params:** `island`, `category`, `min_altitude`, `max_bortle`, `accessibility`
 
 ### GET /api/sky/zones/recommend/tonight
-Recomendaciones para esta noche.
+Recomendaciones para observar esta noche.
 
 ### GET /api/sky/zones/recommend/photo
 Mejores lugares para astrofotografía.
 
 ### GET /api/sky/zones/geojson
-Exportación GeoJSON de todas las zonas.
+Exportación GeoJSON de todas las zonas (con metadatos).
 
 ### GET /api/sky/zones/csv
-Exportación CSV.
+Exportación CSV (con cabecera informativa).
+
+### GET /api/sky/zones/pdf
+Exportación PDF (informe imprimible con resumen por isla).
 
 ---
 
-## Chat
+## Chat con IA
 
 ### POST /api/chat/message
 Envía un mensaje al agente de IA. **Requiere JWT.**
@@ -111,7 +114,7 @@ Historial de conversaciones. **Requiere JWT.**
 
 ---
 
-## AI Service (FastAPI)
+## AI Service (FastAPI — interno)
 
 ### GET /health
 Health check del servicio de IA.
@@ -121,7 +124,7 @@ Endpoint directo del agente LangGraph. (Usado internamente por el backend Node)
 
 ---
 
-## Islands
+## Islas
 
 ### GET /api/islands
 Lista de todas las islas con datos astronómicos.
