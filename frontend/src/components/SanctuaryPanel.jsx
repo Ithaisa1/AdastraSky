@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { X, Thermometer, Cloud, Wind, Eye, Droplets, Mountain, MapPin, Video, Camera, Globe, Star, Compass, Award, Users, Heart, Clock, Image as ImageIcon } from 'lucide-react';
+import { X, Thermometer, Cloud, Wind, Eye, Droplets, Mountain, MapPin, Video, Camera, Globe, Star, Compass, Award, Users, Heart, Clock, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import ScorePanel from './ScoreBadge';
 import ExperienceForm from './ExperienceForm';
 import { calcGlobalScore } from '../utils/scoring';
@@ -12,6 +12,8 @@ const SanctuaryPanel = ({ zone, onClose }) => {
   const navigate = useNavigate();
   const lang = i18n.language;
   const [showForm, setShowForm] = useState(false);
+  const [showCarousel, setShowCarousel] = useState(false);
+  const [carouselIdx, setCarouselIdx] = useState(0);
   const [weatherData, setWeatherData] = useState(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
   const [experiences, setExperiences] = useState([]);
@@ -271,14 +273,73 @@ const SanctuaryPanel = ({ zone, onClose }) => {
                 </div>
               ))
             )}
-            <button onClick={() => setShowForm(true)}
-              className="w-full py-2 text-sm text-astroAccent hover:text-astroAccent/80 border border-dashed border-astroAccent/30 hover:border-astroAccent/60 rounded-lg transition-colors">
-              {experiences.length === 0
-                ? 'Compartir experiencia'
-                : 'Ver todas las experiencias →'}
-            </button>
+            <div className="flex gap-2">
+              {experiences.length > 0 && (
+                <button onClick={() => { setCarouselIdx(0); setShowCarousel(true); }}
+                  className="flex-1 py-2 text-sm text-cyan-300 hover:text-cyan-200 bg-cyan-900/20 border border-cyan-700/30 hover:bg-cyan-900/40 hover:border-cyan-500/50 rounded-lg transition-colors">
+                  Ver experiencias
+                </button>
+              )}
+              <button onClick={() => setShowForm(true)}
+                className={`py-2 text-sm rounded-lg transition-colors ${experiences.length > 0 ? 'flex-1 text-astroAccent border border-dashed border-astroAccent/30 hover:border-astroAccent/60' : 'w-full text-astroAccent border border-dashed border-astroAccent/30 hover:border-astroAccent/60'}`}>
+                Compartir experiencia
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Carrusel de experiencias */}
+        {showCarousel && experiences.length > 0 && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowCarousel(false)}>
+            <div className="relative bg-astroCard rounded-2xl border border-white/10 w-full max-w-lg max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setShowCarousel(false)}
+                className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+              <div className="relative h-64 sm:h-80 bg-astroDark flex items-center justify-center">
+                {experiences[carouselIdx]?.images?.length > 0 ? (
+                  <img
+                    src={experiences[carouselIdx].images[0].startsWith('http') ? experiences[carouselIdx].images[0] : `${API_URL}${experiences[carouselIdx].images[0]}`}
+                    alt={experiences[carouselIdx].title}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <Camera className="w-16 h-16 text-gray-600" />
+                )}
+                {experiences.length > 1 && (
+                  <>
+                    <button onClick={() => setCarouselIdx(i => (i - 1 + experiences.length) % experiences.length)}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => setCarouselIdx(i => (i + 1) % experiences.length)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 px-3 py-1 rounded-full text-xs text-white">
+                  {carouselIdx + 1} / {experiences.length}
+                </div>
+              </div>
+              <div className="p-4">
+                <h4 className="text-lg font-bold text-white">{experiences[carouselIdx].title}</h4>
+                {experiences[carouselIdx].description && (
+                  <p className="text-sm text-gray-400 mt-1">{experiences[carouselIdx].description}</p>
+                )}
+                <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-astroAccent to-cosmicPurple flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-white">
+                      {experiences[carouselIdx].author?.first_name?.[0]}{experiences[carouselIdx].author?.last_name?.[0]}
+                    </span>
+                  </div>
+                  <span>{experiences[carouselIdx].author?.first_name}</span>
+                  <span className="ml-auto">{new Date(experiences[carouselIdx].created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
