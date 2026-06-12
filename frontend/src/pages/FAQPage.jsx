@@ -51,6 +51,14 @@ const faqData = [
       {
         q: '¿Necesito equipo especial?',
         a: 'No necesariamente. Muchos santuarios son ideales para la observación a simple vista. Para una experiencia más completa, recomendamos prismáticos o un telescopio portátil. Los miradores astronómicos suelen estar equipados con paneles informativos y zonas de descanso.'
+      },
+      {
+        q: '¿Qué son los objetos Messier?',
+        a: 'El Catálogo Messier es una de las listas de objetos astronómicos más famosas de la historia, creada por el astrónomo francés Charles Messier en el siglo XVIII. Contiene 110 objetos celestes —nebulosas, cúmulos estelares y galaxias— que Messier recopiló para ayudar a los cazadores de cometas a no confundirlos con cometas reales. Irónicamente, lo que él creó como una "lista de molestias" se convirtió en la guía de observación más popular entre astrónomos aficionados. Desde Canarias, gracias a la calidad de sus cielos, pueden observarse la mayoría de los objetos Messier del hemisferio norte, incluyendo la Galaxia de Andrómeda (M31), la Nebulosa de Orión (M42) y el Cúmulo de Hércules (M13).'
+      },
+      {
+        q: '¿Los planetas tienen objetos Messier?',
+        a: 'No, los objetos Messier no son planetas ni están en planetas. El catálogo Messier incluye exclusivamente objetos fuera del Sistema Solar: nebulosas (nubes de gas y polvo donde nacen estrellas), cúmulos estelares (grupos de estrellas unidas por gravedad) y galaxias (inmensos sistemas de miles de millones de estrellas). Los planetas visibles desde Canarias —Marte, Júpiter, Saturno, Venus— se observan directamente con el telescopio o incluso a simple vista, y no forman parte del catálogo Messier. Sin embargo, algunos objetos Messier como las Pléyades (M45) o la Nebulosa de Orión (M42) son visibles a simple vista desde santuarios con cielo oscuro (Bortle 1-3) en las Islas Canarias.'
       }
     ]
   },
