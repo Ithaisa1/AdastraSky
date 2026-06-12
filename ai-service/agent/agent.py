@@ -10,12 +10,27 @@ SYSTEM_PROMPT = """Eres AdAstra, un guía astronómico experto en los cielos de 
 Hablas con conocimiento sobre: observatorios (Teide, Roque de los Muchachos), constelaciones, 
 planetas, eventos astronómicos, astroturismo, y condiciones de observación.
 
+TIENES ACCESO A LAS SIGUIENTES HERRAMIENTAS. Úsalas SIEMPRE que sea relevante:
+
+1. search_rag_documents(query) — Busca en documentos de la IAC (Instituto Astrofísico de Canarias). 
+   Úsala para responder preguntas sobre observatorios, normativas del cielo, astroturismo, 
+   condiciones de observación en Canarias. Ejemplo: search_rag_documents(query="Observatorio del Teide")
+   
+2. get_observatory_info(name) — Obtiene datos detallados de un observatorio canario por nombre.
+
+3. get_weather_conditions(lat, lon) — Consulta el clima actual para una ubicación.
+
+4. get_constellation_info(name) — Información sobre una constelación.
+
+5. calculate_sky_score(cloudiness, light_pollution, moon_phase, wind, humidity, transparency) — 
+   Calcula la calidad del cielo para observación.
+
 Reglas:
 - Responde SIEMPRE en el idioma que te preguntan.
-- Cuando uses información de documentos RAG, CITA la fuente al final: «(Fuente: [título del documento])».
+- Cuando uses search_rag_documents, USA los resultados para responder. No digas "no tengo información" si los resultados contienen la respuesta.
+- CITA la fuente al final cuando uses RAG: «(Fuente: [título del documento])».
 - Si no sabes algo dilo honestamente, no inventes.
 - Sé conciso pero informativo, máximo 3-4 párrafos.
-- Si preguntan por observación nocturna, sugiere consultar el clima con la herramienta adecuada.
 """
 
 
@@ -27,9 +42,7 @@ def _get_models() -> list[BaseChatModel]:
     models = []
     groq_key = os.environ.get("GROQ_API_KEY") or s.groq_api_key or ""
     openai_key = os.environ.get("OPENAI_API_KEY") or s.openai_api_key or ""
-    hf_key = os.environ.get("HF_TOKEN") or s.hf_token or ""
     groq_model = os.environ.get("GROQ_MODEL") or s.groq_model or "llama-3.3-70b-versatile"
-    hf_model = os.environ.get("HF_MODEL") or s.hf_model or "mistralai/Mistral-7B-Instruct-v0.3"
     openai_model = os.environ.get("OPENAI_MODEL") or s.openai_model or "gpt-4o-mini"
     if groq_key:
         from langchain_groq import ChatGroq
@@ -37,9 +50,6 @@ def _get_models() -> list[BaseChatModel]:
     if openai_key:
         from langchain_openai import ChatOpenAI
         models.append(ChatOpenAI(model=openai_model, api_key=openai_key, temperature=0.3))
-    if hf_key:
-        from langchain_huggingface import HuggingFaceEndpoint
-        models.append(HuggingFaceEndpoint(repo_id=hf_model, huggingfacehub_api_token=hf_key, temperature=0.3, max_new_tokens=512))
     return models
 
 
@@ -57,14 +67,13 @@ def _simple_rag_response(messages) -> str:
     if not results:
         return (
             "Soy AdAstra, tu guía astronómico.\n\n"
-            "Actualmente estoy en **modo offline** (sin conexión a ningún LLM). "
+            "Actualmente no tengo conexión con los modelos de lenguaje. "
             "Puedo consultar los documentos de la IAC que tengo en mi base de conocimiento.\n\n"
             "Pregúntame sobre:\n"
             "• Observatorios en Canarias (Teide, Roque de los Muchachos)\n"
             "• Astroturismo y mejores lugares para observar\n"
             "• Normativa de protección del cielo (Ley del Cielo)\n"
-            "• Eventos astronómicos y constelaciones\n\n"
-            "Para respuestas más completas, configura GROQ_API_KEY o OPENAI_API_KEY en el .env"
+            "• Eventos astronómicos y constelaciones"
         )
 
     import re

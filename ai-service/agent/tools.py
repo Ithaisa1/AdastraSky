@@ -8,8 +8,8 @@ settings = get_settings()
 
 
 @tool
-def search_rag_documents(query: str, top_k: int = 3) -> list[dict]:
-    """Busca documentos astronómicos relevantes usando RAG. Útil para preguntas sobre observatorios, cielos de Canarias, astroturismo, normativas IAC."""
+def search_rag_documents(query: str, top_k: int = 5) -> list[dict]:
+    """Busca en documentos IAC (Instituto Astrofísico de Canarias). Úsala SIEMPRE para preguntas sobre observatorios, normativa del cielo, astroturismo, lugares de observación, condiciones del cielo, o cualquier tema relacionado con astronomía en Canarias. Recibe un texto de búsqueda y devuelve fragmentos relevantes."""
     store = get_vector_store()
     results = store.similarity_search(query, k=top_k)
     return [
