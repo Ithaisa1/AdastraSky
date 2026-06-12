@@ -74,17 +74,17 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
       */}
       <div className="absolute bottom-4 left-2 md:left-4 z-[1000] flex items-end gap-2">
 
-        {/* Texto Archipiélago — visible en md+ al lado de la leyenda */}
-        <p className="hidden md:block text-[10px] text-gray-500 font-mono bg-astroCard/70 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/5 whitespace-nowrap">
-          Archipiélago Canario · 95 zonas
-        </p>
+        {/* Texto informativo — visible en md+ al lado de la leyenda */}
+        <div className="hidden md:block bg-astroCard/80 backdrop-blur-md rounded-lg px-4 py-2 border border-white/10 shadow-lg">
+          <p className="text-xs text-gray-400 font-mono truncate">Haz clic en un marcador o en cualquier punto para explorar</p>
+        </div>
 
         {/* Botón toggle — solo visible en móvil */}
         <button
           className="md:hidden mb-1 bg-astroCard/90 backdrop-blur-lg rounded-lg px-3 py-2 border border-white/10 text-[10px] text-gray-400 font-mono flex items-center gap-2 w-full"
           onClick={() => setLegendOpen((v) => !v)}
         >
-          <span className="text-[10px] text-gray-500">Archipiélago Canario · 95 zonas</span>
+          <span className="text-[10px] text-gray-500">Haz clic en un marcador o en cualquier punto para explorar</span>
           <span className="ml-auto">{legendOpen ? '▲' : '▼'}</span>
         </button>
 
