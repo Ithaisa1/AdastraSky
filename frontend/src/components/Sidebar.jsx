@@ -311,7 +311,7 @@ export default function Sidebar() {
   );
 
   const NavigationMenu = () => (
-    <nav className={`flex-1 py-6 px-2 overflow-y-auto scrollbar-hide`}>
+    <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-hide overscroll-contain py-6 px-2">
       {/* Main Navigation */}
       <div className="mb-8">
         {showLabels ? (
@@ -476,9 +476,10 @@ export default function Sidebar() {
           ${isMobile ? mobileWidth : sidebarWidth}
           ${transitionClass}
           fixed md:relative
-          h-screen
+          h-screen max-h-screen
           flex flex-col
           flex-shrink-0
+          overflow-hidden
           bg-astroCard/90 backdrop-blur-md
           border-r border-slate-800
           shadow-[0_0_25px_rgba(79,70,229,0.2)]
