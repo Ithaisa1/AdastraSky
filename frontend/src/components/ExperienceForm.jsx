@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { X, Upload, Image, MapPin, Camera } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { X, Upload, Image, MapPin, Camera, ChevronDown } from 'lucide-react';
 import { santuariosData } from '../data/santuariosData';
 import CameraCapture from './CameraCapture';
 import { useAuth } from '../context/AuthContext';
@@ -16,7 +16,33 @@ const ExperienceForm = ({ onClose, onCreated, initialZoneId }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [showCamera, setShowCamera] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(false);
+  const [dropdownUp, setDropdownUp] = useState(false);
+  const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
   const fileRef = useRef(null);
+
+  const handleClickOutside = useCallback((e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setOpenDropdown(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (openDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      const trigger = triggerRef.current;
+      if (trigger) {
+        const rect = trigger.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const dropdownHeight = 280;
+        setDropdownUp(spaceBelow < dropdownHeight && rect.top > dropdownHeight);
+      }
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openDropdown, handleClickOutside]);
+
+  const selectedZone = zoneId ? santuariosData.find(z => z.id === zoneId) : null;
 
   const groupedZones = {};
   santuariosData.forEach(z => {
@@ -116,17 +142,37 @@ const ExperienceForm = ({ onClose, onCreated, initialZoneId }) => {
                 <MapPin className="w-3.5 h-3.5 text-astroAccent" />
                 Ubicación
               </label>
-              <select value={zoneId} onChange={e => setZoneId(e.target.value)}
-                className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors">
-                <option value="">Selecciona un lugar...</option>
-                {Object.entries(groupedZones).map(([island, zones]) => (
-                  <optgroup key={island} label={island}>
-                    {zones.map(z => (
-                      <option key={z.id} value={z.id}>{z.name}</option>
+              <div className="relative" ref={dropdownRef}>
+                <button type="button" ref={triggerRef}
+                  onClick={() => setOpenDropdown(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors">
+                  <span className={selectedZone ? '' : 'text-gray-500'}>
+                    {selectedZone ? `${selectedZone.name} (${selectedZone.island})` : 'Selecciona un lugar...'}
+                  </span>
+                  <ChevronDown size={16} className={`text-gray-400 transition-transform ${openDropdown ? 'rotate-180' : ''}`} />
+                </button>
+                {openDropdown && (
+                  <div className={`absolute z-50 left-0 right-0 bg-astroDark border border-white/10 rounded-lg shadow-xl max-h-64 overflow-y-auto ${dropdownUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
+                    <button type="button" onClick={() => { setZoneId(''); setOpenDropdown(false); }}
+                      className={`w-full text-left px-4 py-2.5 text-sm ${!zoneId ? 'text-cyan-400 bg-cyan-400/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+                      Selecciona un lugar...
+                    </button>
+                    {Object.entries(groupedZones).map(([island, zones]) => (
+                      <div key={island}>
+                        <div className="px-4 py-1.5 text-xs text-gray-600 uppercase tracking-wider font-semibold bg-black/20">
+                          {island}
+                        </div>
+                        {zones.map(z => (
+                          <button key={z.id} type="button" onClick={() => { setZoneId(z.id); setOpenDropdown(false); }}
+                            className={`w-full text-left px-4 py-2.5 text-sm ${zoneId === z.id ? 'text-cyan-400 bg-cyan-400/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}>
+                            {z.name}
+                          </button>
+                        ))}
+                      </div>
                     ))}
-                  </optgroup>
-                ))}
-              </select>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
