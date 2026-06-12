@@ -411,10 +411,10 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 
 | Email | Contraseña | Rol |
 |-------|-----------|-----|
-| `admin@adastra.sky` | `Admin123` | Administrador |
+| `demo@adastra.sky` | `Demo1234` | user |
 
-Los usuarios semilla se crean automáticamente al ejecutar `npm run seed`.  
-La contraseña del administrador puede configurarse mediante la variable de entorno `SEED_ADMIN_PASSWORD`.
+El rol `user` se asigna automáticamente al registrarse.  
+Los usuarios seed se crean al ejecutar `npm run seed`.
 
 ---
 
