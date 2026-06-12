@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.on
 
 const ChatPage = () => {
   const { t, i18n } = useTranslation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +45,7 @@ const ChatPage = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('adastra_session')}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
