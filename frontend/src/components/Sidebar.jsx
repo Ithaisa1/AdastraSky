@@ -497,6 +497,29 @@ export default function Sidebar() {
         {/* Navigation Menu */}
         <NavigationMenu />
 
+        {/* Colaboración */}
+        {isExpanded && (
+          <div className="mx-3 mb-4 mt-2 p-3 rounded-lg bg-amber-900/10 border border-amber-700/20">
+            <a
+              href="https://senderoscanarios.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-2.5 group"
+            >
+              <Map className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs font-medium text-amber-300 group-hover:text-amber-200 transition-colors">
+                  ¿Te gusta el senderismo?
+                </p>
+                <p className="text-[11px] text-amber-400/70 mt-0.5 group-hover:text-amber-300/70 transition-colors">
+                  Descubre rutas que pasan por estos miradores en{' '}
+                  <span className="underline decoration-amber-500/30">Senderos Canarios</span>
+                </p>
+              </div>
+            </a>
+          </div>
+        )}
+
         {/* User Profile & Status */}
         <UserProfileSection />
 
