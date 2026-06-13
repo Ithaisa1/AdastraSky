@@ -18,6 +18,7 @@ const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState('connecting');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -27,6 +28,21 @@ const ChatPage = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const warmUp = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/chat/warmup`);
+        if (!cancelled) setAiStatus(res.ok ? 'ready' : 'connecting');
+      } catch {
+        if (!cancelled) setAiStatus('connecting');
+      }
+    };
+    warmUp();
+    const interval = setInterval(warmUp, 45000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -54,12 +70,15 @@ const ChatPage = () => {
       setMessages((prev) => [...prev, { role: 'assistant', content: aiMessage }]);
     } catch (error) {
       console.error('Chat error:', error);
+      const errorMsg = error.response?.data?.message || '';
+      const friendlyMsg = errorMsg.includes('Too Many')
+        ? 'El servicio de IA está saturado en este momento. Espera unos segundos y vuelve a intentarlo.'
+        : errorMsg.includes('no disponible') || errorMsg.includes('timeout')
+        ? 'El servicio de IA está arrancando. Intenta de nuevo en unos segundos.'
+        : 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta nuevamente.';
       setMessages((prev) => [
         ...prev,
-        {
-          role: 'assistant',
-          content: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta nuevamente.',
-        },
+        { role: 'assistant', content: friendlyMsg },
       ]);
     } finally {
       setIsLoading(false);
@@ -89,7 +108,11 @@ const ChatPage = () => {
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-white">{t('chat.title')}</h1>
-                <p className="text-xs text-gray-400 truncate max-w-[200px] sm:max-w-none">Conectado como {user?.email}</p>
+                <p className="text-xs text-gray-400 truncate max-w-[200px] sm:max-w-none">
+                  {aiStatus === 'connecting'
+                    ? 'Iniciando servicio de IA...'
+                    : `Conectado como ${user?.email}`}
+                </p>
               </div>
             </div>
           </div>

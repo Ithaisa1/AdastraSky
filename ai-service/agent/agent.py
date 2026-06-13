@@ -111,7 +111,26 @@ def call_model(state: AgentState) -> dict:
             continue
 
     logger.error(f"Todos los LLMs fallaron. Último error: {last_error}")
-    response_text = _format_rag_results(rag_results) if rag_results else "Lo siento, no pude procesar tu consulta. Intenta de nuevo más tarde."
+    rate_limited = "429" in str(last_error) or "Too Many" in str(last_error) or "rate_limit" in str(last_error).lower()
+    if rate_limited:
+        response_text = (
+            "El servicio de IA está experimentando alta demanda en este momento. "
+            "Tengo acceso a los documentos del Instituto de Astrofísica de Canarias (IAC) "
+            "y puedo responder preguntas sobre los cielos de Canarias.\n\n"
+        )
+        rag_context = _format_rag_results(rag_results) if rag_results else ""
+        if rag_context:
+            response_text += rag_context
+        else:
+            response_text += (
+                "Pregúntame sobre:\n"
+                "• Observatorios en Canarias (Teide, Roque de los Muchachos)\n"
+                "• Astroturismo y mejores lugares para observar\n"
+                "• Normativa de protección del cielo (Ley del Cielo)\n"
+                "• Eventos astronómicos y constelaciones"
+            )
+    else:
+        response_text = _format_rag_results(rag_results) if rag_results else "Lo siento, no pude procesar tu consulta. Intenta de nuevo más tarde."
     return {"messages": [AIMessage(content=response_text)]}
 
 

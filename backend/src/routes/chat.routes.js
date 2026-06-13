@@ -28,6 +28,16 @@ const router = express.Router();
  *       504: { description: Timeout del AI Service }
  */
 router.post('/', authenticateToken, sendMessage);
+router.get('/warmup', async (req, res) => {
+  try {
+    const axios = (await import('axios')).default;
+    const aiUrl = process.env.AI_SERVICE_URL || 'http://localhost:8001';
+    await axios.get(`${aiUrl}/health`, { timeout: 25000 });
+    res.json({ status: 'success', message: 'AI service warm' });
+  } catch {
+    res.json({ status: 'success', message: 'AI service warming up' });
+  }
+});
 
 /**
  * @openapi
