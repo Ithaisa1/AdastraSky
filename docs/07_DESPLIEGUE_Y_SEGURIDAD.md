@@ -11,7 +11,7 @@
          │            │                    │
          ▼            ▼                    ▼
 ┌──────────────┐ ┌──────────┐ ┌──────────────────────┐
-│   Vercel     │ │  Render  │ │   Render (Neon)      │
+│   Vercel     │ │  Render  │ │   Render             │
 │  Frontend    │ │ Backend  │ │   PostgreSQL          │
 │  React SPA   │ │ Node.js  │ │   Free Tier          │
 │  Free Tier   │ │ Free Tier│ │   512MB RAM          │
@@ -88,9 +88,10 @@ El archivo `render.yaml` define la infraestructura como código. Render lo usa p
 | `PORT` | render.yaml | `10000` |
 | `NODE_ENV` | render.yaml | `production` |
 | `GROQ_API_KEY` | **Dashboard manual** (sync:false) | API key de Groq |
-| `HF_TOKEN` | **Dashboard manual** (sync:false) | HuggingFace token |
-| `HF_MODEL` | render.yaml | `mistralai/Mistral-7B-Instruct-v0.3` |
+| `OPENAI_API_KEY` | **Dashboard manual** (sync:false) | API key de OpenAI |
 | `FRONTEND_URL` | render.yaml | `https://adastra-sky.vercel.app` |
+
+**Nota**: Ya no se necesita `HF_TOKEN` ni `HF_MODEL` — HuggingFace fue eliminado de la cadena LLM.
 
 ### Vercel — Frontend
 | Variable | Cómo se setea | Valor |
@@ -140,6 +141,8 @@ const corsOptions = {
 - Mínimo 6 caracteres (validación en backend y frontend)
 - Sin almacenamiento en texto plano
 - Token de reseteo con expiración
+- **Usuario admin**: `admin@adastra.sky` / `Admin123`
+- **Usuario demo**: `demo@adastra.sky` / `Demo1234`
 
 ### 7.4.7 Seguridad en Producción
 | Medida | Implementación |
@@ -148,7 +151,11 @@ const corsOptions = {
 | SSL forzado | Render termina SSL, backend recibe HTTP interno |
 | CORS restringido | Solo orígenes permitidos |
 | Sin stack traces | errorHandler.js oculta detalle en producción |
-| Rate limiting | 100 requests / 15 minutos por IP |
+| **Rate limiting auth** | 10 requests / 15 minutos por IP |
+| **Rate limiting contact** | 5 requests / hora por IP |
+| **Rate limiting experiences POST** | 10 requests / hora por IP |
+| **Rate limiting admin** | 60 requests / 15 minutos por IP |
+| **Upload limit** | 10MB para imágenes de experiencias |
 
 ## 7.5 Limpieza de API Keys
 
@@ -159,7 +166,7 @@ Las siguientes API keys han sido expuestas en el repositorio público y DEBEN se
 | Key | Estado | Acción necesaria |
 |---|---|---|
 | `GROQ_API_KEY` (gsk_PcOG3S...) | Revocada (401) | Generar nueva en console.groq.com |
-| `HF_TOKEN` (hf_yuziFZl...) | Permisos insuficientes (403) | Generar nuevo en huggingface.co/settings/tokens |
+| ~~`HF_TOKEN` (hf_yuziFZl...)~~ | Eliminado del proyecto | Ya no se usa |
 | `OPENWEATHER_API_KEY` (b9e204e...) | Expuesta | Rotar en openweathermap.org |
 | `NASA_API_KEY` (RS1MpF7...) | Expuesta | Rotar en api.nasa.gov |
 
@@ -170,9 +177,10 @@ El archivo `.gitignore` ya excluye `.env` para evitar futuras exposiciones.
 Render duerme los servicios gratuitos tras **15 minutos de inactividad**:
 - **Primera request**: ~30 segundos de cold start
 - **Siguientes requests**: normales (~200ms)
-- **Mitigación**: El backend hace warm-up del AI Service al iniciar (`GET /health`)
+- **Mitigación**: El backend dispone de un endpoint `GET /api/chat/warmup` que ping al AI Service para precalentarlo
+- **Frontend**: La `ChatPage` muestra "Iniciando servicio de IA..." mientras se completa el warm-up
 
-**Para evitar cold start durante la demo**: Mantener una pestaña con la app abierta o usar un servicio de ping (ej. cron-job.org) que haga GET a `/health` cada 10 minutos.
+**Para evitar cold start durante la demo**: Mantener una pestaña con la app abierta o usar un servicio de ping (ej. cron-job.org) que haga GET a `/api/chat/warmup` cada 10 minutos.
 
 ## 7.7 Scripts Útiles
 
@@ -190,7 +198,7 @@ cd frontend && npm run dev
 # Iniciar solo AI Service
 cd ai-service && uvicorn main:app --reload --port 8001
 
-# Tests backend
+# Tests backend (24/24 pasan)
 cd backend && npm test
 
 # Tests frontend
@@ -212,69 +220,66 @@ render logs adastra-sky-ai --tail
 render deploy list
 ```
 
-## 7.8 Auditoría de Seguridad Completa (12/06/2026)
+## 7.8 Auditoría de Seguridad Completa (13/06/2026)
 
 ### CRÍTICOS
 
-| # | Vulnerabilidad | Archivo | Líneas |
-|---|---------------|---------|--------|
-| 1 | GROQ_API_KEY expuesta en `.env` local | `ai-service/.env` | 2 |
-| 2 | HF_TOKEN expuesto en `.env` local | `ai-service/.env` | 4 |
-| 3 | JWT_SECRET en `.env` local (rotación necesaria) | `backend/.env` | 14 |
-| 4 | N8N_API_KEY expuesta | `backend/.env` | 21 |
-| 5 | OPENWEATHER_API_KEY expuesta | `backend/.env` | 28 |
-| 6 | NASA_API_KEY expuesta | `backend/.env` | 29 |
-| 7 | Admin creds en Postman collection | `docs/AdAstraSky.postman_collection.json` | 31 |
+| # | Vulnerabilidad | Archivo | Líneas | Estado |
+|---|---|---|---|---|
+| 1 | GROQ_API_KEY expuesta en `.env` local | `ai-service/.env` | 2 | Pendiente |
+| 2 | ~~HF_TOKEN expuesto en `.env` local~~ | Eliminado | - | **Resuelto** |
+| 3 | JWT_SECRET en `.env` local (rotación necesaria) | `backend/.env` | 14 | Pendiente |
+| 4 | N8N_API_KEY expuesta | `backend/.env` | 21 | Pendiente |
+| 5 | OPENWEATHER_API_KEY expuesta | `backend/.env` | 28 | Pendiente |
+| 6 | NASA_API_KEY expuesta | `backend/.env` | 29 | Pendiente |
+| 7 | Admin creds en Postman collection | `docs/postman/AdAstraSky.postman_collection.json` | 31 | Pendiente |
 
 ### ALTOS
 
-| # | Vulnerabilidad | Archivo | Líneas |
-|---|---------------|---------|--------|
-| 8 | JWT en localStorage (accesible vía XSS) | `frontend/src/context/AuthContext.jsx` | 25-26, 61-62, 93-94 |
-| 9 | Componentes leen token directamente de localStorage | ProfilePage.jsx, ContactPage.jsx, ExperienceForm.jsx, ExperienceCard.jsx | Varias |
-| 10 | Axios default global Authorization header | `frontend/src/context/AuthContext.jsx` | 39-45 |
-| 11 | Sin refresh token / token revocation | `backend/src/controllers/auth.controller.js` | 64-68 |
-| 12 | Contact form sin validación Joi | `backend/src/routes/contact.routes.js` | 21-24 |
-| 13 | Experience uploads sin sanitización | `backend/src/routes/experiences.routes.js` | 120 |
+| # | Vulnerabilidad | Archivo | Líneas | Estado |
+|---|---|---|---|---|
+| 8 | JWT en localStorage (accesible vía XSS) | `frontend/src/context/AuthContext.jsx` | 25-26, 61-62, 93-94 | Pendiente |
+| 9 | Componentes leen token directamente de localStorage | ProfilePage.jsx, ContactPage.jsx, ExperienceForm.jsx, ExperienceCard.jsx | Varias | Pendiente |
+| 10 | Axios default global Authorization header | `frontend/src/context/AuthContext.jsx` | 39-45 | Pendiente |
+| 11 | Sin refresh token / token revocation | `backend/src/controllers/auth.controller.js` | 64-68 | Pendiente |
+| 12 | ~~Contact form sin validación Joi~~ | `backend/src/routes/contact.routes.js` | 21-24 | **Resuelto** |
+| 13 | Experience uploads sin sanitización | `backend/src/routes/experiences.routes.js` | 120 | Pendiente |
 
 ### MEDIOS
 
-| # | Vulnerabilidad | Archivo | Líneas |
-|---|---------------|---------|--------|
-| 14 | CSP permite `unsafe-inline` styles | `backend/server.js` | 66 |
-| 15 | SSL DB no validado por defecto | `backend/src/config/database.js` | 52 |
-| 16 | 50MB file upload limit (DoS risk) | `backend/src/routes/experiences.routes.js` | 27 |
-| 17 | Axios 1.6.2 (CVE-2023-45857) | `backend/package.json`, `frontend/package.json` | - |
-| 18 | Error handler expone DB field names | `backend/src/middleware/errorHandler.js` | 28-29 |
-| 19 | Sin rate limiting en admin/experiences | `backend/src/routes/admin.routes.js`, `experiences.routes.js` | - |
-| 20 | Auto-seed admin/demo en producción | `backend/server.js` | 196-212 |
-| 21 | Sin antivirus en uploads | `backend/src/routes/experiences.routes.js` | 25-34 |
+| # | Vulnerabilidad | Archivo | Líneas | Estado |
+|---|---|---|---|---|
+| 14 | CSP permite `unsafe-inline` styles | `backend/server.js` | 66 | Pendiente |
+| 15 | SSL DB no validado por defecto | `backend/src/config/database.js` | 52 | Pendiente (rejectUnauthorized: false) |
+| 16 | ~~50MB file upload limit (DoS risk)~~ | `backend/src/routes/experiences.routes.js` | 27 | **Resuelto — reducido a 10MB** |
+| 17 | Axios 1.6.2 (CVE-2023-45857) | `backend/package.json`, `frontend/package.json` | - | Pendiente |
+| 18 | Error handler expone DB field names | `backend/src/middleware/errorHandler.js` | 28-29 | Pendiente |
+| 19 | ~~Sin rate limiting en admin/experiences~~ | `backend/src/routes/admin.routes.js`, `experiences.routes.js` | - | **Resuelto** |
+| 20 | Auto-seed admin/demo en producción | `backend/server.js` | 196-212 | Pendiente |
+| 21 | Sin antivirus en uploads | `backend/src/routes/experiences.routes.js` | 25-34 | Pendiente |
 
 ### BAJOS
 
-| # | Vulnerabilidad | Archivo | Líneas |
-|---|---------------|---------|--------|
-| 22 | 404 handler expone request URL | `backend/src/middleware/notFound.js` | 10 |
-| 23 | Events controller expone raw error.message | `backend/src/controllers/events.controller.js` | 35 |
-| 24 | Secrets parcialmente referenciados en docs | `docs/07_DESPLIEGUE_Y_SEGURIDAD.md` | 161-164 |
-| 25 | Sin Permissions-Policy header | `backend/server.js` | 60-71 |
-| 26 | Uploads static sin helmet | `backend/server.js` | 168 |
+| # | Vulnerabilidad | Archivo | Líneas | Estado |
+|---|---|---|---|---|
+| 22 | 404 handler expone request URL | `backend/src/middleware/notFound.js` | 10 | Pendiente |
+| 23 | Events controller expone raw error.message | `backend/src/controllers/events.controller.js` | 35 | Pendiente |
+| 24 | Secrets parcialmente referenciados en docs | `docs/07_DESPLIEGUE_Y_SEGURIDAD.md` | 161-164 | Pendiente |
+| 25 | Sin Permissions-Policy header | `backend/server.js` | 60-71 | Pendiente |
+| 26 | Uploads static sin helmet | `backend/server.js` | 168 | Pendiente |
 
 ### Acciones Recomendadas
 
 #### Inmediatas (hoy)
-1. **Rotar TODAS las API keys** en cada proveedor (Groq, HuggingFace, OpenWeather, NASA)
+1. **Rotar TODAS las API keys** en cada proveedor (Groq, OpenWeather, NASA)
 2. **Regenerar JWT_SECRET** y actualizar en Render dashboard
 3. **Actualizar axios** a ^1.7.0 en backend y frontend (`npm install axios@^1.7.0`)
 4. **Ocultar field names** en errores Joi/Sequelize del errorHandler
 
 #### Corto plazo
 5. Migrar JWT a httpOnly cookies o al menos unificar uso de AuthContext
-6. Añadir Joi validation a contact form
-7. Reducir upload limit a 10MB
-8. Eliminar archivos muertos (ver docs/09_LIMPIEZA_ARCHIVOS.md)
+6. Eliminar archivos muertos (ver docs/09_LIMPIEZA_ARCHIVOS.md)
 
 #### Medio plazo
-9. Añadir rate limiting en admin endpoints
-10. Añadir CSRF protection
-11. Añadir DOMPurify para sanitización de HTML en contenido usuario
+7. Añadir CSRF protection
+8. Añadir DOMPurify para sanitización de HTML en contenido usuario

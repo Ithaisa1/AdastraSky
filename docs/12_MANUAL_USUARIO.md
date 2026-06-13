@@ -20,7 +20,12 @@
 2. Haz clic en "Iniciar Sesión"
 3. Serás redirigido al Dashboard
 
-### 1.3 Recuperación de Contraseña
+### 1.3 Demo Rápido
+Puedes usar la cuenta demo para explorar todas las funcionalidades:
+- **Email:** `demo@adastra.sky`
+- **Contraseña:** `Demo1234`
+
+### 1.4 Recuperación de Contraseña
 Actualmente no disponible. Contacta con el administrador.
 
 ---
@@ -31,18 +36,20 @@ La barra lateral izquierda (sidebar) te da acceso a todas las secciones:
 
 | Sección | Descripción |
 |---------|-------------|
-| **Dashboard** | Resumen general: sky score, clima, próximos eventos |
+| **Dashboard** | Resumen general: sky score, clima, próximos eventos, colaboración Senderos Canarios |
 | **Explorar** | Mapa interactivo con 95+ zonas de observación |
 | **Observatorios** | Información del Teide y Roque de los Muchachos |
 | **Calendario** | Eventos astronómicos y galería APOD |
 | **Datos** | Catálogo de constelaciones, planetas y eventos |
 | **Experiencias** | Galería comunitaria de experiencias |
-| **Chat IA** | Asistente astronómico con IA |
+| **Chat IA** | Asistente astronómico con IA (con indicador de estado) |
 | **Perfil** | Configuración de cuenta y experiencias propias |
 | **Contacto** | Formulario de contacto |
-| **FAQ** | Preguntas frecuentes |
+| **FAQ** | Preguntas frecuentes (incluye objetos Messier) |
 
 *(Usuarios admin ven además **Panel Admin**)*
+
+> **Nota:** La barra de navegación superior ha sido eliminada. "System Online" ahora se muestra en el sidebar. Los avatares en la interfaz muestran las iniciales del usuario de forma dinámica.
 
 ---
 
@@ -55,6 +62,7 @@ Tras iniciar sesión, el Dashboard muestra:
 - **Próximos eventos** — Lluvias de estrellas, eclipses, etc.
 - **Fase lunar** — Estado actual de la luna
 - **Recomendaciones** — Mejores zonas para observar esta noche
+- **Senderos Canarios** — Colaboración con rutas de senderismo astronómico
 
 ---
 
@@ -66,17 +74,21 @@ Tras iniciar sesión, el Dashboard muestra:
 3. **Filtrar** — Usa los botones superiores para filtrar por:
    - Isla (Tenerife, Gran Canaria, La Palma, etc.)
    - Categoría (Observatorio, Mirador Astronómico, Mirador Paisajístico)
-4. **Seleccionar** — Haz clic en un marcador para ver detalles
+4. **Seleccionar** — Haz clic en un marcador para ver detalles. El mapa vuela automáticamente (flyTo) a la zona seleccionada.
 5. **Street View** — Haz clic en una zona no marcada para ver Street View
 
-### Panel de Zona
+### Panel de Zona (SanctuaryPanel)
 Al seleccionar un marcador, se abre un panel con:
 - Nombre, isla, altitud
+- Carrusel de imágenes con botón "Ver ubicación"
 - Puntuaciones (Astro, Foto, Turismo, Global)
 - Escala Bortle (contaminación lumínica)
 - Tipo de acceso
 - Descripción detallada
 - Coordenadas
+
+### Exportar a PDF
+Puedes exportar la vista del mapa y los detalles de la zona a PDF usando el botón de exportación (pdfkit).
 
 ---
 
@@ -84,9 +96,10 @@ Al seleccionar un marcador, se abre un panel con:
 
 ### Cómo usar
 1. Ve a la sección **Chat** en el sidebar
-2. Escribe tu pregunta en el campo de texto
-3. Presiona Enter o el botón de enviar
-4. El asistente responderá basado en documentos IAC
+2. Observa el indicador de estado de IA (conectando/listo/error)
+3. Escribe tu pregunta en el campo de texto (máx. 4000 caracteres)
+4. Presiona Enter o el botón de enviar
+5. El asistente responderá basado en documentos IAC
 
 ### Ejemplos de preguntas
 - "¿Qué es el Observatorio del Teide?"
@@ -99,11 +112,16 @@ Al seleccionar un marcador, se abre un panel con:
 - Pregunta en español para mejores resultados
 - Sé específico para respuestas más precisas
 - El historial se guarda por sesión
+- Si ves un error 429 (límite de rate), el asistente responderá con un mensaje amigable usando solo los documentos RAG
 
 ### Límites
 - Mensajes de hasta 4000 caracteres
 - Primer mensaje puede tardar ~30s (cold start del servicio)
 - ~30 consultas/minuto (limitación de Groq)
+- El endpoint `/api/chat/warmup` mantiene el servicio activo
+
+### Warm-up
+El servicio incluye un endpoint `GET /api/chat/warmup` que mantiene el IA service caliente para reducir el cold start.
 
 ---
 
@@ -138,6 +156,9 @@ Al seleccionar un marcador, se abre un panel con:
 - Lista completa filtrable
 - Búsqueda por tipo, mes, año
 
+### FAQ — Objetos Messier
+La sección FAQ ha sido actualizada con información sobre objetos Messier: cúmulos, nebulosas y galaxias visibles desde Canarias.
+
 ---
 
 ## 8. Experiencias de Usuario
@@ -150,8 +171,8 @@ Al seleccionar un marcador, se abre un panel con:
 ### Crear Experiencia
 1. Ve a la sección **Experiencias**
 2. Haz clic en "Compartir Experiencia"
-3. Completa: título, descripción, zona
-4. Añade hasta 5 fotos (desde cámara o archivo)
+3. Completa: título, descripción, zona (usa el dropdown personalizado de Ubicación)
+4. Añade hasta 5 fotos (desde cámara o archivo, máximo 10MB total)
 5. Las fotos se procesan a WebP automáticamente
 
 ---
@@ -162,6 +183,7 @@ Al seleccionar un marcador, se abre un panel con:
 - Editar: nombre, apellido, email, biografía
 - Cambiar contraseña
 - Configurar idioma preferido
+- Avatar dinámico con tus iniciales
 
 ### Tus Experiencias
 - Lista de experiencias que has creado
@@ -177,6 +199,7 @@ Al seleccionar un marcador, se abre un panel con:
 
 ### Acceso al Panel Admin
 Solo usuarios con rol `admin` ven la opción **Panel Admin** en el sidebar.
+- **Admin por defecto:** email configurado en seed, contraseña `Admin123`
 
 ### Gestión de Zonas
 - Ver todas las zonas (activas e inactivas)
@@ -196,11 +219,12 @@ Solo usuarios con rol `admin` ven la opción **Panel Admin** en el sidebar.
 | Problema | Solución |
 |----------|----------|
 | No carga el mapa | Refresca la página (Ctrl+F5) |
-| El chat no responde | Espera ~30s (cold start), luego reintenta |
+| El chat no responde | Espera ~30s (cold start), luego reintenta. Mira el indicador de estado de IA. |
 | Error 502 en chat | El servicio IA está iniciándose, espera 30s |
+| Error 429 en chat | Límite de rate alcanzado. El asistente responde con RAG offline automáticamente. |
 | No puedo registrarme | Contraseña: 8+ chars, mayúscula, minúscula, número |
 | No veo el Panel Admin | Tu cuenta no tiene rol admin |
-| Las fotos no suben | Máximo 5 imágenes, 50MB total |
+| Las fotos no suben | Máximo 5 imágenes, 10MB total |
 | Error de red | Verifica tu conexión a internet |
 | Sesión expirada | Vuelve a iniciar sesión |
 
@@ -210,5 +234,14 @@ Solo usuarios con rol `admin` ven la opción **Panel Admin** en el sidebar.
 
 - **Formulario de contacto:** Sección Contacto en la app
 - **Email:** admin@adastra.sky
-- **FAQ:** Sección FAQ con preguntas frecuentes
+- **FAQ:** Sección FAQ con preguntas frecuentes (incluye Messier)
 - **Reportar bug:** Abre issue en GitHub
+
+---
+
+## Miradores Destacados
+
+| Mirador | Coordenadas | Altitud |
+|---------|-------------|---------|
+| Mirador Sicasumbre | (28.288, -14.160) | 430 m |
+| Mirador Garañona | (28.4822, -16.4345) | 250 m |

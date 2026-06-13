@@ -27,7 +27,7 @@
 | excursions.json | `frontend/src/data/excursions.json` | Dato | Bajo |
 | islas.json | `frontend/src/data/islas.json` | Dato | Bajo |
 
-**Total: 15 archivos, riesgo bajo confirmado. ✅ ELIMINADOS (commit 72c9a64)**
+**Total: 15 archivos — ✅ ELIMINADOS (commit 72c9a64)**
 
 ---
 
@@ -35,15 +35,25 @@
 
 | Archivo | Ruta | Motivo | Riesgo |
 |---------|------|--------|--------|
-~~EventsPage.jsx~~ | ~~`frontend/src/pages/EventsPage.jsx`~~ | ✅ ELIMINADO | — |
-~~weather.json~~ | ~~`frontend/src/data/weather.json`~~ | ✅ ELIMINADO | — |
-~~islands.json~~ | ~~`frontend/src/data/islands.json`~~ | ✅ ELIMINADO | — |
-~~observationPoints.json~~ | ~~`frontend/src/data/observationPoints.json`~~ | ✅ ELIMINADO | — |
-~~lightPollution.json~~ | ~~`frontend/src/data/lightPollution.json`~~ | ✅ ELIMINADO | — |
-~~events.json~~ | ~~`frontend/src/data/events.json`~~ | ✅ ELIMINADO | — |
-~~constellations.json~~ | ~~`frontend/src/data/constellations.json`~~ | ✅ ELIMINADO | — |
+| EventsPage.jsx | `frontend/src/pages/EventsPage.jsx` | Sin ruta asignada, duplica CalendarPage | Medio |
+| weather.json | `frontend/src/data/weather.json` | Solo importado por servicio no usado | Bajo |
+| islands.json | `frontend/src/data/islands.json` | Solo importado por servicio no usado | Bajo |
+| observationPoints.json | `frontend/src/data/observationPoints.json` | Solo importado por servicio no usado | Bajo |
+| lightPollution.json | `frontend/src/data/lightPollution.json` | Solo importado por servicio no usado | Bajo |
+| events.json | `frontend/src/data/events.json` | Solo importado por servicio no usado | Bajo |
+| constellations.json | `frontend/src/data/constellations.json` | Solo importado por servicio no usado | Bajo |
 
-**Total: 7 archivos, todos eliminados.**
+**Total: 7 archivos — ✅ ELIMINADOS**
+
+---
+
+### TOTAL: 22 ARCHIVOS ELIMINADOS
+
+| Categoría | Cantidad | Resultado |
+|-----------|----------|-----------|
+| Eliminación Segura | 15 | ✅ Eliminados sin impacto |
+| Revisión Manual | 7 | ✅ Verificados y eliminados |
+| **Total** | **22** | **Ahorro ~70KB + 8 componentes no utilizados** |
 
 ---
 
@@ -75,7 +85,7 @@
 - **Ruta:** `frontend/src/components/Navigation.jsx`
 - **Propósito:** Barra de navegación superior simple
 - **Uso real:** 0 imports en todo el código fuente
-- **Alternativa:** Sidebar.jsx es el componente de navegación activo
+- **Alternativa:** Sidebar.jsx es el componente de navegación activo. Navbar scroll eliminado, System Online movido a otro componente.
 - **Riesgo eliminación:** Bajo — sin imports ni referencias dinámicas
 - **Dependencias indirectas:** Ninguna
 
@@ -129,14 +139,14 @@
 
 | Archivo | Tamaño aprox | Importado por | Estado |
 |---------|-------------|---------------|--------|
-| weather.json | ~5KB | weatherService.js (no usado) | Cadena |
-| islands.json | ~3KB | mapService.js (no usado) | Cadena |
-| observationPoints.json | ~10KB | mapService.js (no usado) | Cadena |
-| lightPollution.json | ~8KB | mapService.js (no usado) | Cadena |
-| events.json | ~15KB | astronomyService.js (no usado) | Cadena |
-| constellations.json | ~20KB | astronomyService.js (no usado) | Cadena |
-| excursions.json | ~2KB | Ninguno | Huérfano total |
-| islas.json | ~2KB | Ninguno | Huérfano total |
+| weather.json | ~5KB | weatherService.js (no usado) | ✅ Eliminado |
+| islands.json | ~3KB | mapService.js (no usado) | ✅ Eliminado |
+| observationPoints.json | ~10KB | mapService.js (no usado) | ✅ Eliminado |
+| lightPollution.json | ~8KB | mapService.js (no usado) | ✅ Eliminado |
+| events.json | ~15KB | astronomyService.js (no usado) | ✅ Eliminado |
+| constellations.json | ~20KB | astronomyService.js (no usado) | ✅ Eliminado |
+| excursions.json | ~2KB | Ninguno | ✅ Eliminado |
+| islas.json | ~2KB | Ninguno | ✅ Eliminado |
 
 ---
 
@@ -145,7 +155,7 @@
 #### `favicon.ico`
 - **Ruta:** `frontend/src/assets/favicon.ico`
 - **Uso real:** index.html apunta a `/favicon.png` (en public/)
-- **Riesgo eliminación:** Bajo
+- **Riesgo eliminación:** Bajo — ✅ Eliminado
 
 ---
 
@@ -156,16 +166,16 @@
 - **Uso real:** Importado en App.jsx línea 12 pero NUNCA asignado a una ruta
 - **Ruta existente:** `/events` usa CalendarPage.jsx
 - **¿Código duplicado?** CalendarPage.jsx y EventsPage.jsx tienen funcionalidad similar (eventos)
-- **Riesgo eliminación:** Medio — revisar si la funcionalidad es necesaria o si CalendarPage ya la cubre
+- **Riesgo eliminación:** Medio — CalendarPage cubre toda la funcionalidad
+- **Resultado:** ✅ Eliminado
 
 ---
 
 ## Conclusión
 
-| Categoría | Cantidad | Acción Recomendada |
-|-----------|----------|-------------------|
-| **Eliminación Segura** | 15 | Eliminar sin impacto |
-| **Revisión Manual** | 7 | Verificar antes de eliminar |
-| **NO Eliminar** | — | Mantener |
-
-**Ahorro estimado:** ~70KB de código/data muerto + 8 componentes no utilizados.
+| Categoría | Cantidad | Acción |
+|-----------|----------|--------|
+| **Eliminación Segura** | 15 | ✅ Eliminados |
+| **Revisión Manual** | 7 | ✅ Eliminados |
+| **NO Eliminar** | — | ✅ Mantenidos |
+| **Total eliminados** | **22** | **~70KB de código/data muerto liberado** |

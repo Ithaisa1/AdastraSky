@@ -2,7 +2,7 @@
 
 ## 4.1 Estructura General
 
-Aplicación SPA (Single Page Application) con 14 rutas, 13 componentes y 11 archivos de datos estáticos. Tema oscuro con diseño glassmorphism, responsive mobile-first.
+Aplicación SPA (Single Page Application) con 14 rutas, componentes activos y archivos de datos estáticos reducidos (22 archivos no utilizados eliminados). Tema oscuro con diseño glassmorphism, responsive mobile-first.
 
 ### Configuración de Tailwind (`tailwind.config.js`)
 Colores personalizados del tema:
@@ -37,24 +37,33 @@ Panel principal del usuario autenticado con:
 - **Clima actual**: temperatura, nubosidad, viento, humedad
 - **Eventos próximos**: cards con fecha, nombre y tipo
 - **Recomendación**: "Excelente noche para observar" según score
+- **Senderos Canarios**: tarjeta de colaboración con enlace a `senderoscanarios.vercel.app`
+- **Botones de exportación**: CSV, GeoJSON, PDF con descripciones
 
 ### ChatPage.jsx
 Interfaz conversacional con el agente IA AdAstra:
 - Historial de mensajes en burbujas (usuario derecha, IA izquierda)
 - Input de texto + botón Send
+- **Indicador de estado de IA**: "Iniciando servicio de IA..." mientras se realiza warm-up
 - Indicador de pensamiento (animación bouncing dots)
+- **Mensajes de error amigables**: diferencia entre rate-limit (429: "El servicio está saturado, consulta la documentación disponible") y timeout ("El servicio no está disponible ahora, inténtalo más tarde")
 - Detección automática de idioma del usuario
 - Persistencia de conversación por `session_id`
 
 ### ExploradorPage.jsx
 Mapa interactivo + panel de detalle:
-- **InteractiveMap.jsx**: Mapa Leaflet con 92+ marcadores (miradores)
+- **InteractiveMap.jsx**: Mapa Leaflet con 95 marcadores (miradores y zonas)
   - Categorías: mirador (azul), observatorio (rojo), parque (verde), playa (amarillo)
   - Popups con nombre, Bortle, altitud
   - Leyenda de categorías
   - Marcadores reducidos (28×28px) para mobile
+  - **Prop `selectedZone`**: cuando se proporciona, vuela a las coordenadas con `flyTo(lat, lng, zoom=12, 1.2s)`
 - **SanctuaryPanel.jsx**: Panel lateral con detalle de zona seleccionada
-  - Scores, clima, experiencias de usuario
+  - Pestañas: Info, Scores, Experiencias
+  - **Carrusel de fotos**: imágenes de experiencias en pantalla completa con botones anterior/siguiente
+  - **"Ver ubicación"**: navega al mapa haciendo flyTo a la zona
+  - Mostrar: categoría, isla, altitud, Bortle, servicios
+  - Scores visuales con barras de progreso
 - **StreetViewPanel.jsx**: Integración con street view (placeholder)
 
 ### AdminPanel.jsx
@@ -67,12 +76,12 @@ Panel de administración con:
 ### Otras Páginas
 | Página | Archivo | Descripción |
 |---|---|---|
-| Profile | ProfilePage.jsx | Perfil de usuario (datos personales) |
+| Profile | ProfilePage.jsx | Perfil de usuario (avatar con iniciales dinámicas) |
 | Observatories | ObservatoriesPage.jsx | Info de Roque de los Muchachos y Teide |
 | Data | DataPage.jsx | Datos astronómicos (constelaciones, planetas) |
 | Calendar | CalendarPage.jsx | Calendario de eventos astronómicos |
 | Contact | ContactPage.jsx | Formulario de contacto |
-| FAQ | FAQPage.jsx | Preguntas frecuentes (acordeón) |
+| FAQ | FAQPage.jsx | Preguntas frecuentes (acordeón, incluye Messier) |
 | Experiences | ExperiencesPage.jsx | Galería de experiencias de usuarios |
 | 404 | NotFoundPage.jsx | Página no encontrada |
 
@@ -82,22 +91,30 @@ Panel de administración con:
 Navegación lateral (`z-50`) con iconos Lucide:
 - Home, Dashboard, Explorador, Chat, Admin (solo admin), Perfil, Cerrar sesión
 - Colapsable en mobile (menú hamburguesa)
+- Sin `overflow-y-auto` (scroll eliminado)
+- **Indicador "System Online"**: icono de radio junto al nombre de usuario (sidebar expandida) o punto verde sobre el avatar (sidebar colapsada)
 
 ### InteractiveMap.jsx
 Componente principal del mapa:
 - **Leaflet Map**: Centro `[28.5, -16.5]` (Canarias), zoom 8
 - **Tile Layer**: CartoDB dark (tema oscuro)
-- **Markers**: 92+ puntos con iconos personalizados según categoría
+- **Markers**: 95 puntos con iconos personalizados según categoría
 - **Popups**: Nombre, isla, Bortle, altitud, enlace a detalle
 - **Layer Control**: Filtrar por categoría
 - **Responsive**: Ajuste automático de tamaño
+- **Prop `selectedZone`**: acepta objeto `{ latitude, longitude }` y ejecuta `flyTo(lat, lng, 12, 1.2)` para animar el mapa a la ubicación
 
 ### SanctuaryPanel.jsx
 Panel de detalle de zona seleccionada:
 - Pestañas: Info, Scores, Experiencias
 - Mostrar: categoría, isla, altitud, Bortle, servicios
 - Scores visuales con barras de progreso
+- **Carrusel de experiencias**: fotos de experiencias en pantalla completa con navegación prev/next
+- **"Ver ubicación"**: botón que navega al mapa y ejecuta flyTo a la zona
 - Listado de experiencias de usuarios
+
+### Avatar (Dinámico)
+Las iniciales del avatar se generan a partir de `first_name` y `last_name` del usuario. Si no están disponibles, se muestra "AS" como fallback.
 
 ### UI Primitives
 Componentes base reutilizables:
@@ -136,7 +153,7 @@ getFeaturedWeather()             // Clima destacado del día
 
 ## 4.5 Datos Estáticos (Frontend Data)
 
-### santuariosData.js — 92+ Miradores
+### santuariosData.js — 95 Zonas
 Array con coordenadas exactas de todos los puntos de observación:
 ```javascript
 {
@@ -147,7 +164,10 @@ Array con coordenadas exactas de todos los puntos de observación:
   bortle_scale: 1, image: "llanoJable"
 }
 ```
-Distribución por islas: Tenerife (18), La Palma (14), Gran Canaria (13), Lanzarote (11), Fuerteventura (10), La Gomera (9), El Hierro (8), La Graciosa (5), Resto (4).
+
+**Coordenadas corregidas:**
+- Mirador Sicasumbre: `28.288, -14.160, 430m`
+- Mirador Garañona: `28.4822, -16.4345, 250m`
 
 ### astronomicalData.js
 - **88 constelaciones**: nombre, área (deg²), estación, mejor isla para observar
@@ -176,7 +196,7 @@ Lista completa de eventos astronómicos con fechas y descripciones.
 ### AuthContext.jsx
 ```javascript
 // Estado:
-user            // { id, email, role } o null
+user            // { id, email, role, first_name, last_name } o null
 loading         // boolean (carga inicial)
 isAuthenticated // boolean
 isAdmin         // boolean
@@ -184,9 +204,12 @@ isAdmin         // boolean
 // Métodos:
 login(email, password)    → POST /api/auth/login → user + token
 register(data)            → POST /api/auth/register → user + token
-logout()                  → Limpia localStorage + estado
+logout()                  → Limpia estado global (sin localStorage directo)
 checkAuth()               → GET /api/auth/profile (restaura sesión al recargar)
+// Token se inyecta via Axios interceptor desde el contexto
 ```
+
+> **Nota**: El token JWT se gestiona exclusivamente desde AuthContext. No hay acceso directo a `localStorage`. El interceptor de Axios toma el token del contexto para cada petición.
 
 ## 4.8 Temas y Estilos
 
@@ -215,3 +238,25 @@ i18next
   })
 ```
 Archivos de traducción en `public/locales/{es,en,de}/translation.json`.
+
+## 4.10 Formulario de Experiencias
+
+### ExperienceForm.jsx
+- **Campo "Ubicación"**: dropdown personalizado con búsqueda (no usa `<select>` nativo)
+- Validación de campos
+- Subida de imágenes (máx 10MB)
+
+## 4.11 Indicadores de Estado
+
+### System Online
+- Sidebar expandida: icono de radio (📡) junto al nombre de usuario
+- Sidebar colapsada: punto verde sobre el avatar
+- Indica que el sistema de IA está activo y respondiendo
+
+### Estado del Chat
+| Estado | Mensaje |
+|---|---|
+| Warm-up | "Iniciando servicio de IA..." |
+| Rate-limited (429) | "El servicio de IA está saturado. Consulta la documentación disponible mientras se restablece." + RAG docs |
+| Timeout | "El servicio de IA no está disponible ahora. Inténtalo de nuevo más tarde." |
+| Error genérico | "Ha ocurrido un error. Por favor, inténtalo de nuevo." |

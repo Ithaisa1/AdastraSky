@@ -12,28 +12,32 @@
 │   Vercel (Frontend)  │          │   Render (Backend)       │
 │   React + Vite +     │          │   Node.js + Express      │
 │   Tailwind CSS       │◄────────►│   Puerto 5000            │
-│   Puerto 3000        │  REST    │                          │
+│   Puerto 5173        │  REST    │                          │
 │                      │  API     │   JWT Auth               │
 │   adastra-sky        │          │   Sequelize ORM          │
 │   .vercel.app        │          │   Swagger Docs           │
-└──────────────────────┘          └──────────┬───────────────┘
+└──────────────────────┘          │   Rate limiting          │
+                                  │   PDF export (pdfkit)    │
+                                  └──────────┬───────────────┘
                                              │
-                    ┌────────────────────────┼────────────────────┐
-                    │                        │                     │
-                    ▼                        ▼                     ▼
-    ┌──────────────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-    │ Render (AI Service)      │  │ Render (Postgres) │  │ APIs Externas    │
-    │ FastAPI + LangGraph      │  │ Neon PostgreSQL   │  │                  │
-    │ Puerto 10000             │  │ Puerto 5432       │  │ - OpenWeather    │
-    │                          │  │                   │  │ - NASA           │
-    │ - Agente LangGraph       │  │ 7 tablas:         │  │ - Groq AI        │
-    │ - RAG TF-IDF             │  │ Users             │  │ - HuggingFace    │
-    │ - Sky Engine             │  │ ChatHistory       │  │ - HF Inference   │
-    │ - 6 docs IAC             │  │ SkyQualityZones   │  │                  │
-    └──────────────────────────┘  │ SkyScores         │  └──────────────────┘
-                                  │ Events            │
-                                  │ Experiences       │
-                                  │ ContactMessages   │
+                     ┌───────────────────────┼──────────────────────┐
+                     │                       │                       │
+                     ▼                       ▼                       ▼
+     ┌──────────────────────────┐  ┌──────────────────┐  ┌──────────────────┐
+     │ Render (AI Service)      │  │ Render (Postgres) │  │ APIs Externas    │
+     │ FastAPI + LangGraph      │  │ PostgreSQL 18     │  │                  │
+     │ Puerto 10000             │  │ SSL               │  │ - OpenWeather    │
+     │                          │  │ rejectUnauthorized │  │ - NASA           │
+     │ - Agente LangGraph       │  │ : false           │  │ - Groq AI        │
+     │ - RAG TF-IDF scikit-learn│  │                   │  │ - OpenAI         │
+     │ - Sky Engine             │  │ 7 tablas:         │  │                  │
+     │ - 6 docs IAC             │  │ Users             │  └──────────────────┘
+     │ - Sin ChromaDB/PyTorch   │  │ ChatHistory       │
+     └──────────────────────────┘  │ SkyQualityZones   │
+                                  │ SkyScores          │
+                                  │ Events             │
+                                  │ Experiences        │
+                                  │ ContactMessages    │
                                   └──────────────────┘
 ```
 
@@ -46,8 +50,8 @@ Register/Login → POST /api/auth/register|login
     → bcryptjs (hash/compare password)
     → jwt.sign({id, role, email})
     → { token, user }
-  ← Frontend guarda token en localStorage("adastra_session")
-  ← AuthContext actualiza estado global
+  ← AuthContext actualiza estado global (sin localStorage directo)
+  ← Axios interceptor inyecta token desde contexto
 ```
 
 ### 2.2.2 Consulta de Zonas de Cielo
@@ -57,6 +61,7 @@ GET /api/sky/zones?island=Tenerife&category=mirador
     → SkyQualityZone.findAll({where, include: SkyScore})
     → { zones: [...] }
   ← Frontend renderiza en InteractiveMap.jsx
+     (con flyTo si recibe selectedZone prop)
 ```
 
 ### 2.2.3 Chat con IA
@@ -67,17 +72,27 @@ POST /api/chat { message, language, session_id }
     → axios.post(AI_SERVICE_URL/api/chat, { message, language, user_id })
       → AI Service FastAPI
         → LangGraph Agent (call_model)
-          → _get_models(): prueba Groq → OpenAI → HuggingFace
-          → Si falla: _simple_rag_response()
-            → TF-IDF similarity search
+          → _get_models(): prueba Groq → OpenAI
+          → Si falla o 429: _simple_rag_response()
+            → TF-IDF similarity search (scikit-learn)
             → Devuelve fragmentos de documentos IAC
+            → Si es 429: mensaje amigable + RAG docs
         → Respuesta { response, session_id, sources }
       ← Backend recibe respuesta
     → ChatHistory.create({user_id, message, response, ...})
   ← Frontend muestra respuesta
 ```
 
-### 2.2.4 Sky Score
+### 2.2.4 Warm-up (evita cold starts)
+```
+GET /api/chat/warmup
+  → chat.controller.warmup()
+    → axios.get(AI_SERVICE_URL/health)
+    → { status: "AI service is healthy" } o { status: "warming up" }
+  ← ChatPage muestra "Iniciando servicio de IA..." mientras calienta
+```
+
+### 2.2.5 Sky Score
 ```
 GET /api/sky/scores?zoneId=5
   → sky.controller.getScores()
@@ -89,6 +104,16 @@ POST /api/sky-score { cloudiness, light_pollution, moon_phase, ... }
     → SkyScoreAlgorithm.calculate({factors})
     → SkyScore.create({zoneId, astroScore, photoScore, ...})
   ← { sky_score, recommendation }
+```
+
+### 2.2.6 Exportación PDF
+```
+GET /api/sky/zones/pdf
+  → sky.controller.exportPdf()
+    → pdfkit genera PDF con branding AdAstra Sky
+    → incluye todas las zonas con coordenadas, Bortle, altitud
+  ← Content-Type: application/pdf
+  ← Content-Disposition: attachment
 ```
 
 ## 2.3 Estructura de Archivos (Completa)
@@ -104,10 +129,11 @@ backend/
 ├── src/
 │   ├── config/
 │   │   └── database.js              # Configuración Sequelize + PostgreSQL
+│   │                                  (SSL rejectUnauthorized: false)
 │   │
 │   ├── models/
 │   │   ├── index.js                 # Asociaciones entre modelos
-│   │   ├── User.js                  # Usuarios (auth, roles)
+│   │   ├── User.js                  # Usuarios (auth, roles, avatar initials)
 │   │   ├── SkyQualityZone.js        # Zonas de observación
 │   │   ├── SkyScore.js              # Puntuaciones de cielo
 │   │   ├── ChatHistory.js           # Historial de chat
@@ -117,13 +143,13 @@ backend/
 │   │
 │   ├── controllers/
 │   │   ├── auth.controller.js       # Register, login, profile, password
-│   │   ├── sky.controller.js        # Zonas + estados del cielo
+│   │   ├── sky.controller.js        # Zonas + PDF export + estados del cielo
 │   │   ├── skyScore.controller.js   # Cálculo y guardado de scores
-│   │   ├── chat.controller.js       # Proxy al AI Service
+│   │   ├── chat.controller.js       # Proxy al AI Service + warmup
 │   │   ├── admin.controller.js      # Panel de administración
 │   │   ├── events.controller.js     # CRUD eventos astronómicos
 │   │   ├── island.controller.js     # Información de islas
-│   │   ├── contact.controller.js    # Formulario de contacto
+│   │   ├── contact.controller.js    # Formulario de contacto (Joi validado)
 │   │   ├── experiences.controller.js# Experiencias de usuarios
 │   │   └── weather.controller.js    # Datos meteorológicos
 │   │
@@ -131,19 +157,20 @@ backend/
 │   │   ├── authMiddleware.js        # Verificación JWT
 │   │   ├── apiKeyAuth.js            # API Key para acceso externo
 │   │   ├── requireAdmin.js          # Validación de rol admin
-│   │   ├── errorHandler.js          # Manejador global de errores
-│   │   └── notFound.js              # Ruta 404
+│   │   ├── errorHandler.js          # Manejador global de errores (sanitizado)
+│   │   ├── notFound.js              # Ruta 404
+│   │   └── rateLimiter.js           # Rate limiting por endpoint
 │   │
 │   ├── routes/
-│   │   ├── auth.routes.js           # /api/auth
+│   │   ├── auth.routes.js           # /api/auth (rate limit: 10/15min)
 │   │   ├── sky.routes.js            # /api/sky
-│   │   ├── chat.routes.js           # /api/chat
-│   │   ├── admin.routes.js          # /api/admin
+│   │   ├── chat.routes.js           # /api/chat + /api/chat/warmup
+│   │   ├── admin.routes.js          # /api/admin (rate limit: 60/15min)
 │   │   ├── island.routes.js         # /api/islands
-│   │   ├── contact.routes.js        # /api/contact
+│   │   ├── contact.routes.js        # /api/contact (rate limit: 5/hora)
 │   │   ├── events.routes.js         # /api/events
 │   │   ├── weather.routes.js        # /api/weather
-│   │   └── experiences.routes.js    # /api/experiences
+│   │   └── experiences.routes.js    # /api/experiences (rate limit: 10/hora)
 │   │
 │   ├── swagger.js                   # Documentación OpenAPI 3.0
 │   │
@@ -171,7 +198,6 @@ frontend/
 ├── vite.config.js                   # Vite + React plugin
 ├── tailwind.config.js               # Tema personalizado (astroDark, astroAccent)
 ├── postcss.config.js
-├── eslintrc.cjs
 ├── vercel.json                      # Reglas SPA para Vercel
 ├── .env.example
 │
@@ -184,17 +210,14 @@ frontend/
 │   ├── main.jsx                     # Entry Point React
 │   ├── App.jsx                      # Router principal (14 rutas)
 │   │
-│   ├── assets/                      # Imágenes (15+)
+│   ├── assets/                      # Imágenes reducidas (archivos no usados eliminados)
 │   │
 │   ├── config/
 │   │   ├── i18n.js                  # Configuración i18next
 │   │   └── site.js                  # Metadatos del sitio
 │   │
 │   ├── context/
-│   │   └── AuthContext.jsx          # Estado global de autenticación
-│   │
-│   ├── hooks/
-│   │   └── useLocalStorage.js       # Hook genérico localStorage
+│   │   └── AuthContext.jsx          # Estado global de autenticación (sin localStorage directo)
 │   │
 │   ├── services/
 │   │   ├── astronomyService.js      # Llamadas a /api/events
@@ -202,8 +225,8 @@ frontend/
 │   │   └── weatherService.js        # Llamadas a /api/weather
 │   │
 │   ├── pages/                       # 14 páginas (ver Capítulo 4)
-│   ├── components/                  # 13 componentes + 5 UI primitives
-│   ├── data/                        # 11 archivos de datos estáticos
+│   ├── components/                  # Componentes activos (22 archivos no usados eliminados)
+│   ├── data/                        # Archivos de datos estáticos reducidos
 │   └── styles/
 │       └── index.css                # Estilos globales + tema oscuro
 │
@@ -218,7 +241,7 @@ frontend/
 ai-service/
 ├── main.py                          # FastAPI entry point
 ├── config.py                        # Settings con pydantic-settings
-├── requirements.txt                 # Dependencias Python
+├── requirements.txt                 # Dependencias Python (sin ChromaDB, sin PyTorch)
 ├── .env.example
 ├── .gitignore
 │
@@ -230,7 +253,7 @@ ai-service/
 │
 ├── rag/
 │   ├── __init__.py
-│   └── vector_store.py              # TF-IDF + cosine similarity in-memory
+│   └── vector_store.py              # TF-IDF + cosine similarity in-memory (scikit-learn)
 │
 ├── routers/
 │   ├── __init__.py
@@ -256,16 +279,17 @@ El backend Node.js NO ejecuta código de IA directamente. Actúa como proxy haci
 
 ### 2.4.2 Manejo de Errores Encadenado
 ```
-Frontend (Axios catch) ← 4xx/5xx → Backend (errorHandler.js)
+Frontend (Axios catch) ← 4xx/5xx → Backend (errorHandler.js sanitizado)
                                       ├── Joi → 400
                                       ├── Sequelize → 400/409/400
                                       ├── JWT → 401
+                                      ├── Rate limit → 429 (express-rate-limit)
                                       ├── Errores con statusCode
-                                      └── Error genérico → 500 (solo detail en dev)
+                                      └── Error genérico → 500 (sin detalles en prod)
 ```
 
 ### 2.4.3 Estrategia de Cache del RAG
-El vector store TF-IDF se carga UNA VEZ al iniciar el AI Service (lifespan de FastAPI) y se cachea con `@lru_cache()`. Los ~61 fragmentos de 6 documentos se mantienen en memoria durante toda la vida del proceso.
+El vector store TF-IDF se carga UNA VEZ al iniciar el AI Service (lifespan de FastAPI) y se cachea con `@lru_cache()`. Los ~61 fragmentos de 6 documentos se mantienen en memoria durante toda la vida del proceso. No se utiliza ChromaDB, sentence-transformers ni PyTorch.
 
 ### 2.4.4 Internacionalización
 - Frontend: i18next con detección automática de idioma del navegador
@@ -273,13 +297,24 @@ El vector store TF-IDF se carga UNA VEZ al iniciar el AI Service (lifespan de Fa
 - Backend: El idioma se pasa como parámetro `language` en las requests de chat
 - AI Service: El agente recibe `language` y lo usa en el prompt del sistema
 
+### 2.4.5 Seguridad (Auditoría)
+Se modificaron 11 archivos tras una auditoría de seguridad:
+- **errorHandler**: Sanitización de mensajes de error en producción
+- **contact.controller**: Validación Joi en todos los campos
+- **Rate limiting**: `express-rate-limit` por endpoint
+  - Auth: 10 peticiones cada 15 minutos
+  - Contacto: 5 peticiones por hora
+  - Admin: 60 peticiones cada 15 minutos
+  - Experiencias: 10 peticiones por hora
+- **Upload**: Límite de 10MB en `express.json()`
+- **localStorage**: Eliminado el acceso directo, token solo via AuthContext
+
 ## 2.5 Limitaciones Conocidas
 
 | Limitación | Causa | Mitigación |
 |---|---|---|
-| Cold start ~30s | Render free plan duerme servicios inactivos | Warm-up en startup del backend |
-| 512MB RAM AI Service | Render free plan | RAG TF-IDF ligero en lugar de ChromaDB |
+| Cold start ~30s | Render free plan duerme servicios inactivos | Warm-up endpoint (`GET /api/chat/warmup`) + "Iniciando servicio de IA..." |
+| 512MB RAM AI Service | Render free plan | RAG TF-IDF ligero en lugar de ChromaDB (sin PyTorch) |
 | Sin WebSockets | Chat usa REST polling | Aceptable para el alcance del proyecto |
 | Sin caché Redis | No hay servidor de caché | Consultas directas a PostgreSQL |
-| Sin rate limiting avanzado | `RATE_LIMIT_MAX_REQUESTS=100` básico | Suficiente para el alcance actual |
-| Sin tests de integración AI | No hay mock para el AI Service | Tests unitarios del backend solamente |
+| Sin tests de integración AI | No hay mock para el AI Service | Tests unitarios del backend solamente (24/24 pasan) |

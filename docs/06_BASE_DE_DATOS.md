@@ -192,13 +192,13 @@ CREATE TABLE "ContactMessages" (
 Crea usuarios iniciales:
 | Email | Username | Password | Rol |
 |---|---|---|---|
-| admin@adastra.sky | admin | admin123 | admin |
-| demo@adastra.sky | demo | demo123 | user |
+| admin@adastra.sky | admin | Admin123 | admin |
+| demo@adastra.sky | demo | Demo1234 | user |
 
 Los passwords se hashean con bcrypt automáticamente por el hook del modelo.
 
 ### database/seed.js
-Puebla la tabla `SkyQualityZones` con 10 zonas iniciales representativas de todas las islas.
+Puebla la tabla `SkyQualityZones` con 95 zonas representativas de todas las islas (miradores, observatorios, parques, playas, etc.).
 
 ### database/seed_bortle.py
 Script Python para poblar zonas con datos de la escala Bortle desde archivo externo.
@@ -212,14 +212,31 @@ const sequelize = new Sequelize(
   `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`,
   {
     dialect: 'postgres',
-    dialectOptions: process.env.NODE_ENV === 'production' 
-      ? { ssl: { require: true, rejectUnauthorized: false } } 
-      : {},
+    dialectOptions: {
+      ssl: { require: true, rejectUnauthorized: false }
+    },
     logging: process.env.NODE_ENV !== 'production' ? console.log : false,
     pool: { max: 5, min: 0, acquire: 30000, idle: 10000 }
   }
 );
 ```
-- En producción (Render): SSL obligatorio, logging desactivado
-- En desarrollo: logging activado, sin SSL
+- Base de datos PostgreSQL gestionada por **Render** (no Neon)
+- SSL siempre activo con `rejectUnauthorized: false`
 - Pool: máximo 5 conexiones concurrentes
+
+## 6.5 Funcionalidades Relacionadas
+
+### PDF Export (Backend)
+El backend genera PDFs de experiencias y reportes usando **pdfkit**. Endpoint: `GET /api/experiences/:id/pdf`.
+
+### SanctuaryPanel — Carrusel con Visor de Fotos
+El panel de zona incluye un carrusel de imágenes con visor a pantalla completa.
+
+### Map flyTo con `selectedZone`
+El mapa reacciona a la prop `selectedZone` animando el vuelo (`flyTo`) hacia las coordenadas de la zona seleccionada.
+
+### Colaboración Senderos Canarios
+El panel de Dashboard integra datos de la colaboración con **Senderos Canarios**, mostrando rutas de senderismo astronómico recomendadas.
+
+### FAQ con Objetos Messier
+La sección FAQ del frontend incluye preguntas y respuestas sobre objetos Messier visibles desde Canarias.

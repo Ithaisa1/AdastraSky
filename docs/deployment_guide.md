@@ -1,4 +1,4 @@
-# Guia de Despliegue — AdAstra Sky
+# Guía de Despliegue — AdAstra Sky
 
 ## Stack
 
@@ -15,12 +15,15 @@
 ## 1. Base de datos (Render PostgreSQL)
 
 1. Crear instancia PostgreSQL desde el dashboard de Render.
-2. Copiar la `DATABASE_URL` (conexión interna).
+2. Copiar la `DATABASE_URL` (conexión interna). El backend usa `rejectUnauthorized: false` para SSL.
 3. Ejecutar migraciones localmente apuntando a la base remota:
    ```bash
    cd backend
    node src/seed/seedUsers.js
    ```
+4. La base de datos de producción contiene **95 zonas astronómicas**.
+
+---
 
 ## 2. Backend (Render)
 
@@ -29,8 +32,22 @@
    - **Root Directory:** `backend`
    - **Build Command:** `npm install`
    - **Start Command:** `node server.js`
-3. Añadir variables de entorno desde `.env.example` (incluyendo `JWT_SECRET`, `DATABASE_URL`, `AI_SERVICE_URL`, `OPENWEATHER_API_KEY`, `NASA_API_KEY`).
+3. Añadir variables de entorno desde `.env.example`.
 4. Render asigna automáticamente una URL tipo `https://aadastra-sky-backend.onrender.com`.
+
+### Notas del Backend
+
+- **POST /api/chat** (anteriormente `/chat/message`).
+- **DELETE /experiences/:id** disponible.
+- **PUT /admin/zones/:id** para administradores (acepta `latitude`, `longitude`, `altitude`).
+- **GET /api/chat/warmup** para evitar cold start del AI Service (sin autenticación).
+- **PDF export** con pdfkit en `GET /api/sky/zones/pdf`.
+- **Rate limiting:** auth 10/15 min, contact 5/hora, experiences 10/hora, admin 60/15 min.
+- **Límite de subida:** 10 MB.
+- **Auditoría de seguridad** aplicada y **24/24 tests** pasando.
+- PostgreSQL configurado con `rejectUnauthorized: false`.
+
+---
 
 ## 3. Frontend (Vercel)
 
@@ -43,8 +60,22 @@
 3. Añadir variable de entorno:
    - `VITE_API_URL`: URL del backend en Render
 4. Vercel asigna URL tipo `https://adastra-sky.vercel.app`.
+5. Puerto local de desarrollo: `localhost:5173`.
 
 El `vercel.json` en `frontend/` ya incluye rewrites para SPA.
+
+### Características del Frontend en Producción
+
+- **Mapa:** animación flyTo al seleccionar zona.
+- **SanctuaryPanel:** carrusel de imágenes.
+- **Ubicación:** dropdown personalizado.
+- **Avatar:** iniciales dinámicas del usuario.
+- **Navbar:** scroll eliminado; indicador System Online movido.
+- **ChatPage:** indicador de estado de IA.
+- **FAQ:** actualizado con objetos Messier.
+- **README:** totalmente reescrito.
+
+---
 
 ## 4. AI Service (Render)
 
@@ -54,9 +85,22 @@ El `vercel.json` en `frontend/` ya incluye rewrites para SPA.
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
 3. Variables de entorno:
-   - `GROQ_API_KEY` (obligatorio — LLM principal)
-   - `OPENAI_API_KEY` (opcional — fallback)
-   - `FRONTEND_URL` (URL de Vercel)
+
+| Variable | Obligatorio | Descripción |
+|----------|-------------|-------------|
+| `GROQ_API_KEY` | Sí | LLM principal (Groq / LLaMA) |
+| `OPENAI_API_KEY` | No | Fallback si Groq falla |
+| `FRONTEND_URL` | Sí | URL del frontend (Vercel) |
+
+**No incluye** `HF_TOKEN`, `HF_MODEL`, ChromaDB, PyTorch ni sentence-transformers.
+
+### Cadena de LLM
+
+Groq (LLaMA) → OpenAI → RAG TF-IDF (fallback final).
+
+El agente maneja errores 429 con mensaje amigable + respuesta RAG.
+
+---
 
 ## 5. Blueprint (Render)
 
@@ -94,10 +138,34 @@ VITE_API_URL=https://aadastra-sky-backend.onrender.com
 
 ---
 
-## Enlaces en Produccion
+## Enlaces en Producción
 
 | Servicio | URL |
 |----------|-----|
 | Frontend | https://adastra-sky.vercel.app |
 | Backend | https://aadastra-sky-backend.onrender.com |
 | AI Service | https://adastra-sky-ai.onrender.com |
+
+---
+
+## Colaboraciones
+
+- **Senderos Canarios** — datos de senderos colaborativos.
+- **Miradores destacados:**
+  - Mirador Sicasumbre: (28.288, -14.160, 430 m)
+  - Mirador Garañona: (28.4822, -16.4345, 250 m)
+
+---
+
+## Archivos y Documentación
+
+- **13 archivos de documentación** (docs/01 a docs/13).
+- **22 archivos no usados** eliminados del repositorio.
+- **Postman collection:** `docs/postman/AdAstraSky.postman_collection.json`.
+
+## Usuarios por Defecto
+
+| Rol | Email | Contraseña |
+|-----|-------|------------|
+| Demo | `demo@adastra.sky` | `Demo1234` |
+| Admin | — | `Admin123` |

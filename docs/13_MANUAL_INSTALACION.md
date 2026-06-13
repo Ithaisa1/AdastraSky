@@ -70,13 +70,20 @@ JWT_SECRET=genera_un_segur_aleatorio_aqui
 JWT_EXPIRES_IN=7d
 
 AI_SERVICE_URL=http://localhost:8001
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5173
 
 OPENWEATHER_API_KEY=tu_clave
 NASA_API_KEY=tu_clave
 
-SEED_ADMIN_PASSWORD=Admin1234
+SEED_ADMIN_PASSWORD=Admin123
 SEED_DEMO_PASSWORD=Demo1234
+```
+
+### Nota sobre SSL de PostgreSQL
+Si usas Render PostgreSQL (no Neon), los certificados SSL son auto-firmados. El backend incluye `rejectUnauthorized: false` configurable para manejar esto:
+
+```env
+DB_REJECT_UNAUTHORIZED=false
 ```
 
 ### Iniciar Backend
@@ -85,6 +92,12 @@ npm run dev
 # Servidor en http://localhost:5000
 # Auto-crea tablas y seed de usuarios al iniciar
 ```
+
+### Usuarios por Defecto (auto-seed)
+| Rol | Email | Contraseña |
+|-----|-------|------------|
+| Admin | (configurado en seed) | `Admin123` |
+| Demo | `demo@adastra.sky` | `Demo1234` |
 
 ---
 
@@ -108,7 +121,7 @@ VITE_MAP_DEFAULT_ZOOM=8
 ### Iniciar Frontend
 ```bash
 npm run dev
-# Servidor en http://localhost:3000
+# Servidor en http://localhost:5173
 # Proxy /api -> localhost:5000
 ```
 
@@ -135,8 +148,11 @@ PORT=8001
 GROQ_API_KEY=gsk_tu_clave_groq
 GROQ_MODEL=llama-3.3-70b-versatile
 OPENAI_API_KEY=sk-tu_clave_openai
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5173
 ```
+
+> **Nota:** HuggingFace ha sido eliminado de la cadena LLM. No necesitas token HF.
+> La cadena de fallback es: Groq → OpenAI → RAG offline (sin ChromaDB/PyTorch/sentence-transformers).
 
 ### Iniciar AI Service
 ```bash
@@ -180,8 +196,12 @@ curl http://localhost:5000/health
 curl http://localhost:8001/health
 # → {"status":"healthy","version":"1.0.0"}
 
+# Warm-up Chat
+curl http://localhost:5000/api/chat/warmup
+# → {"status":"warming_up"}
+
 # Frontend
-# Abrir http://localhost:3000 en el navegador
+# Abrir http://localhost:5173 en el navegador
 ```
 
 ### Probar Chat IA
@@ -200,7 +220,8 @@ curl -X POST http://localhost:5000/api/chat \
 ```bash
 cd backend
 npm test
-# 5 suites: health, auth, sky, events, middleware
+# 24 tests: health, auth, sky, events, middleware, contact, experiences, admin
+# ✅ 24/24 tests pasan
 ```
 
 ### Frontend
@@ -212,20 +233,33 @@ npm test
 
 ---
 
-## 9. Scripts Disponibles
+## 9. Rate Limiting
+
+El backend implementa rate limiting granular por endpoint:
+
+| Endpoint | Límite | Ventana |
+|----------|--------|---------|
+| /api/auth/* | 10 requests | 15 minutos |
+| /api/contact | 5 requests | 1 hora |
+| /api/experiences | 10 requests | 1 hora |
+| /api/admin/* | 60 requests | 15 minutos |
+
+---
+
+## 10. Scripts Disponibles
 
 ### Backend
 | Script | Comando | Descripción |
 |--------|---------|-------------|
 | `npm run dev` | `nodemon server.js` | Desarrollo con auto-reload |
 | `npm start` | `node server.js` | Producción |
-| `npm test` | Jest con coverage | Tests |
+| `npm test` | Jest con coverage | Tests (24 tests) |
 | `npm run seed:users` | Seed usuarios | Crea admin + demo |
 
 ### Frontend
 | Script | Comando | Descripción |
 |--------|---------|-------------|
-| `npm run dev` | `vite` | Desarrollo en :3000 |
+| `npm run dev` | `vite` | Desarrollo en :5173 |
 | `npm run build` | `vite build` | Build producción a dist/ |
 | `npm run preview` | `vite preview` | Vista previa del build |
 | `npm test` | `vitest` | Tests |
@@ -238,7 +272,13 @@ npm test
 
 ---
 
-## 10. Despliegue
+## 11. Postman Collection
+
+La colección de Postman ha sido actualizada con todos los endpoints actuales. Importa `AdAstraSky.postman_collection.json` desde la raíz del proyecto.
+
+---
+
+## 12. Despliegue
 
 ### Vercel (Frontend)
 ```bash
@@ -246,41 +286,42 @@ cd frontend
 npm run build
 # Subir a Vercel:
 # - Framework: Vite
-- Build: npm run build
-- Output: dist
-- Añadir VITE_API_URL como env var
+# - Build: npm run build
+# - Output: dist
+# - Añadir VITE_API_URL como env var
 ```
 
 ### Render (Backend + AI + DB)
 Ver `render.yaml` para infraestructura como código.
 
 **Servicios:**
-1. **PostgreSQL** — Render Managed DB (free)
+1. **PostgreSQL** — Render Managed DB (free) — usa `rejectUnauthorized: false`
 2. **Backend** — Node.js express, puerto 5000
 3. **AI Service** — Python FastAPI, puerto variable
 
 **Variables de entorno requeridas en Render:**
 - `JWT_SECRET`, `DATABASE_URL`, `AI_SERVICE_URL`, `FRONTEND_URL`
 - `GROQ_API_KEY`, `OPENWEATHER_API_KEY`, `NASA_API_KEY`
+- `DB_REJECT_UNAUTHORIZED=false`
 
 ---
 
-## 11. Stack Tecnológico Completo
+## 13. Stack Tecnológico Completo
 
 ```
-Frontend:  React 18 + Vite 5 + Tailwind 3 + Leaflet + Framer Motion
-Backend:   Node 22 + Express 4 + Sequelize 6 + JWT + Joi
-AI:        Python 3.11 + FastAPI + LangGraph + LangChain + Groq/OpenAI
+Frontend:  React 18 + Vite 5 + Tailwind 3 + Leaflet + Framer Motion + pdfkit
+Backend:   Node 22 + Express 4 + Sequelize 6 + JWT + Joi + pdfkit
+IA:        Python 3.11 + FastAPI + LangGraph + LangChain + Groq/OpenAI
 RAG:       scikit-learn TF-IDF + cosine similarity + 6 docs IAC
-DB:        PostgreSQL 14+ con índices en campos de búsqueda
+DB:        PostgreSQL 14+ (Render, no Neon) con índices en campos de búsqueda
 Deploy:    Vercel (frontend) + Render (backend + AI + DB)
 Auth:      JWT con rol en payload (user/admin)
-API:       REST + OpenAPI/Swagger 3.0
+API:       REST + OpenAPI/Swagger 3.0 + Postman collection
 ```
 
 ---
 
-## 12. Estructura de Directorios
+## 14. Estructura de Directorios
 
 ```
 AdastraSky/
@@ -290,28 +331,40 @@ AdastraSky/
 │   │   ├── config/          # database.js (Sequelize)
 │   │   ├── controllers/     # 8 controllers
 │   │   ├── middleware/       # 5 middlewares
-│   │   ├── models/          # 7 modelos
+│   │   ├── models/          # 6 modelos (Event eliminado)
 │   │   ├── routes/          # 9 routers
 │   │   ├── seed/            # Seeds (JSON, scripts)
 │   │   └── utils/           # scoring, astronomy
-│   └── __tests__/           # 5 suites
+│   └── __tests__/           # 24 tests
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/           # 14 páginas
+│   │   ├── pages/           # 13 páginas (EventsPage eliminado)
 │   │   ├── components/      # Componentes reutilizables
 │   │   ├── context/         # AuthContext
 │   │   ├── config/          # i18n, site config
-│   │   ├── data/            # Datos astronómicos
+│   │   ├── data/            # Datos astronómicos (JS, no JSON)
 │   │   ├── utils/           # Format, scoring, astronomy
 │   │   └── styles/          # CSS
 │   └── vercel.json
 ├── ai-service/
 │   ├── main.py
 │   ├── agent/               # LangGraph agent logic
-│   ├── rag/                 # TF-IDF vector store
+│   ├── rag/                 # TF-IDF vector store (sin ChromaDB)
 │   ├── routers/             # FastAPI routers
 │   ├── sky_engine/          # Scoring algorithm
 │   └── documents/           # 6 IAC markdown docs
-├── docs/                    # Documentación
+├── docs/                    # 13 archivos de documentación (01-13)
 └── render.yaml              # Render Blueprint
 ```
+
+---
+
+## Notas Importantes
+
+- **22 archivos no utilizados** han sido eliminados del proyecto (~70KB ahorrados)
+- **Auditoría de seguridad** aplicada: 11 archivos modificados
+- **HuggingFace** eliminado de la cadena LLM (era inestable)
+- **ChromaDB/PyTorch/sentence-transformers** no están presentes — RAG usa TF-IDF puro
+- **Neon** no se usa — la base de datos es PostgreSQL de Render
+- **Frontend** en desarrollo usa el puerto `localhost:5173` (Vite por defecto)
+- **README.md** ha sido completamente reescrito

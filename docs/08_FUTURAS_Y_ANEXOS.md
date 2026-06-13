@@ -3,20 +3,29 @@
 ## 8.1 Corto Plazo (Post-Bootcamp)
 
 ### 8.1.1 Rotación de API Keys
-Generar nuevas keys en Groq, HuggingFace, OpenWeather y NASA, actualizar en Render dashboard.
+Generar nuevas keys en Groq, OpenWeather y NASA, actualizar en Render dashboard. HuggingFace ya no se usa.
 
-### 8.1.2 Freshdesk (OpenAPI) — Documentación Interactiva
-Corregir los 2 tests fallidos de health/api para que reflejen la respuesta actual del servidor.
-
-### 8.1.3 Pruebas de Integración
+### 8.1.2 Pruebas de Integración
 - Tests que verifiquen el proxy al AI Service (mockeando la respuesta)
 - Tests de carga para medir tiempos de respuesta
 - Tests E2E con Playwright/Cypress
 
-### 8.1.4 Mejora del RAG Offline
+### 8.1.3 Mejora del RAG Offline
 - Añadir más documentos IAC (normativa, guías de observación)
 - Implementar ranking por relevancia mejorado
 - Mostrar fragmentos más relevantes según las palabras clave exactas
+
+### 8.1.4 Documentación
+- 13 archivos de documentación creados (del 01 al 13)
+- Postman collection actualizada en `docs/postman/`
+- README.md reescrito con detalles técnicos completos
+- FAQ actualizado con objetos Messier
+
+### 8.1.5 Nuevos Miradores Incorporados
+| Mirador | Coordenadas | Altitud |
+|---|---|---|
+| Mirador Sicasumbre | (28.288, -14.160) | 430m |
+| Mirador Garañona | (28.4822, -16.4345) | 250m |
 
 ## 8.2 Medio Plazo (3-6 meses)
 
@@ -124,6 +133,9 @@ Reemplazar REST polling por WebSocket (Socket.io) para:
 | **StateGraph** | Grafo de estados que define el flujo de un agente LangGraph |
 | **Cold Start** | Retardo inicial cuando un servicio serverless se activa tras estar dormido |
 | **Glassmorphism** | Efecto visual con transparencia, desenfoque y bordes semitransparentes |
+| **Senderos Canarios** | Red de senderos de las Islas Canarias, colaboración para rutas de astroturismo |
+| **Objeto Messier** | Catálogo de 110 objetos astronómicos (nebulas, cúmulos, galaxias) compilado por Charles Messier |
+| **pdfkit** | Librería Node.js para generación de PDFs en el backend |
 
 ## Anexo B: Comandos Útiles
 
@@ -141,7 +153,7 @@ cd frontend && npm run dev     # Solo frontend :3000
 uvicorn main:app --reload --port 8001  # Solo AI Service
 
 # Tests
-cd backend && npm test         # Backend tests (22/24 pasan)
+cd backend && npm test         # Backend tests (24/24 pasan)
 cd frontend && npm test        # Frontend tests
 
 # Lint
@@ -149,8 +161,8 @@ cd backend && npm run lint
 cd frontend && npm run lint
 
 # Seeds
-cd backend && npm run seed     # Crea zonas iniciales
-cd backend && npm run seed:users  # Crea usuarios demo
+cd backend && npm run seed     # Crea 95 zonas
+cd backend && npm run seed:users  # Crea usuarios demo/admin
 ```
 
 ### Git
@@ -173,6 +185,9 @@ curl https://adastra-sky-ai.onrender.com/health
 # Verificar configuración
 curl https://adastra-sky-ai.onrender.com/debug/config
 
+# Warm-up del AI Service
+curl https://adastra-sky-ai.onrender.com/api/chat/warmup
+
 # Verificar backend
 curl https://aadastra-sky-backend.onrender.com/health
 
@@ -190,16 +205,18 @@ curl -X POST https://aadastra-sky-backend.onrender.com/api/chat \
 | POST | /api/auth/register | No | Registro de usuario |
 | POST | /api/auth/login | No | Inicio de sesión |
 | GET | /api/auth/profile | JWT | Perfil del usuario |
-| GET | /api/sky/zones | No | Zonas de observación |
+| GET | /api/sky/zones | No | Zonas de observación (95 zonas) |
 | GET | /api/sky/today | No | Mejores zonas hoy |
 | GET | /api/sky/scores | No | Scores de una zona |
 | POST | /api/chat | JWT | Enviar mensaje al chat IA |
 | GET | /api/chat/history/:sid | JWT | Historial de chat |
+| **GET** | **/api/chat/warmup** | **No** | **Warm-up del AI Service** |
 | GET | /api/events | No | Eventos astronómicos |
 | GET | /api/weather/:island | No | Clima por isla |
 | GET | /api/islands | No | Lista de islas |
 | POST | /api/contact | No | Formulario de contacto |
 | GET | /api/experiences | No | Experiencias de usuarios |
+| GET | /api/experiences/:id/pdf | No | Exportar experiencia a PDF |
 | POST | /api/sky-score | No | Calcular sky score |
 | GET | /health | No | Health check backend |
 | GET | /api | No | Info de la API |
@@ -212,7 +229,7 @@ curl -X POST https://aadastra-sky-backend.onrender.com/api/chat \
 
 | Archivo | Contenido | Tamaño |
 |---|---|---|
-| `santuariosData.js` | 92+ miradores con coordenadas exactas | ~15KB |
+| `santuariosData.js` | 95+ miradores con coordenadas exactas | ~15KB |
 | `astronomicalData.js` | 88 constelaciones, planetas, eventos | ~12KB |
 | `constellations.json` | 88 constelaciones con visibilidad por isla | ~8KB |
 | `islands.json` | Metadatos de 8 islas | ~3KB |
@@ -231,4 +248,32 @@ curl -X POST https://aadastra-sky-backend.onrender.com/api/chat \
 - **Documentos IAC**: Contenido educativo del Instituto de Astrofísica de Canarias
 - **API Meteorológica**: OpenWeatherMap (CC BY-SA 4.0)
 - **API Astronómica**: NASA API (free tier)
-- **LLMs**: Groq (LLaMA 3.3), HuggingFace (Mistral 7B) — uso educativo
+- **LLMs**: Groq (LLaMA 3.3), OpenAI (GPT-4o-mini) — uso educativo
+- **Colaboración**: Senderos Canarios — rutas de astroturismo
+
+## Anexo F: Archivos de Documentación
+
+La documentación del proyecto consta de 13 archivos:
+
+| Archivo | Contenido |
+|---|---|
+| `01_INTRODUCCION.md` | Introducción y visión general |
+| `02_ARQUITECTURA.md` | Arquitectura del sistema |
+| `03_FRONTEND.md` | Frontend React |
+| `04_BACKEND.md` | Backend Node.js/Express |
+| `05_AI_SERVICE.md` | AI Service Python/FastAPI |
+| `06_BASE_DE_DATOS.md` | Base de datos PostgreSQL |
+| `07_DESPLIEGUE_Y_SEGURIDAD.md` | Despliegue y seguridad |
+| `08_FUTURAS_Y_ANEXOS.md` | Futuras implementaciones y anexos |
+| `09_LIMPIEZA_ARCHIVOS.md` | Limpieza de archivos |
+| `10_POSTMAN.md` | Colección Postman |
+| `11_FAQ.md` | Preguntas frecuentes (incluye objetos Messier) |
+| `12_SENDEROS_CANARIOS.md` | Colaboración con Senderos Canarios |
+| `13_MIRADORES.md` | Catálogo completo de miradores |
+
+## Anexo G: Credenciales de Prueba
+
+| Rol | Email | Contraseña |
+|---|---|---|
+| Administrador | admin@adastra.sky | Admin123 |
+| Usuario demo | demo@adastra.sky | Demo1234 |

@@ -5,37 +5,43 @@
 Archivo principal que configura y arranca el servidor Express en el puerto 5000.
 
 ### Middleware montado (orden de ejecución):
-1. **`cors()`** — Permite orígenes desde `FRONTEND_URL`, localhost:3000 y localhost:5173
+1. **`cors()`** — Permite orígenes desde `FRONTEND_URL`, localhost:5173 y localhost:5173
 2. **`helmet()`** — Seguridad HTTP (cabeceras CSP, X-Frame-Options, etc.)
 3. **`morgan()`** — Logging de requests en consola (formato `dev`)
-4. **`express.json({ limit: '10mb' })`** — Parseo de JSON
+4. **`express.json({ limit: '10mb' })`** — Parseo de JSON con límite de 10MB
 5. **`express.urlencoded({ extended: true })`** — Parseo de formularios
 6. **`/api-docs`** — Swagger UI con documentación OpenAPI
 7. **`/health`** — Health check interno (devuelve `{ status, database }`)
-8. **`/api/auth`** — auth.routes
-9. **`/api/sky`** — sky.routes + skyScore.routes
-10. **`/api/chat`** — chat.routes
-11. **`/api/admin`** — admin.routes
+8. **`/api/auth`** — auth.routes (rate limit: 10 peticiones/15min)
+9. **`/api/sky`** — sky.routes + skyScore.routes + PDF export
+10. **`/api/chat`** — chat.routes + warmup
+11. **`/api/admin`** — admin.routes (rate limit: 60 peticiones/15min)
 12. **`/api/islands`** — island.routes
-13. **`/api/contact`** — contact.routes
+13. **`/api/contact`** — contact.routes (rate limit: 5 peticiones/hora, validación Joi)
 14. **`/api/events`** — events.routes
 15. **`/api/weather`** — weather.routes
-16. **`/api/experiences`** — experiences.routes
+16. **`/api/experiences`** — experiences.routes (rate limit: 10 peticiones/hora)
 17. **`/api`** — Info general de la API
 18. **`notFound (404)`** — Catch-all
-19. **`errorHandler`** — Manejador global de errores
+19. **`errorHandler`** — Manejador global de errores (sanitizado, sin detalles en prod)
 
 ### Arranque (`startServer`):
 1. Valida `JWT_SECRET` en producción
-2. Conecta a PostgreSQL con `sequelize.authenticate()`
+2. Conecta a PostgreSQL con `sequelize.authenticate()` (SSL `rejectUnauthorized: false` en producción)
 3. Sincroniza modelos con `sequelize.sync()` (crea tablas si no existen)
 4. Inicia el servidor HTTP
-5. Warm-up del AI Service (GET /health al AI Service para evitar cold start)
+5. Warm-up del AI Service (`GET /api/chat/warmup` → ping al AI Service para evitar cold start)
 
 ### Health Check (`GET /health`):
 ```json
 { "status": "healthy", "database": "connected", "timestamp": "2026-06-11T..." }
 ```
+
+### PDF Export (`GET /api/sky/zones/pdf`):
+Genera un documento PDF con todas las zonas de observación usando **pdfkit**:
+- Branding AdAstra Sky (logo, colores)
+- Tabla de zonas con coordenadas, Bortle, altitud
+- Descargable como `adastra-zones.pdf`
 
 ## 3.2 Modelos Sequelize
 
@@ -47,15 +53,18 @@ id              // UUID primaryKey
 username        // STRING unique, not null
 email           // STRING unique, not null
 password        // STRING not null (bcrypt hashed)
+first_name      // STRING (iniciales para avatar dinámico)
+last_name       // STRING (iniciales para avatar dinámico)
 role            // ENUM('user', 'admin') default 'user'
 resetPasswordToken  // STRING nullable
 resetPasswordExpires// DATE nullable
 // Password hashing automático con bcrypt en beforeCreate/beforeUpdate
 // Método: validPassword(password) → boolean
+// Avatar initials: primeras letras de first_name + last_name, fallback "AS"
 ```
 
 ### 3.2.2 SkyQualityZone (`src/models/SkyQualityZone.js`)
-Zonas de observación astronómica en Canarias (miradores, observatorios, parques).
+Zonas de observación astronómica en Canarias (95 en producción: miradores, observatorios, parques).
 ```javascript
 // Campos:
 id              // INTEGER PK autoIncrement
@@ -141,12 +150,12 @@ title           // STRING
 content         // TEXT
 rating          // INTEGER (1-5)
 category        // ENUM('observation','photography','workshop','other')
-imageUrl        // STRING nullable
+imageUrl        // STRING nullable (fotos para carrusel en SanctuaryPanel)
 // Asociaciones: belongsTo User, belongsTo SkyQualityZone
 ```
 
 ### 3.2.7 ContactMessage (`src/models/ContactMessage.js`)
-Mensajes del formulario de contacto.
+Mensajes del formulario de contacto (validados con Joi).
 ```javascript
 // Campos:
 id              // UUID PK
@@ -170,7 +179,7 @@ Experience.belongsTo(SkyQualityZone, { foreignKey: 'zoneId' })
 ## 3.3 Middlewares
 
 ### authMiddleware.js
-Extrae el token JWT del header `Authorization: Bearer <token>` o de la cookie `token`. Verifica con `jwt.verify()` usando `JWT_SECRET`. Adjunta `req.user = { id, email, role }`.
+Extrae el token JWT del header `Authorization: Bearer <token>`. Verifica con `jwt.verify()` usando `JWT_SECRET`. Adjunta `req.user = { id, email, role }`. No lee tokens de cookies.
 
 ### requireAdmin.js
 Lee `req.user.role` (inyectado por authMiddleware) y verifica que sea `'admin'`. Si no, devuelve 403.
@@ -186,8 +195,18 @@ Manejador global de errores Express (4 parámetros). Clasifica errores:
 - **SequelizeForeignKeyConstraintError** → 400
 - **JsonWebTokenError** → 401
 - **TokenExpiredError** → 401
+- **express-rate-limit** → 429 (TOO_MANY_REQUESTS)
 - **Errores con statusCode propio** → ese código
-- **Por defecto** → 500 (solo muestra detalle en development)
+- **Por defecto** → 500 (solo muestra detalle en development; sanitizado en producción)
+
+### rateLimiter.js
+Configuración de `express-rate-limit`:
+| Endpoint | Ventana | Máximo |
+|---|---|---|
+| `/api/auth` | 15 minutos | 10 |
+| `/api/contact` | 1 hora | 5 |
+| `/api/admin` | 15 minutos | 60 |
+| `/api/experiences` | 1 hora | 10 |
 
 ### notFound.js
 Catch-all 404 para rutas no definidas.
@@ -211,6 +230,7 @@ Catch-all 404 para rutas no definidas.
 | `getTodayV2` | GET /api/sky/today/v2 | Versión mejorada con scoring |
 | `getById` | GET /api/sky/zones/:id | Detalle de una zona |
 | `getScores` | GET /api/sky/scores | Scores históricos de una zona |
+| `exportPdf` | GET /api/sky/zones/pdf | Exporta zonas a PDF con pdfkit y branding |
 
 ### skyScore.controller.js
 | Método | Endpoint | Descripción |
@@ -223,6 +243,7 @@ Catch-all 404 para rutas no definidas.
 |---|---|---|
 | `sendMessage` | POST /api/chat | Proxy al AI Service + guarda historial |
 | `getHistory` | GET /api/chat/history/:session_id | Historial de una conversación |
+| `warmup` | GET /api/chat/warmup | Ping al AI Service (evita cold starts) |
 
 ### admin.controller.js
 | Método | Endpoint | Descripción |
@@ -236,7 +257,7 @@ Catch-all 404 para rutas no definidas.
 | CRUD scores | Varios | Gestión de scores |
 
 ### events.controller.js, island.controller.js, contact.controller.js, experiences.controller.js, weather.controller.js
-Controladores CRUD estándar para sus respectivos recursos.
+Controladores CRUD estándar para sus respectivos recursos. Contact incluye validación Joi.
 
 ## 3.5 Utilidades
 
@@ -267,4 +288,30 @@ Cálculos astronómicos:
 | Events | events.test.js | CRUD eventos |
 | Middleware | middleware.test.js | authMiddleware |
 
-**22 tests pasan, 2 fallos preexistentes** (health y api info no críticos).
+**24/24 tests pasan** (Jest + Supertest).
+
+## 3.7 Configuración de Base de Datos
+
+### Conexión PostgreSQL (`src/config/database.js`)
+```javascript
+// Producción (Render):
+{
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  dialect: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false  // Necesario para Render SSL
+    }
+  }
+}
+```
+
+### Usuarios por Defecto (Seed)
+| Email | Password | Rol |
+|---|---|---|
+| `admin@adastra.sky` | `Admin123` | admin |
+| `demo@adastra.sky` | `Demo1234` | user |
+
+> Usuarios eliminados: `testuser@test.com`, `test@test.com`, `test-final@test.com`

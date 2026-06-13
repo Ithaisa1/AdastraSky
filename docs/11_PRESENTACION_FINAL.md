@@ -13,6 +13,7 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 - **Datos en tiempo real**: calidad del cielo, clima, eventos astronómicos
 - **Comunidad**: experiencias de observación compartidas por usuarios
 - **Calendario** de lluvias de estrellas, eclipses, conjunciones
+- **Colaboración** con Senderos Canarios en el Dashboard
 
 ---
 
@@ -34,7 +35,7 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 ┌──────────────┐     ┌──────────────────┐     ┌──────────────────┐
 │   VERCEL     │────▶│    RENDER        │────▶│   RENDER DB      │
 │  Frontend    │     │   Backend        │     │   PostgreSQL     │
-│  React + Vite│     │ Node + Express   │     │   (Neon)         │
+│  React + Vite│     │ Node + Express   │     │   (Render)       │
 │  Tailwind    │     │ Sequelize ORM    │     │                  │
 │  Leaflet Map │     │ JWT Auth         │     └──────────────────┘
 └──────────────┘     └────────┬─────────┘
@@ -45,7 +46,7 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
                      │   FastAPI        │
                      │   LangGraph      │
                      │   RAG (TF-IDF)   │
-                     │   Groq/OpenAI    │
+                     │   Groq → OpenAI  │
                      └──────────────────┘
 ```
 
@@ -63,13 +64,14 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 ### Frontend
 | Tecnología | Propósito |
 |-----------|-----------|
-| React 18 + Vite 5 | SPA moderna con HMR ultrarrápido |
+| React 18 + Vite 5 | SPA moderna con HMR ultrarrápido (puerto dev: 5173) |
 | Tailwind CSS 3 | Estilos utility-first responsive |
 | React Router 6 | Enrutamiento SPA con guards de auth |
-| Leaflet + react-leaflet | Mapas interactivos con 95+ marcadores |
+| Leaflet + react-leaflet | Mapas interactivos con 95+ marcadores, animación flyTo |
 | Framer Motion | Animaciones fluidas |
 | i18next | Internacionalización ES/EN/DE |
 | Lucide React | Iconos SVG modernos |
+| pdfkit | Exportación de mapas a PDF |
 
 ### Backend
 | Tecnología | Propósito |
@@ -79,9 +81,10 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 | JWT (jsonwebtoken) | Autenticación stateless |
 | Joi | Validación de schemas |
 | Helmet | Seguridad HTTP headers |
-| express-rate-limit | Rate limiting por IP |
-| Multer + Sharp | Upload + procesamiento de imágenes a WebP |
+| express-rate-limit | Rate limiting por IP (auth 10/15min, contact 5/hora, experiences 10/hora, admin 60/15min) |
+| Multer + Sharp | Upload + procesamiento de imágenes a WebP (límite 10MB) |
 | Swagger | Documentación OpenAPI 3.0 |
+| pdfkit | Exportación PDF |
 
 ### IA
 | Tecnología | Propósito |
@@ -91,7 +94,7 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 | LangChain | Tool calling + LLM orchestration |
 | Groq (LLaMA 3.3 70B) | LLM principal (gratuito, 30 req/min) |
 | OpenAI (GPT-4o Mini) | Fallback si Groq no disponible |
-| scikit-learn TF-IDF | RAG ligero en memoria (sin ChromaDB) |
+| scikit-learn TF-IDF | RAG ligero en memoria (sin ChromaDB/PyTorch/sentence-transformers) |
 | 6 documentos IAC | Fuente de conocimiento astronómico |
 
 ---
@@ -102,16 +105,23 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 - 95+ zonas de observación en 8 islas
 - Filtros por isla, categoría, puntuación
 - Marcadores con código de color por tipo
-- Panel lateral con información detallada
+- Panel lateral con información detallada y carrusel de imágenes
 - Street View integrado
 - Cálculo de puntuación astro/foto/turismo
+- Animación flyTo al seleccionar zona
+- SanctuarioPanel con carrusel y botón "Ver ubicación"
+- Exportación a PDF con pdfkit
 
 ### 🤖 Asistente IA (AdAstra)
 - Conversación contextual con RAG sobre documentos IAC
 - 5 herramientas: RAG, observatorios, clima, constelaciones, sky score
-- Cadena de fallback: Groq → OpenAI → RAG offline
+- Cadena de fallback: Groq → OpenAI → RAG offline (sin HuggingFace)
 - Respuestas bilingües (ES/EN)
 - Historial por sesión
+- Endpoint de warm-up: `GET /api/chat/warmup`
+- Indicador de estado de IA en ChatPage
+- Manejo de errores 429 con mensaje amigable + RAG offline
+- Mensajes de error mejorados
 
 ### 📊 Sky Score
 - Puntuación 0-10 basada en 6 factores
@@ -122,11 +132,15 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 - Eventos generados dinámicamente (NASA/JPL data)
 - Lluvias de estrellas, eclipses, conjunciones, superlunas
 - Galería APOD (Astronomy Picture of the Day)
+- FAQ actualizada con objetos Messier
 
 ### 👥 Comunidad
 - Experiencias de observación con fotos
 - Perfiles de usuario con historial
 - Panel de administración
+- Avatar dinámico con iniciales del usuario
+- Dropdown personalizado para Ubicación en ExperienceForm
+- Colaboración Senderos Canarios en Dashboard
 
 ---
 
@@ -154,39 +168,40 @@ Usuario
 ```
 
 ### Decisión Clave: RAG Ligero
-- **NO** ChromaDB / sentence-transformers (no caben en 512MB RAM)
+- **NO** ChromaDB / PyTorch / sentence-transformers (no caben en 512MB RAM)
 - **NO** embeddings vectoriales
+- **NO** HuggingFace (eliminado por inestabilidad y tokens expirados)
 - **SÍ** TF-IDF + cosine similarity con scikit-learn
 - 6 documentos IAC → ~200 chunks → matching en milisegundos
 
 ### Cadena de Fallback
 1. **Groq** (LLaMA 3.3 70B) — 30 req/min, gratuito
 2. **OpenAI** (GPT-4o Mini) — si falla Groq
-3. **RAG offline** — si no hay LLM disponible, responde solo con documentos
+3. **RAG offline** — si no hay LLM disponible o error 429, responde solo con documentos + mensaje amigable
 
 ---
 
 ## 7. Retos Técnicos
 
 ### Reto 1: AI Service en Render Free Tier (512MB RAM)
-- **Problema:** ChromaDB + sentence-transformers requieren ~2GB RAM
+- **Problema:** ChromaDB + sentence-transformers requieren ~2GB RAM; HuggingFace requiere descarga de modelos pesados
 - **Solución:** TF-IDF in-memory con scikit-learn (todo en <100MB RAM)
 - **Resultado:** RAG funcional en 512MB sin swap
 
 ### Reto 2: Cold Start en Render Free Tier (~30s)
 - **Problema:** Render duerme el servicio tras 15min de inactividad
-- **Solución:** Timeout de 120s en proxy backend; warm-up con ping automático
-- **Resultado:** El usuario espera ~30s en el primer mensaje, luego responde rápido
+- **Solución:** Timeout de 120s en proxy backend; warm-up con ping automático (`GET /api/chat/warmup`)
+- **Resultado:** El usuario espera ~30s en el primer mensaje, luego responde rápido. Indicador de estado de IA visible.
 
 ### Reto 3: Rate Limiting de Groq (30 req/min)
 - **Problema:** Modelo gratuito LLaMA 3.3 70B limitado a ~30 requests/minuto
-- **Solución:** Cadena de fallback a OpenAI + caché de respuestas frecuentes
+- **Solución:** Cadena de fallback a OpenAI + caché de respuestas frecuentes; manejo de 429 con mensaje amigable + RAG
 - **Resultado:** Usuarios gratuitos nunca ven error de rate limit
 
-### Reto 4: HuggingFace Inestable
-- **Problema:** Token HF expirado, modelos inestables, retornos 403
-- **Solución:** Eliminado del flujo principal; mantenido solo como fallback teórico
-- **Resultado:** Sistema más estable sin dependencia de HF
+### Reto 4: HuggingFace Eliminado
+- **Problema:** Token HF expirado, modelos inestables, retornos 403 constante
+- **Solución:** Eliminado completamente del flujo. Cadena simplificada: Groq → OpenAI → RAG-only.
+- **Resultado:** Sistema más estable, menos dependencias, menor latencia.
 
 ### Reto 5: SSL Self-Signed en Render PostgreSQL
 - **Problema:** Render usa certificados auto-firmados → `DEPTH_ZERO_SELF_SIGNED_CERT`
@@ -196,7 +211,7 @@ Usuario
 ### Reto 6: Datos Geoespaciales para 95+ Zonas
 - **Problema:** Coordenadas, alturas, categorías, puntuaciones para cada zona
 - **Solución:** Seed masivo desde JSON con 20+ campos por zona
-- **Resultado:** API devuelve GeoJSON y CSV exportable
+- **Resultado:** API devuelve GeoJSON y CSV exportable, PDF export vía pdfkit
 
 ---
 
@@ -205,12 +220,14 @@ Usuario
 | Decisión | Alternativa | Elegida | Motivo |
 |----------|------------|---------|--------|
 | RAG en memoria | ChromaDB + vectores | TF-IDF scikit-learn | Cabe en 512MB RAM |
+| LLM principal | HuggingFace | Groq | Estabilidad, velocidad, gratis |
+| Cadena fallback | HF → Groq → OpenAI | Groq → OpenAI → RAG | HF era inestable |
 | JWT en localStorage | httpOnly cookies | localStorage | Simplicidad MVP (consciente del riesgo) |
 | Monorepo | Repos separados | Monorepo | Un solo repo, deploy coordinado |
 | render.yaml | Deploy manual | Blueprint Render | Infraestructura como código |
-| Sin test coverage total | Más tests | Tests mínimos (5 suites) | Prioridad: features funcionales |
 | Seed desde JSON | Migraciones SQL | sync() + seed JSON | Rápido para MVP, schema vía Sequelize |
 | Sin Redis | Caché en RAM | Sin caché | Free tier no tiene Redis |
+| Reject unauthorized | Strict SSL | false (configurable) | Certificados auto-firmados de Render |
 
 ---
 
@@ -230,7 +247,7 @@ Usuario
 ### Limitaciones actuales
 - Sesiones en localStorage (no escalan a múltiples dispositivos)
 - Sin caché Redis (cada request consulta DB)
-- AI service singe-instancia (limitado a 30 req/min Groq)
+- AI service single-instancia (limitado a 30 req/min Groq)
 
 ---
 
@@ -238,7 +255,7 @@ Usuario
 
 ### Corto Plazo
 - [ ] Migrar JWT a httpOnly cookies
-- [ ] Añadir DOMPurify para sanitización HTML
+- [ ] Añadir antivirus en uploads de experiencias
 - [ ] Tests de integración completos
 - [ ] CI/CD con GitHub Actions
 
@@ -268,6 +285,7 @@ Usuario
 | Datos | Parciales | 6 documentos IAC + NASA/JPL + OpenWeather |
 | Idioma | Solo español | ES/EN/DE |
 | Comunidad | No | Experiencias de usuario + galería |
+| Colaboración | No | Senderos Canarios integrado |
 
 ---
 
@@ -275,9 +293,18 @@ Usuario
 
 1. **Landing** → Hero con animación espacial
 2. **Registro/Login** → Formulario inmersivo con selector de idioma
-3. **Dashboard** → Resumen con score del día, próximos eventos, clima
-4. **Explorar Mapa** → 95+ zonas con filtros y panel de detalle
+3. **Dashboard** → Resumen con score del día, próximos eventos, clima, colaboración Senderos Canarios
+4. **Explorar Mapa** → 95+ zonas con filtros, panel de detalle, carrusel, "Ver ubicación", flyTo, PDF export
 5. **Observatorios** → Teide + Roque de los Muchachos con galería
-6. **Chat IA** → Pregunta sobre cualquier tema astronómico de Canarias
-7. **Calendario** → Eventos astronómicos + APOD gallery
-8. **Perfil** → Configuración, experiencias, galería personal
+6. **Chat IA** → Pregunta sobre cualquier tema astronómico de Canarias, indicador de estado de IA
+7. **Calendario** → Eventos astronómicos + APOD gallery + FAQ Messier
+8. **Perfil** → Configuración, experiencias, galería personal, avatar con iniciales dinámicas
+
+---
+
+## Miradores Destacados
+
+| Mirador | Coordenadas | Altitud |
+|---------|-------------|---------|
+| Mirador Sicasumbre | (28.288, -14.160) | 430 m |
+| Mirador Garañona | (28.4822, -16.4345) | 250 m |

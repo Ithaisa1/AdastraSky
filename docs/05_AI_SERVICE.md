@@ -5,9 +5,9 @@
 Microservicio Python encargado de la inteligencia artificial de AdAstra Sky. Expone una API REST en el puerto 10000 (producción) / 8001 (local). Contiene:
 
 - **Agente conversacional** con LangGraph (StateGraph)
-- **RAG ligero** TF-IDF sobre documentos del IAC
+- **RAG ligero** TF-IDF sobre documentos del IAC (6 documentos cargados en `get_vector_store()` durante lifespan)
 - **Sky Engine** para calcular calidad del cielo
-- **Cadena de fallback** entre múltiples proveedores LLM
+- **Cadena de fallback** entre proveedores LLM: Groq → OpenAI → RAG-only
 
 ## 5.2 Entry Point — `main.py`
 
@@ -24,7 +24,7 @@ app = FastAPI(
 ### Lifespan (arranque)
 ```python
 async def lifespan(app):
-    get_vector_store()  # Carga documentos IAC en memoria
+    get_vector_store()  # Carga 6 documentos IAC en memoria
     # Si falla: el chat funcionará en modo offline (RAG no disponible)
 ```
 
@@ -35,7 +35,7 @@ Permite orígenes: `FRONTEND_URL`, `http://localhost:5173`, `http://localhost:30
 | Prefijo | Router | Endpoints |
 |---|---|---|
 | `/health` | health.py | GET /health, GET /debug/config |
-| `/api/chat` | chat.py | POST /api/chat, GET /api/chat/history |
+| `/api/chat` | chat.py | POST /api/chat, GET /api/chat/history, GET /api/chat/warmup |
 | `/api` | sky.py | POST /api/sky-score, GET /api/what-to-see, GET /api/events |
 
 ## 5.3 Configuración — `config.py`
@@ -49,14 +49,13 @@ class Settings(BaseSettings):
     groq_model: str = "llama-3.3-70b-versatile"
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
-    hf_token: str = ""
-    hf_model: str = "mistralai/Mistral-7B-Instruct-v0.3"
     database_url: str = ""
     openweather_api_key: str = ""
     frontend_url: str = "https://adastra-sky.vercel.app"
 ```
 
-Las claves API se leen desde variables de entorno (Render dashboard) con fallback al archivo `.env`.
+Las claves API se leen desde variables de entorno (Render dashboard) con fallback al archivo `.env`.  
+Ya no se necesita `HF_TOKEN` ni `HF_MODEL` — HuggingFace fue eliminado de la cadena LLM.
 
 ## 5.4 Agente LangGraph — `agent/`
 
@@ -75,7 +74,8 @@ class AgentState(TypedDict):
 Devuelve lista de modelos disponibles en orden de prioridad:
 1. **Groq** (`ChatGroq` con LLaMA 3.3 70B)
 2. **OpenAI** (`ChatOpenAI` con GPT-4o-mini)
-3. **HuggingFace** (`HuggingFaceEndpoint` con Mistral 7B)
+
+HuggingFace fue eliminado. La cadena ahora es solo Groq → OpenAI → RAG-only.
 
 Leo claves de `os.environ` (Render) con fallback a `pydantic-settings` (`.env` local).
 
@@ -87,9 +87,13 @@ Leo claves de `os.environ` (Render) con fallback a `pydantic-settings` (`.env` l
    a. Bind tools al modelo
    b. Invocar con system prompt + mensajes
    c. Si éxito → devolver respuesta
-   d. Si falla → continuar con siguiente modelo
+   d. Si falla con 429 (rate limit) → responder con mensaje amigable + RAG docs
+   e. Si falla por otro motivo → continuar con siguiente modelo
 4. Si todos fallan → responder con RAG offline
 ```
+
+#### Manejo de 429 (Rate Limit)
+Cuando un proveedor LLM responde con HTTP 429, el agente no retorna error. En su lugar devuelve un mensaje amigable informando al usuario que el servicio está saturado y adjunta los documentos RAG relevantes como alternativa.
 
 #### System Prompt
 ```
@@ -132,7 +136,7 @@ Cuando todos los LLMs fallan o no hay claves API configuradas:
 
 ## 5.5 RAG Ligero — `rag/vector_store.py`
 
-Implementación TF-IDF + cosine similarity en memoria, sin ChromaDB ni embeddings.
+Implementación TF-IDF + cosine similarity en memoria, sin ChromaDB, sin sentence-transformers, sin PyTorch. Usa exclusivamente scikit-learn (512MB RAM compatible).
 
 ### Clase `InMemoryVectorStore`
 
@@ -189,17 +193,32 @@ async def chat(request: ChatRequest):
     return ChatResponse(response=text, session_id, sources)
 ```
 
+### chat.py — GET /api/chat/warmup (Warm-up)
+Endpoint que el backend llama para evitar cold start del AI Service:
+```python
+@router.get("/warmup")
+async def warmup():
+    # Ping al health endpoint interno para pre-calentar
+    return {"status": "warmed"}
+```
+
+El frontend también puede llamar a este endpoint. Mientras se calienta, la `ChatPage` muestra "Iniciando servicio de IA...".
+
 ### health.py — GET /health, GET /debug/config
 ```python
 @router.get("/health")
 async def health():
     return {"status": "healthy", "service": "AdAstraSky AI Service", "version": "1.0.0"}
+```
 
+**Nota**: En cold start (servicio dormido en Render Free Tier), el endpoint `/health` puede tardar hasta 30 segundos en responder.
+
+```python
 @router.get("/debug/config")
 async def debug_config():
     # Muestra qué variables de entorno están configuradas
     # (valores enmascarados por seguridad)
-    return {"env": {"GROQ_API_KEY": "gsk_****", "HF_TOKEN": "hf_****", ...}}
+    return {"env": {"GROQ_API_KEY": "gsk_****", ...}}
 ```
 
 ### sky.py — Score y eventos
@@ -252,15 +271,15 @@ langchain>=0.3.21
 langchain-community>=0.3.20
 langchain-openai>=0.3.7
 langchain-groq>=1.0.0
-langchain-huggingface>=0.1.2
 langgraph>=0.3.22
 psycopg2-binary>=2.9,<3.0
 httpx>=0.28,<1.0
 python-dotenv>=1.0,<2.0
 scikit-learn>=1.3.0
 numpy>=1.24.0
-huggingface-hub>=0.20.0
 ```
+
+**Nota**: Se eliminaron `langchain-huggingface`, `huggingface-hub`. El servicio ya no usa ChromaDB, sentence-transformers ni PyTorch — todo es TF-IDF puro con scikit-learn.
 
 ## 5.9 Logging
 
@@ -279,18 +298,14 @@ GET /api/chat request
     ├── ¿GROQ_API_KEY configurada?
     │   ├── Sí → ChatGroq(model=llama-3.3-70b) → ¿Funciona?
     │   │           ├── Sí → ✅ Respuesta LLM
+    │   │           ├── 429 → Mensaje amigable + RAG docs
     │   │           └── No → Siguiente modelo
     │   └── No → Siguiente modelo
     │
     ├── ¿OPENAI_API_KEY configurada?
     │   ├── Sí → ChatOpenAI(model=gpt-4o-mini) → ¿Funciona?
     │   │           ├── Sí → ✅ Respuesta LLM
-    │   │           └── No → Siguiente modelo
-    │   └── No → Siguiente modelo
-    │
-    ├── ¿HF_TOKEN configurado?
-    │   ├── Sí → HuggingFaceEndpoint(mistralai/Mistral-7B) → ¿Funciona?
-    │   │           ├── Sí → ✅ Respuesta LLM
+    │   │           ├── 429 → Mensaje amigable + RAG docs
     │   │           └── No → Fallback RAG
     │   └── No → Fallback RAG
     │
