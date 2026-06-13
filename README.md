@@ -7,110 +7,142 @@
 [![Backend](https://img.shields.io/badge/Backend-Render-06B6D4?style=flat-square)](https://aadastra-sky-backend.onrender.com)
 [![AI Service](https://img.shields.io/badge/AI-Render-10B981?style=flat-square)](https://adastra-sky-ai.onrender.com)
 [![Tests](https://img.shields.io/badge/Tests-24%2F24-22C55E?style=flat-square)]()
+[![License](https://img.shields.io/badge/License-MIT-8B5CF6?style=flat-square)]()
 
-AdAstra Sky es una aplicación fullstack que integra mapas interactivos de zonas de observación astronómica, un asistente de IA con RAG sobre documentación del Instituto de Astrofísica de Canarias (IAC), un motor de puntuación de calidad del cielo en tiempo real y herramientas para astrónomos aficionados y astrofotógrafos.
+AdAstra Sky es una aplicación fullstack que integra mapas interactivos de 95 zonas de observación astronómica en Canarias, un asistente de IA con RAG sobre documentación del Instituto de Astrofísica de Canarias (IAC), un motor de puntuación de calidad del cielo en tiempo real, y herramientas para astrónomos aficionados y astrofotógrafos.
 
 ---
 
-<details open>
-<summary><strong>Tabla de Contenidos</strong></summary>
+## Tabla de Contenidos
 
-- [Stack Tecnológico](#stack-tecnologico)
+- [Stack Tecnológico](#stack-tecnológico)
 - [Arquitectura](#arquitectura)
 - [Funcionalidades](#funcionalidades)
   - [Mapa Interactivo](#mapa-interactivo)
-  - [Fase Lunar](#fase-lunar)
-  - [Sky Score](#sky-score)
+  - [Panel de Santuario](#panel-de-santuario)
   - [Asistente IA con RAG](#asistente-ia-con-rag)
-  - [Catálogo Astronómico](#catalogo-astronomico)
-  - [Exportación de Datos](#exportacion-de-datos)
+  - [Sky Score](#sky-score)
+  - [Fase Lunar](#fase-lunar)
+  - [Catálogo Astronómico](#catálogo-astronómico)
+  - [Experiencias de Usuario](#experiencias-de-usuario)
+  - [Exportación de Datos](#exportación-de-datos)
+  - [Clima en Tiempo Real](#clima-en-tiempo-real)
+- [Roles del Sistema](#roles-del-sistema)
 - [Seguridad](#seguridad)
-- [Inicio Rápido](#inicio-rapido)
 - [API Reference](#api-reference)
+- [Inicio Rápido](#inicio-rápido)
 - [Usuarios Demo](#usuarios-demo)
 - [Pruebas](#pruebas)
 - [Despliegue](#despliegue)
-- [Documentación](#documentacion)
+- [Documentación](#documentación)
+- [Colaboraciones](#colaboraciones)
+- [Herramientas de IA Utilizadas](#herramientas-de-ia-utilizadas)
 - [Backlogs Futuros](#backlogs-futuros)
-
-</details>
 
 ---
 
-## Stack Tecnologico
+## Stack Tecnológico
 
-| Capa | Tecnología |
-|------|-----------|
-| **Frontend** | React 18 + Vite 5 + Tailwind CSS 3.4 + Framer Motion |
-| **Backend** | Node.js + Express 4 + Sequelize ORM |
-| **Base de datos** | PostgreSQL 18 (Render) |
-| **AI Service** | FastAPI + LangGraph + scikit-learn TF-IDF RAG |
-| **LLM** | Groq LLaMA 3.3 70B (con fallback a OpenAI → RAG-only) |
-| **Mapas** | Leaflet + React-Leaflet |
-| **Internacionalización** | i18next (es, en, de) |
-| **Automatización** | n8n workflows |
-| **APIs externas** | OpenWeatherMap, NASA APOD |
-| **Despliegue** | Vercel (frontend) + Render (backend + AI + DB) |
+| Capa | Tecnología | Versión |
+|------|-----------|---------|
+| **Frontend** | React + Vite + Tailwind CSS | 18 / 5 / 3.4 |
+| **Backend** | Node.js + Express + Sequelize | 22 / 4 / 6 |
+| **Base de datos** | PostgreSQL (Render) | 18 |
+| **AI Service** | FastAPI + LangGraph + scikit-learn | Python 3.11 |
+| **LLM** | Groq LLaMA 3.3 70B (fallback: OpenAI → RAG-only) | — |
+| **Mapas** | Leaflet + React-Leaflet | 1.9 / 4 |
+| **Internacionalización** | i18next | es, en, de |
+| **Automatización** | n8n | — |
+| **APIs externas** | OpenWeatherMap, NASA APOD | — |
+| **Despliegue** | Vercel (frontend) + Render (backend + AI + DB) | — |
 
 ---
 
 ## Arquitectura
 
 ```
-                         ┌──────────────────────┐
-                         │    Vercel (React)     │
-                         │ adastra-sky.vercel.app│
-                         └──────────┬───────────┘
-                                    │ JWT + REST
-                                    ▼
- ┌──────────────────────────────────────────────────────────┐
- │              Render — Backend (Express :5000)             │
- │  • Autenticación JWT con roles (user/admin)              │
- │  • CRUD de zonas, experiencias, eventos                  │
- │  • Proxy de chat y clima hacia AI Service                │
- │  • Rate limiting (admin, contact, experiences)           │
- │  • Multer + Sharp para subida de imágenes                │
- │  • Exportación CSV, GeoJSON y PDF                        │
- └──────┬───────────────────────────────────┬───────────────┘
-        │ proxy /api/chat                   │ proxy /weather
-        ▼                                   ▼
- ┌──────────────────┐             ┌──────────────────┐
- │  Render — AI     │             │  OpenWeatherMap  │
- │  Service (:10000)│             │     API          │
- │  • LangGraph     │             └──────────────────┘
- │  • RAG TF-IDF    │
- │  • Sky Score Alg │
- │  • Groq LLM 70B  │
- └──────────────────┘
-          │
-          ▼
- ┌──────────────────┐
- │ Render PostgreSQL│
- │  (compartida)    │
- └──────────────────┘
+                          ┌──────────────────────┐
+                          │    Vercel (React)     │
+                          │ adastra-sky.vercel.app│
+                          │  • ChatPage (IA)      │
+                          │  • Dashboard          │
+                          │  • Mapa interactivo   │
+                          │  • Experiencias       │
+                          │  • FAQ, Contacto      │
+                          └──────────┬───────────┘
+                                     │ JWT REST
+                                     ▼
+ ┌─────────────────────────────────────────────────────────────────┐
+ │                Render — Backend (Express :5000)                  │
+ │                                                                  │
+ │  • Autenticación JWT (user/admin)     • CRUD experiencias       │
+ │  • Proxy IA (120s timeout)            • Export CSV / GeoJSON    │
+ │  • Proxy clima (OpenWeatherMap)       • Export PDF (pdfkit)     │
+ │  • Rate limiting (4 niveles)          • Multer + Sharp imágenes │
+ │  • Joi validation (register,contact)  • n8n webhook (API Key)   │
+ │  • Eventos astronómicos               • CORS + Helmet seguridad │
+ └──────┬───────────────────────────────────┬──────────────────────┘
+        │ proxy /api/chat                    │ proxy /weather
+        ▼                                    ▼
+ ┌─────────────────────┐           ┌────────────────────┐
+ │  Render — AI         │           │  OpenWeatherMap    │
+ │  Service (FastAPI)   │           │     API            │
+ │  • LangGraph agent   │           └────────────────────┘
+ │  • RAG TF-IDF in-mem │
+ │  • Groq LLaMA 70B    │
+ │  • Sky Score (6 fac) │
+ │  • ~512MB RAM        │
+ └──────────┬───────────┘
+            │
+            ▼
+ ┌─────────────────────┐
+ │  Documentos IAC     │
+ │  (6 docs markdown   │
+ │   → TF-IDF chunks)  │
+ └─────────────────────┘
 ```
 
-<details>
-<summary><strong>Diagrama de flujo de datos</strong></summary>
+### Flujo de una consulta al chat
 
 ```
-Usuario → Frontend (Vite) → Backend (Express) → AI Service (FastAPI) → Groq API
-                               │                       │
-                               ▼                       ▼
-                         PostgreSQL              Documentos IAC
-                                                 (RAG TF-IDF)
+Usuario → Frontend → Backend (proxy) → AI Service (FastAPI)
+                                           │
+                                     ┌─────┴──────┐
+                                     │  1. RAG    │
+                                     │  TF-IDF    │
+                                     │  search    │
+                                     └─────┬──────┘
+                                           │ contexto
+                                           ▼
+                                     ┌─────────────┐
+                                     │  2. Groq    │
+                                     │  LLaMA 70B  │
+                                     │  + RAG ctx  │
+                                     └─────┬───────┘
+                                           │
+                             429/error? ───┤──→ OpenAI fallback
+                                           │         │
+                                           │    429/error?
+                                           │         │
+                                           │    ┌────┴────┐
+                                           │    │ RAG-only│
+                                           │    │ response│
+                                           │    └─────────┘
+                                           ▼
+                                   Respuesta → Frontend
 ```
 
-El flujo de una consulta al chat es:
-1. El usuario escribe un mensaje en el frontend
-2. El frontend envía el mensaje al backend via REST
-3. El backend hace proxy al AI Service
-4. El AI Service busca documentos relevantes en el RAG (TF-IDF + cosine similarity)
-5. El contexto RAG se inyecta en el system prompt del LLM
-6. Groq genera la respuesta (con fallback a OpenAI → respuesta RAG-only)
-7. La respuesta viaja de vuelta: AI Service → Backend → Frontend
+### Esquema de base de datos
 
-</details>
+```
+users (id UUID PK, email, password_hash, role, first_name, last_name, ...)
+  │
+  ├── experiences (id UUID PK, user_id FK, zone_id, title, description, images JSONB)
+  │
+  ├── chat_history (id UUID PK, user_id FK, session_id, message, response, sources JSONB)
+  │
+  └── sky_quality_zones (id UUID PK, name, island, category, lat, lng, altitude, ...)
+```
 
 ---
 
@@ -118,170 +150,151 @@ El flujo de una consulta al chat es:
 
 ### Mapa Interactivo
 
-95 zonas de observación geolocalizadas en 8 islas + La Graciosa, con:
+95 zonas de observación geolocalizadas en 8 islas + La Graciosa, implementadas con **Leaflet + React-Leaflet** sobre tiles CartoDB dark:
 
-- **2 observatorios** (Roque de los Muchachos, Teide)
-- **33 miradores astronómicos**
-- **60 miradores paisajísticos**
-- Filtros por isla, categoría y escala Bortle
-- Exportación a CSV, GeoJSON y PDF
-- Panel de santuarios estelares (Bortle 1-2)
+| Tipo | Cantidad |
+|------|----------|
+| Observatorios | 2 (Teide, Roque de los Muchachos) |
+| Miradores astronómicos | 33 |
+| Miradores paisajísticos | 60 |
 
-### Fase Lunar
+**Características:**
+- Filtros por isla y categoría con leyenda interactiva
+- Marcadores personalizados con DivIcon por categoría
+- Vuelo automático (`flyTo`, zoom 12, 1.2s) al seleccionar un mirador desde cualquier parte de la app
+- Click en cualquier punto del mapa para abrir StreetView
+- Panel lateral/bottom sheet con info detallada del santuario
+- Optimizado para móvil con bottom sheet y overlay semitransparente
 
-Algoritmo de cálculo de fase lunar implementado en JavaScript puro basado en el período sinódico (29.53 días) desde la luna nueva de referencia J2000:
+### Panel de Santuario
 
-```js
-export function getLunarPhase(date = new Date()) {
-  const knownNewMoon = new Date('2000-01-06T18:14:00Z');
-  const synodicMonth = 29.53058867;
-  const diff = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
-  const age = ((diff % synodicMonth) + synodicMonth) % synodicMonth;
-  const illumination = Math.round(
-    ((1 - Math.cos(2 * Math.PI * age / synodicMonth)) / 2) * 100
-  );
-  const phaseIndex = Math.round(age / synodicMonth * 8) % 8;
-  return { phaseIndex, illumination, age: Math.round(age) };
-}
-```
+Al hacer clic en un marcador del mapa se abre un panel con:
 
-### Sky Score
-
-Sistema de puntuación de calidad del cielo implementado en **dos capas**:
-
-<details>
-<summary><strong>Frontend — 3 factores ponderados (JS)</strong></summary>
-
-```js
-const WEIGHTS = {
-  ASTRO:   { bortle: 0.35, seeing: 0.20, transparency: 0.15,
-             altitude: 0.10, cloudiness: 0.10, humidity: 0.10 },
-  PHOTO:   { landscape: 0.25, orientation: 0.20, composition: 0.20,
-             accessibility: 0.15, bortle: 0.20 },
-  TOURISM: { access: 0.30, safety: 0.25, services: 0.25, parking: 0.20 },
-};
-
-export const calcGlobalScore = (zone) => {
-  const astro = calcAstroScore(zone);    // 6 subfactores
-  const photo = calcPhotoScore(zone);    // 5 subfactores
-  const tourism = calcTourismScore(zone); // 4 subfactores
-  return {
-    astro, photo, tourism,
-    global: Math.round(astro * 0.5 + photo * 0.3 + tourism * 0.2)
-  };
-};
-```
-
-</details>
-
-<details>
-<summary><strong>AI Service — 6 factores meteorológicos (Python)</strong></summary>
-
-```python
-class SkyScoreAlgorithm:
-    WEIGHTS = {
-        "cloudiness": 0.30,
-        "light_pollution": 0.30,
-        "moon_phase": 0.15,
-        "wind": 0.10,
-        "humidity": 0.10,
-        "transparency": 0.05,
-    }
-
-    def calculate_sky_score(self, factors):
-        score = (
-            self.calculate_cloudiness_factor(factors["cloudiness"]) * 0.30
-            + self.calculate_light_pollution_factor(factors["light_pollution"]) * 0.30
-            + self.calculate_moon_phase_factor(factors["moon_phase"]) * 0.15
-            + self.calculate_wind_factor(factors["wind"]) * 0.10
-            + self.calculate_humidity_factor(factors["humidity"]) * 0.10
-            + self.calculate_transparency_factor(factors.get("transparency", 0.8)) * 0.05
-        )
-        return round(score, 1)
-```
-
-</details>
+- **Información general**: nombre, isla, altitud, descripción
+- **Puntuaciones**: astro score, photo score, tourism score, global score
+- **Clima en tiempo real**: temperatura, nubosidad, humedad, viento, visibilidad, presión (vía OpenWeatherMap)
+- **StreetView**: integración con Google StreetView
+- **Experiencias**: fotos y reseñas de otros usuarios, con carrusel de imágenes
+- **Compartir experiencia**: formulario para subir fotos y descripciones
 
 ### Asistente IA con RAG
 
-Agente LangGraph que utiliza Groq LLaMA 3.3 70B como proveedor principal de LLM, con un sistema de RAG ligero implementado con **TF-IDF + cosine similarity** en memoria:
+Agente **LangGraph** que utiliza **Groq LLaMA 3.3 70B** como LLM principal, con sistema de RAG ligero implementado con **TF-IDF + cosine similarity** en memoria (sin ChromaDB, sin PyTorch, sin sentence-transformers — optimizado para 512MB RAM).
 
-```python
-class InMemoryVectorStore:
-    def __init__(self):
-        self.vectorizer = TfidfVectorizer(max_features=2000)
-        self._tfidf_matrix = None
+**Fuentes documentales (IAC):**
+1. Introducción a la astronomía en Canarias
+2. Observatorio del Teide
+3. Observatorio del Roque de los Muchachos
+4. Ley 31/1988 del Cielo de Canarias
+5. Astroturismo en Canarias
+6. Eventos astronómicos
 
-    def load_documents(self):
-        texts = [d.page_content for d in self.chunks]
-        self._tfidf_matrix = self.vectorizer.fit_transform(texts)
-
-    def similarity_search(self, query: str, k: int = 3):
-        query_vec = self.vectorizer.transform([query])
-        scores = cosine_similarity(query_vec, self._tfidf_matrix).flatten()
-        top_indices = np.argsort(scores)[::-1][:k]
-        return [self.chunks[i] for i in top_indices if scores[i] > 0]
+**Cadena de fallos:**
+```
+Groq LLaMA 70B → (429/error) → OpenAI GPT-4o-mini → (429/error) → RAG-only response
 ```
 
-**Características del agente:**
-- RAG sobre 6 documentos del IAC (introducción, observatorios, ley del cielo, astroturismo, eventos)
+**Características:**
+- RAG query en cada mensaje (top-5 documentos por similitud coseno)
 - Inyección de contexto RAG directamente en el system prompt del LLM
-- Cadena de fallos: Groq → OpenAI → respuesta solo con RAG
 - Multilingüe (es, en, de)
-- Sin dependencias pesadas (no ChromaDB, no PyTorch, no sentence-transformers)
-- Optimizado para 512 MB de RAM (plan gratuito de Render)
+- Rate limiting manejado con mensajes amigables y fallback a documentos IAC
+- Warm-up automático al cargar la página (ping `/api/chat/warmup` cada 45s)
+
+### Sky Score
+
+Sistema de puntuación de calidad del cielo implementado en dos capas independientes:
+
+**Frontend** (`src/utils/scoring.js`): 3 scores compuestos por subfactores ponderados
+
+| Score | Factores | Pesos |
+|-------|----------|-------|
+| **Astro** | Bortle, seeing, transparencia, altitud, nubosidad, humedad | 0.35 / 0.20 / 0.15 / 0.10 / 0.10 / 0.10 |
+| **Photo** | Paisaje, orientación, composición, accesibilidad, Bortle | 0.25 / 0.20 / 0.20 / 0.15 / 0.20 |
+| **Tourism** | Acceso, seguridad, servicios, parking | 0.30 / 0.25 / 0.25 / 0.20 |
+| **Global** | Astro×0.5 + Photo×0.3 + Tourism×0.2 | — |
+
+**AI Service** (`sky_engine/sky_score.py`): 6 factores meteorológicos con pesos
+
+```
+cloudiness (0.30) + light_pollution (0.30) + moon_phase (0.15)
++ wind (0.10) + humidity (0.10) + transparency (0.05)
+```
+
+### Fase Lunar
+
+Algoritmo de cálculo en JavaScript puro basado en el período sinódico (29.53 días) desde la luna nueva de referencia J2000:
+
+```js
+getLunarPhase()  →  { phaseIndex: 0-7, illumination: 0-100%, age: días }
+```
+
+8 fases con nombres y emojis en 3 idiomas, iluminación calculada mediante coseno, animación de fase actual en el dashboard.
 
 ### Catálogo Astronómico
 
-- 88 constelaciones con áreas exactas (grados cuadrados), magnitudes, objetos Messier y mitología
-- 9 planetas con datos físicos y visibilidad desde Canarias
-- 12 eventos astronómicos calculados algorítmicamente para 2025-2028 (lluvias de estrellas, eclipses, oposiciones planetarias)
+Datos completos en `src/data/astronomicalData.js`:
+
+- **88 constelaciones**: área exacta (grados cuadrados), número de estrellas, magnitud aparente, objetos Messier, mitología
+- **9 planetas**: masa, diámetro, distancia al Sol, período orbital, visibilidad estacional desde Canarias
+- **12 eventos astronómicos** (2025-2028): lluvias de estrellas (Cuadrántidas, Perseidas, Gemínidas...), eclipses solares y lunares, oposiciones planetarias
+
+### Experiencias de Usuario
+
+Los usuarios pueden compartir sus experiencias astronómicas:
+
+- Subida de múltiples imágenes (hasta 10MB, procesadas con Sharp)
+- Carrusel de imágenes en las tarjetas y en el panel del mapa
+- Botón "Ver ubicación" que navega al mapa y vuela al mirador exacto
+- Eliminación de experiencias propias
+- Vista de grid responsive (1-3 columnas según pantalla)
+- Rate limiting: 10 publicaciones por hora
 
 ### Exportación de Datos
 
-Tres formatos de exportación disponibles desde el Dashboard:
+| Formato | Librería | Uso |
+|---------|----------|-----|
+| **CSV** | — | Abrir en Excel, Google Sheets |
+| **GeoJSON** | — | Cargar en QGIS, Google Earth, Mapbox |
+| **PDF** | pdfkit (server-side) | Informe imprimible con header brandeado, resumen estadístico y zonas organizadas por isla |
 
-| Formato | Uso recomendado |
-|---------|----------------|
-| **CSV** | Abrir en Excel, Google Sheets o cualquier analizador de datos |
-| **GeoJSON** | Cargar en QGIS, Google Earth, Mapbox o cualquier SIG |
-| **PDF** | Informe imprimible con resumen de zonas organizadas por isla |
+### Clima en Tiempo Real
+
+Integración con **OpenWeatherMap** para mostrar condiciones actuales en cada mirador:
+temperatura, sensación térmica, nubosidad, humedad, viento, visibilidad y presión atmosférica.
 
 ---
 
 ## Roles del Sistema
 
-Actualmente existen **2 roles** con permisos diferenciados:
+| Rol | Permisos | Backend |
+|-----|----------|---------|
+| `user` | Dashboard, mapa, chat IA, experiencias propias, perfil | — |
+| `admin` | Todo lo anterior + CRUD zonas, gestión usuarios, panel admin | `requireAdmin` middleware (JWT role check sin DB query) |
 
-| Rol | Acceso | Descripción |
-|-----|--------|-------------|
-| `user` | Rutas públicas + perfil propio + crear experiencias | Rol por defecto al registrarse |
-| `admin` | Todo lo anterior + panel de administración (CRUD zonas, gestión de usuarios) | Asignado solo mediante seed o directamente en base de datos |
-
-El rol se incluye en el payload del JWT en el momento del login (`{ id, email, role, iat, exp }`). El middleware `requireAdmin` verifica `req.user.role !== 'admin'` sin necesidad de consultar la base de datos en cada petición.
-
-No existe un endpoint público para promocionar un usuario a admin — solo puede hacerse mediante el panel de administración (usando una cuenta admin) o directamente en la base de datos.
+El rol se asigna en el registro (`user` por defecto) o mediante seed. No existe endpoint público de promoción a admin.
 
 ---
 
 ## Seguridad
 
-- Autenticación JWT con `role` en payload; `requireAdmin` verifica el rol sin consultar la base de datos
-- Tokens gestionados exclusivamente via AuthContext (sin acceso directo a `localStorage`)
-- Rate limiting escalonado:
-  - Auth: 10 peticiones cada 15 minutos
-  - Contacto: 5 peticiones por hora
-  - Admin: 60 peticiones cada 15 minutos
-  - Experiences POST: 10 peticiones por hora
-- Validación Joi en registro y formulario de contacto
-- Subida de imágenes limitada a 10 MB con procesado mediante Sharp
-- Sanitización de errores: `errorHandler` elimina nombres de campo y mensajes internos
-- Conexión SSL a PostgreSQL con `rejectUnauthorized: false` para certificados autofirmados de Render
-- Doble autenticación: JWT para usuarios y API Key para n8n
+- **JWT** con payload `{ id, email, role, iat, exp }`; middleware `requireAdmin` sin consulta DB
+- **Tokens** gestionados exclusivamente via React Context (sin `localStorage` directo)
+- **Rate limiting** escalonado (express-rate-limit):
+  - Auth: 10 req / 15 min
+  - Contacto: 5 req / hora
+  - Admin: 60 req / 15 min
+  - Experiences POST: 10 req / hora
+- **Validación** Joi en registro (password: 8+ chars, mayúscula, minúscula, número) y contacto
+- **Sanitización** de errores: `errorHandler` elimina nombres de campo y mensajes internos en `NODE_ENV=production`
+- **Imágenes**: Multer (10MB max) + Sharp para procesado
+- **SSL** PostgreSQL: `rejectUnauthorized: false` para certificados autofirmados de Render
+- **Doble autenticación**: JWT para usuarios, API Key para n8n
+- **Helmet** + CORS configurado por origen
 
 ---
 
-## Inicio Rapido
+## Inicio Rápido
 
 ### Requisitos
 
@@ -305,7 +318,7 @@ npm run dev          # http://localhost:5000
 cd frontend
 cp .env.example .env
 npm install
-npm run dev          # http://localhost:3000
+npm run dev          # http://localhost:5173
 ```
 
 ### 3. AI Service
@@ -313,10 +326,10 @@ npm run dev          # http://localhost:3000
 ```bash
 cd ai-service
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
-python main.py                  # http://localhost:8001
+python main.py                    # http://localhost:8001
 ```
 
 ### 4. Todo simultáneo
@@ -336,22 +349,22 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| POST | `/auth/register` | ✗ | Registro de usuario (8+ chars, mayúscula, minúscula, número) |
-| POST | `/auth/login` | ✗ | Inicio de sesión (devuelve JWT) |
+| POST | `/auth/register` | ✗ | Registro (8+ chars, mayúscula, minúscula, número) |
+| POST | `/auth/login` | ✗ | Login (devuelve JWT) |
 | GET | `/auth/profile` | ✓ | Perfil del usuario |
 | PATCH | `/auth/profile` | ✓ | Actualizar perfil |
 
 </details>
 
 <details>
-<summary><strong>Zonas de observación (Sky Zones)</strong></summary>
+<summary><strong>Zonas de observación</strong></summary>
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
 | GET | `/sky/zones` | ✗ | Todas las zonas activas |
 | GET | `/sky/zones/geojson` | ✗ | Exportar GeoJSON |
 | GET | `/sky/zones/csv` | ✗ | Exportar CSV |
-| GET | `/sky/zones/pdf` | ✗ | Exportar PDF |
+| GET | `/sky/zones/pdf` | ✗ | Exportar PDF (pdfkit) |
 | GET | `/sky/zones/query` | ✗ | Búsqueda avanzada con filtros |
 | GET | `/sky/zones/recommend/tonight` | ✗ | Mejores zonas para esta noche |
 | GET | `/sky/zones/recommend/photo` | ✗ | Mejores para astrofotografía |
@@ -362,21 +375,23 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 </details>
 
 <details>
-<summary><strong>Sky Score, Chat, Islas, Eventos, Experiencias, Clima</strong></summary>
+<summary><strong>Chat, Score, Experiencias, Clima</strong></summary>
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
+| POST | `/api/chat` | ✓ | Enviar mensaje al agente IA (120s timeout) |
+| GET | `/api/chat/history/:session_id` | ✓ | Historial de conversaciones |
+| GET | `/api/chat/warmup` | ✗ | Despertar el AI Service |
 | POST | `/sky/score` | API Key | Guardar score (desde n8n) |
 | GET | `/sky/score/latest` | ✗ | Último score registrado |
 | GET | `/sky/score/history` | ✗ | Historial de scores |
-| POST | `/chat/message` | ✓ | Enviar mensaje al agente IA |
-| GET | `/chat/history` | ✓ | Historial de conversaciones |
-| GET | `/islands` | ✗ | Información de todas las islas |
-| GET | `/events` | ✗ | Eventos astronómicos |
 | GET | `/experiences` | ✗ | Experiencias de usuarios |
-| POST | `/experiences` | ✓ | Crear experiencia (rate limit: 10/hora) |
-| POST | `/contact` | ✗ | Formulario de contacto (rate limit: 5/hora) |
+| POST | `/experiences` | ✓ | Crear experiencia (10/hora) |
+| DELETE | `/experiences/:id` | ✓ | Eliminar experiencia propia |
 | GET | `/weather/current` | ✗ | Clima por coordenadas |
+| GET | `/events` | ✗ | Eventos astronómicos |
+| GET | `/islands` | ✗ | Información de todas las islas |
+| POST | `/contact` | ✗ | Formulario de contacto (5/hora) |
 
 </details>
 
@@ -385,13 +400,13 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| GET | `/admin/zones` | Admin | Listar zonas |
+| GET | `/admin/zones` | Admin | Listar zonas (95) |
 | POST | `/admin/zones` | Admin | Crear zona |
-| PUT | `/admin/zones/:id` | Admin | Actualizar zona |
+| PUT | `/admin/zones/:id` | Admin | Actualizar zona (lat, lng, alt...) |
 | DELETE | `/admin/zones/:id` | Admin | Eliminar zona |
 | GET | `/admin/users` | Admin | Listar usuarios |
 | GET | `/admin/users/:id` | Admin | Detalle de usuario |
-| PUT | `/admin/users/:id` | Admin | Actualizar usuario (incluye password) |
+| PUT | `/admin/users/:id` | Admin | Actualizar usuario |
 | DELETE | `/admin/users/:id` | Admin | Desactivar usuario |
 
 </details>
@@ -400,10 +415,10 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/health` | Health check del servicio |
-| POST | `/api/chat` | Chat con el agente astronómico |
-| POST | `/api/sky-score` | Calcular Sky Score en tiempo real (0-10) |
-| GET | `/api/what-to-see` | Recomendación de qué observar esta noche |
+| GET | `/health` | Health check |
+| POST | `/api/chat` | Chat con agente LangGraph + RAG |
+| POST | `/api/sky-score` | Calcular Sky Score (0-10) |
+| GET | `/api/what-to-see` | Recomendación astronómica nocturna |
 
 ---
 
@@ -413,8 +428,7 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 |-------|-----------|-----|
 | `demo@adastra.sky` | `Demo1234` | user |
 
-El rol `user` se asigna automáticamente al registrarse.  
-Los usuarios seed se crean al ejecutar `npm run seed`.
+> El rol `user` se asigna automáticamente al registrarse. Para crear un admin, ejecutar `npm run seed` o asignar directamente en la base de datos.
 
 ---
 
@@ -427,7 +441,7 @@ cd backend && npm test
 # Frontend — 2 tests (Vitest)
 cd frontend && npm test
 
-# AI Service — pendiente de implementar
+# AI Service
 cd ai-service && python -m pytest
 ```
 
@@ -442,12 +456,12 @@ cd ai-service && python -m pytest
 | AI Service | Render | [adastra-sky-ai.onrender.com](https://adastra-sky-ai.onrender.com) |
 | Base de datos | Render PostgreSQL | Interna |
 
-El blueprint de infraestructura está definido en `render.yaml`.  
-Ver `docs/13_MANUAL_INSTALACION.md` para instrucciones detalladas de despliegue.
+Infraestructura declarativa en `render.yaml`.  
+Ver `docs/13_MANUAL_INSTALACION.md` para instrucciones detalladas.
 
 ---
 
-## Documentacion
+## Documentación
 
 | Archivo | Contenido |
 |---------|-----------|
@@ -458,54 +472,25 @@ Ver `docs/13_MANUAL_INSTALACION.md` para instrucciones detalladas de despliegue.
 | `docs/05_AI_SERVICE.md` | Documentación del AI Service |
 | `docs/06_BASE_DE_DATOS.md` | Esquema de base de datos |
 | `docs/07_DESPLIEGUE_Y_SEGURIDAD.md` | Despliegue y seguridad |
-| `docs/08_FUTURAS_Y_ANEXOS.md` | Funcionalidades futuras y anexos |
+| `docs/08_FUTURAS_Y_ANEXOS.md` | Funcionalidades futuras |
 | `docs/09_LIMPIEZA_ARCHIVOS.md` | Auditoría de archivos no utilizados |
-| `docs/10_AUDITORIA_TECNICA.md` | Auditoría técnica con niveles de criticidad |
+| `docs/10_AUDITORIA_TECNICA.md` | Auditoría técnica |
 | `docs/11_PRESENTACION_FINAL.md` | Presentación del proyecto |
 | `docs/12_MANUAL_USUARIO.md` | Manual de usuario |
 | `docs/13_MANUAL_INSTALACION.md` | Guía de instalación y despliegue |
 | `docs/api_specification.md` | Especificación detallada de la API |
 | `docs/deployment_guide.md` | Guía de despliegue en producción |
-| `docs/postman/AdAstraSky.postman_collection.json` | Colección de Postman actualizada |
+| `docs/postman/AdAstraSky.postman_collection.json` | Colección de Postman |
 
 ---
 
-## Backlogs Futuros
+## Colaboraciones
 
-<details>
-<summary><strong>Corto plazo</strong></summary>
+### Senderos Canarios
 
-- [ ] **Lista de favoritos**: Permitir a los usuarios guardar y gestionar sus santuarios estelares favoritos
-- [ ] **Modo oscuro completo**: Mejorar la consistencia del tema oscuro en todas las secciones
-- [ ] **Notificaciones push**: Alertar sobre eventos astronómicos importantes (eclipses, lluvias de estrellas)
-- [ ] **Galería de astrofotografía**: Sección dedicada a fotografías del cielo canario compartidas por la comunidad
-- [ ] **Tests del AI Service**: Implementar pruebas unitarias y de integración para el servicio de Python
+AdAstra Sky colabora con **Senderos Canarios**, un proyecto que descubre rutas de senderismo en las Islas Canarias. Muchos de los miradores paisajísticos y astronómicos de nuestra plataforma están conectados por senderos que puedes explorar.
 
-</details>
-
-<details>
-<summary><strong>Medio plazo</strong></summary>
-
-- [ ] **Sistema de reservas**: Integración con calendario para reservar visitas a observatorios y miradores
-- [ ] **Autenticación OAuth**: Inicio de sesión con Google, GitHub y Apple
-- [ ] **API pública**: Documentación Swagger/OpenACCESO público para desarrolladores externos
-- [ ] **App móvil**: Versión nativa para iOS y Android con funcionalidades offline
-- [ ] **Recomendaciones personalizadas**: Algoritmo de machine learning que aprenda de las preferencias del usuario
-- [ ] **Realidad aumentada**: Superposición de constelaciones y objetos celestes usando la cámara del dispositivo
-
-</details>
-
-<details>
-<summary><strong>Largo plazo</strong></summary>
-
-- [ ] **Community Hub**: Red social de astrónomos aficionados con foros, eventos y encuentros
-- [ ] **Monetización**: Modelo freemium con funcionalidades premium (pronósticos avanzados, alerts personalizados)
-- [ ] **Integración con telescopios**: Conexión con mounts y telescopios controlados por software (ASCOM/INDI)
-- [ ] **Gemelos digitales**: Simulación 3D del cielo canario con WebGL para planificación de observaciones
-- [ ] **Expansión geográfica**: Incluir otras regiones astronómicas (Chile, Hawái, Namibia)
-- [ ] **Dashboard científico**: Herramientas de análisis de datos para investigadores del IAC
-
-</details>
+[Descubre rutas que pasan por estos miradores](https://senderoscanarios.vercel.app)
 
 ---
 
@@ -515,12 +500,51 @@ Este proyecto se desarrolló con asistencia de inteligencia artificial como part
 
 | Herramienta | Uso |
 |-------------|-----|
-| **OpenCode** | Asistente principal de codificación, refactorización, depuración y gestión del proyecto directamente desde la terminal |
-| **Claude (Anthropic)** | Generación de documentación técnica, revisión de arquitectura y asistencia en diseño de componentes |
-| **ChatGPT (OpenAI)** | Soporte en algoritmos astronómicos (fase lunar, sky score), generación de datos de prueba y revisión de código |
-| **Gemini (Google)** | Validación de documentación técnica y apoyo en la estructura de presentación del proyecto |
+| **OpenCode** | Asistente principal de codificación, refactorización, depuración y gestión del proyecto |
+| **Claude (Anthropic)** | Generación de documentación técnica, revisión de arquitectura y diseño de componentes |
+| **ChatGPT (OpenAI)** | Soporte en algoritmos astronómicos (fase lunar, sky score), generación de datos de prueba |
+| **Gemini (Google)** | Validación de documentación técnica y apoyo en estructura de presentación |
 
 Todas las decisiones de implementación, revisión de seguridad y despliegue fueron supervisadas y validadas por el desarrollador.
+
+---
+
+## Backlogs Futuros
+
+<details>
+<summary><strong>Corto plazo</strong></summary>
+
+- [ ] **Lista de favoritos**: Guardar y gestionar santuarios estelares favoritos
+- [ ] **Modo oscuro completo**: Consistencia del tema oscuro en todas las secciones
+- [ ] **Notificaciones push**: Alertas sobre eventos astronómicos (eclipses, lluvias de estrellas)
+- [ ] **Galería de astrofotografía**: Sección dedicada a fotografías del cielo canario
+- [ ] **Tests del AI Service**: Pruebas unitarias y de integración para el servicio Python
+
+</details>
+
+<details>
+<summary><strong>Medio plazo</strong></summary>
+
+- [ ] **Sistema de reservas**: Integración con calendario para visitas a observatorios
+- [ ] **Autenticación OAuth**: Login con Google, GitHub y Apple
+- [ ] **API pública**: Documentación Swagger/OpenAPI para desarrolladores externos
+- [ ] **App móvil**: Versión nativa iOS y Android con funcionalidades offline
+- [ ] **Recomendaciones personalizadas**: ML que aprenda de preferencias del usuario
+- [ ] **Realidad aumentada**: Superposición de constelaciones vía cámara
+
+</details>
+
+<details>
+<summary><strong>Largo plazo</strong></summary>
+
+- [ ] **Community Hub**: Red social de astrónomos aficionados con foros y eventos
+- [ ] **Monetización**: Freemium con pronósticos avanzados y alertas personalizados
+- [ ] **Integración con telescopios**: Conexión ASCOM/INDI para control remoto
+- [ ] **Gemelos digitales**: Simulación 3D del cielo canario con WebGL
+- [ ] **Expansión geográfica**: Chile, Hawái, Namibia
+- [ ] **Dashboard científico**: Herramientas de análisis para investigadores del IAC
+
+</details>
 
 ---
 
