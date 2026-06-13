@@ -356,6 +356,34 @@ const DashboardPage = () => {
             </div>
           </div>
 
+          {/* COLABORACIÓN */}
+          <section className="bg-gradient-card rounded-2xl border border-amber-500/10 p-6">
+            <a
+              href="https://senderoscanarios.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-4 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-amber-900/20 border border-amber-600/20 flex items-center justify-center shrink-0">
+                <span className="text-2xl">🥾</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors">
+                  ¿Te gusta el senderismo?
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Descubre rutas que pasan por estos miradores en{' '}
+                  <span className="text-amber-400 underline decoration-amber-500/30 group-hover:decoration-amber-400/60">
+                    Senderos Canarios
+                  </span>
+                </p>
+              </div>
+              <span className="text-amber-400/50 group-hover:text-amber-400 transition-colors">
+                <span className="text-lg">→</span>
+              </span>
+            </a>
+          </section>
+
         </div>
       </main>
     </div>
