@@ -1,25 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import InteractiveMap from '../components/InteractiveMap';
 import SanctuaryPanel from '../components/SanctuaryPanel';
 import StreetViewPanel from '../components/StreetViewPanel';
 import Sidebar from '../components/Sidebar';
+import { santuariosData } from '../data/santuariosData';
 
 const ExploradorPage = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const [selectedZone, setSelectedZone] = useState(location.state?.selectedZone || null);
+  const [selectedZone, setSelectedZone] = useState(null);
   const [clickedCoords, setClickedCoords] = useState(null);
-  const [panel, setPanel] = useState(location.state?.selectedZone ? 'sanctuary' : null);
+  const [panel, setPanel] = useState(null);
+
+  const zoneMap = useMemo(() => {
+    const m = {};
+    santuariosData.forEach(z => { m[z.id] = z; });
+    return m;
+  }, []);
 
   useEffect(() => {
     if (location.state?.selectedZone) {
-      setSelectedZone(location.state.selectedZone);
-      setPanel('sanctuary');
-      window.history.replaceState({}, document.title);
+      const raw = location.state.selectedZone;
+      const zone = typeof raw === 'string' ? zoneMap[raw] || raw : raw;
+      setSelectedZone(zone);
+      setPanel(zone?.id ? 'sanctuary' : null);
+      setClickedCoords(null);
     }
-  }, []);
+  }, [location]);
 
   const handleZoneSelect = (zone) => {
     setClickedCoords(null);
@@ -54,6 +63,7 @@ const ExploradorPage = () => {
         {/* Mapa: siempre ocupa todo el espacio disponible */}
         <div className="flex-1 relative h-full">
           <InteractiveMap
+            selectedZone={selectedZone}
             onZoneSelect={handleZoneSelect}
             onCoordinateClick={handleCoordinateClick}
           />

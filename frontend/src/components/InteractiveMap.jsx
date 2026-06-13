@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import { DivIcon } from 'leaflet';
 import { santuariosData, islands } from '../data/santuariosData';
 import 'leaflet/dist/leaflet.css';
@@ -30,7 +30,17 @@ const MapClickHandler = ({ onCoordinateClick }) => {
   return null;
 };
 
-const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
+const MapFlyTo = ({ zone }) => {
+  const map = useMapEvents({});
+  useEffect(() => {
+    if (zone?.latitude && zone?.longitude) {
+      map.flyTo([zone.latitude, zone.longitude], 12, { duration: 1.2 });
+    }
+  }, [zone, map]);
+  return null;
+};
+
+const InteractiveMap = ({ selectedZone, onZoneSelect, onCoordinateClick }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedIsland, setSelectedIsland] = useState('all');
   const [legendOpen, setLegendOpen] = useState(false);
@@ -134,6 +144,7 @@ const InteractiveMap = ({ onZoneSelect, onCoordinateClick }) => {
         />
 
         <MapClickHandler onCoordinateClick={onCoordinateClick} />
+        <MapFlyTo zone={selectedZone} />
 
         {filteredZones.map((zone) => (
           <Marker
