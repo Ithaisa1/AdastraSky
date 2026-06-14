@@ -423,7 +423,7 @@ const AdminPanel = () => {
                         <div className="flex flex-wrap gap-2">
                           {exp.images.map((img, idx) => (
                             <div key={idx} className="relative group w-20 h-20 rounded-lg overflow-hidden border border-white/10">
-                              <img src={`${API_URL}${img}`} alt={`${exp.title} ${idx + 1}`}
+                              <img src={img.startsWith('http') ? img : `${API_URL}${img}`} alt={`${exp.title} ${idx + 1}`}
                                 className="w-full h-full object-cover"
                                 onError={e => { e.target.style.display = 'none'; }} />
                               <button onClick={() => handleDeleteExperienceImage(exp.id, idx)}
