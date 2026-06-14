@@ -41,6 +41,25 @@ export const sendMessage = async (req, res, next) => {
       });
     }
 
+    // Filtro de seguridad: detectar patrones de inyección de prompt
+    const dangerousPatterns = [
+      /ignor(a|e|as)\s*(instrucciones|prompt|reglas|system)/i,
+      /olvid(a|e|as)\s*(instrucciones|prompt|reglas|system)/i,
+      /desde\s*ahora\s*(eres|serás|actúas)/i,
+      /nuevas?\s*(instrucciones|reglas)/i,
+      /actúa\s*como\s*(si\s*)?(fueras|fueses)/i,
+      /dime\s*tus?\s*(instrucciones|prompt|reglas)/i,
+    ];
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(message)) {
+        return res.status(400).json({
+          status: 'error',
+          code: 'CONTENT_FILTERED',
+          message: 'Tu mensaje ha sido filtrado por seguridad. Por favor, formula tu pregunta de otra manera.'
+        });
+      }
+    }
+
     // Enviar solicitud al microservicio de IA
     const aiResponse = await axios.post(`${AI_SERVICE_URL}/api/chat`, {
       message,
