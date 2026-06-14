@@ -1,7 +1,7 @@
 """
 RAG ligero en memoria — TF-IDF + cosine similarity.
-Sin ChromaDB, sin sentence-transformers, sin torch.
-Carga los 6 documentos IAC al importar.
+Multilingüe: carga documentos .es.md, .en.md, .de.md
+y filtra por idioma en las búsquedas.
 """
 
 import re
@@ -13,6 +13,13 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 DOCUMENTS_DIR = Path(__file__).parent.parent / "documents"
+
+LANG_PATTERN = re.compile(r"\.(es|en|de)\.md$")
+
+
+def _detect_language(filename: str) -> str:
+    match = LANG_PATTERN.search(filename)
+    return match.group(1) if match else "es"
 
 
 class Document:
@@ -40,7 +47,10 @@ class InMemoryVectorStore:
 
         for md_file in sorted(DOCUMENTS_DIR.glob("*.md")):
             content = md_file.read_text(encoding="utf-8")
-            title = md_file.stem.replace("_", " ").replace("-", " ").title()
+            raw_stem = md_file.stem
+            stem = raw_stem[:-3] if LANG_PATTERN.search(raw_stem + ".md") else raw_stem
+            title = stem.replace("_", " ").replace("-", " ").title()
+            lang = _detect_language(md_file.name)
             paragraphs = [p.strip() for p in re.split(r"\n\s*\n", content) if p.strip()]
 
             for para in paragraphs:
@@ -51,6 +61,7 @@ class InMemoryVectorStore:
                             "source": "Documento IAC",
                             "title": title,
                             "file": md_file.name,
+                            "language": lang,
                         },
                     )
                 )
@@ -64,18 +75,24 @@ class InMemoryVectorStore:
         self._loaded = True
         print(f"[OK] {len(self.chunks)} fragmentos indexados de {len(list(DOCUMENTS_DIR.glob('*.md')))} documentos")
 
-    def similarity_search(self, query: str, k: int = 3) -> list[Document]:
+    def similarity_search(self, query: str, k: int = 3, lang: str | None = None) -> list[Document]:
         if not self._loaded or not self.chunks:
             return []
 
+        candidates = self.chunks if lang is None else [c for c in self.chunks if c.metadata.get("language") == lang]
+        if not candidates:
+            return []
+
+        texts = [d.page_content for d in candidates]
+        matrix = self.vectorizer.transform(texts)
         query_vec = self.vectorizer.transform([query])
-        scores = cosine_similarity(query_vec, self._tfidf_matrix).flatten()
+        scores = cosine_similarity(query_vec, matrix).flatten()
         top_indices = np.argsort(scores)[::-1][:k]
 
         results = []
         for idx in top_indices:
             if scores[idx] > 0:
-                results.append(self.chunks[idx])
+                results.append(candidates[idx])
 
         return results
 

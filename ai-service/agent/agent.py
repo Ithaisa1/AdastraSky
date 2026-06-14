@@ -10,7 +10,7 @@ from agent.tools import tools, search_rag_documents
 
 logger = logging.getLogger("adastra-ai.agent")
 
-SYSTEM_PROMPT = """Eres AdAstra, un guía astronómico experto en los cielos de las Islas Canarias.
+BASE_SYSTEM_PROMPT = """Eres AdAstra, un guía astronómico experto en los cielos de las Islas Canarias.
 Hablas con conocimiento sobre: observatorios (Teide, Roque de los Muchachos), constelaciones,
 planetas, eventos astronómicos, astroturismo, y condiciones de observación.
 
@@ -26,7 +26,7 @@ REGLAS DE RESPUESTA:
 
 3. Si la pregunta es sobre astronomía pero NO está cubierta en los documentos IAC ni en tu conocimiento, responde: "Lo siento, no tengo información sobre [tema]. Si necesitas más detalles, te recomiendo buscar en fuentes astronómicas confiables como el Instituto de Astrofísica de Canarias (IAC) o la NASA."
 
-4. Responde SIEMPRE en el idioma que te preguntan.
+4. El usuario se está comunicando en {{{LANG_IDIOMA}}}. Responde SIEMPRE en {{{LANG_IDIOMA}}}, usando el mismo idioma que el usuario. No cambies de idioma aunque los documentos de referencia estén en otro.
 
 5. Sé conciso pero informativo, máximo 3-4 párrafos.
 
@@ -53,6 +53,9 @@ def _get_models() -> list[BaseChatModel]:
     return models
 
 
+_LANG_LABELS = {"es": "español", "en": "inglés", "de": "alemán"}
+
+
 def _format_rag_results(results: list[dict]) -> str:
     if not results:
         return ""
@@ -66,9 +69,9 @@ def _format_rag_results(results: list[dict]) -> str:
     return "\n\n---\n\n".join(parts)
 
 
-def _search_rag(query: str) -> list[dict]:
+def _search_rag(query: str, lang: str = "es") -> list[dict]:
     try:
-        return search_rag_documents.invoke({"query": query, "top_k": 5})
+        return search_rag_documents.invoke({"query": query, "top_k": 5, "lang": lang})
     except Exception:
         return []
 
@@ -76,29 +79,9 @@ def _search_rag(query: str) -> list[dict]:
 tools_by_name = {t.name: t for t in tools}
 
 
-def call_model(state: AgentState) -> dict:
-    last_msg = state["messages"][-1]
-    query = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
-
-    rag_results = _search_rag(query)
-    rag_context = _format_rag_results(rag_results)
-
-    context_block = ""
-    if rag_context:
-        context_block = (
-            "\n\nINFORMACIÓN DE DOCUMENTOS IAC:\n" + rag_context +
-            "\n\nUsa esta información para responder. Si los documentos contienen datos relevantes, NUNCA digas que no sabes. Cita la fuente al final."
-        )
-
-    system_msg = SystemMessage(content=SYSTEM_PROMPT + context_block)
-
-    try:
-        models = _get_models()
-    except Exception as e:
-        logger.error(f"Error obteniendo modelos: {str(e)}")
-        models = []
-    if not models:
-        response_text = _format_rag_results(rag_results) if rag_results else (
+def _offline_message(lang: str) -> str:
+    msgs = {
+        "es": (
             "Soy AdAstra, tu guía astronómico.\n\n"
             "Actualmente no tengo conexión con los modelos de lenguaje. "
             "Puedo consultar los documentos de la IAC que tengo en mi base de conocimiento.\n\n"
@@ -107,7 +90,76 @@ def call_model(state: AgentState) -> dict:
             "• Astroturismo y mejores lugares para observar\n"
             "• Normativa de protección del cielo (Ley del Cielo)\n"
             "• Eventos astronómicos y constelaciones"
+        ),
+        "en": (
+            "I am AdAstra, your astronomical guide.\n\n"
+            "I currently have no connection to the language models. "
+            "I can consult the IAC documents in my knowledge base.\n\n"
+            "Ask me about:\n"
+            "• Observatories in the Canary Islands (Teide, Roque de los Muchachos)\n"
+            "• Astrotourism and best places for stargazing\n"
+            "• Sky protection regulations (Sky Law)\n"
+            "• Astronomical events and constellations"
+        ),
+        "de": (
+            "Ich bin AdAstra, Ihr astronomischer Führer.\n\n"
+            "Ich habe derzeit keine Verbindung zu den Sprachmodellen. "
+            "Ich kann die IAC-Dokumente in meiner Wissensdatenbank abrufen.\n\n"
+            "Fragen Sie mich zu:\n"
+            "• Observatorien auf den Kanarischen Inseln (Teide, Roque de los Muchachos)\n"
+            "• Astrotourismus und die besten Orte zur Beobachtung\n"
+            "• Himmelsschutzbestimmungen (Ley del Cielo)\n"
+            "• Astronomische Ereignisse und Sternbilder"
+        ),
+    }
+    return msgs.get(lang, msgs["es"])
+
+
+def _off_topic_message(lang: str) -> str:
+    msgs = {
+        "es": "Lo siento, solo puedo ayudar con temas de astronomía y observación del cielo. ¿Tienes alguna pregunta sobre las estrellas, los planetas o los cielos de Canarias?",
+        "en": "Sorry, I can only help with astronomy and sky observation topics. Do you have any questions about the stars, the planets or the skies of the Canary Islands?",
+        "de": "Es tut mir leid, ich kann nur bei Themen der Astronomie und Himmelsbeobachtung helfen. Haben Sie eine Frage zu den Sternen, den Planeten oder dem Himmel der Kanarischen Inseln?",
+    }
+    return msgs.get(lang, msgs["es"])
+
+
+def _polite_message(lang: str) -> str:
+    msgs = {
+        "es": "Entiendo tu frustración, pero estoy aquí para ayudarte con temas de astronomía. Por favor, trata de formular tu pregunta de manera respetuosa. ¿Hay algo sobre el cielo de Canarias que te gustaría saber?",
+        "en": "I understand your frustration, but I am here to help you with astronomy topics. Please try to ask your question respectfully. Is there anything about the Canary Islands sky that you would like to know?",
+        "de": "Ich verstehe Ihre Frustration, aber ich bin hier, um Ihnen bei Astronomiethemen zu helfen. Bitte versuchen Sie, Ihre Frage respektvoll zu formulieren. Gibt es etwas über den Himmel der Kanarischen Inseln, das Sie wissen möchten?",
+    }
+    return msgs.get(lang, msgs["es"])
+
+
+def call_model(state: AgentState) -> dict:
+    last_msg = state["messages"][-1]
+    query = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
+    lang = state.get("language", "es")
+
+    rag_results = _search_rag(query, lang=lang)
+    rag_context = _format_rag_results(rag_results)
+
+    lang_name = _LANG_LABELS.get(lang, "español")
+    system_prompt = BASE_SYSTEM_PROMPT.replace("{{{LANG_IDIOMA}}}", lang_name)
+
+    context_block = ""
+    if rag_context:
+        context_block = (
+            "\n\nINFORMACIÓN DE DOCUMENTOS IAC:\n" + rag_context +
+            "\n\nUsa esta información para responder. Si los documentos contienen datos relevantes, NUNCA digas que no sabes. Cita la fuente al final."
         )
+
+    system_msg = SystemMessage(content=system_prompt + context_block)
+
+    try:
+        models = _get_models()
+    except Exception as e:
+        logger.error(f"Error obteniendo modelos: {str(e)}")
+        models = []
+    if not models:
+        response_text = _format_rag_results(rag_results) if rag_results else _offline_message(lang)
         return {"messages": [AIMessage(content=response_text)]}
 
     last_error = None
@@ -143,32 +195,28 @@ def call_model(state: AgentState) -> dict:
     is_offensive = any(p in query_lower for p in insult_patterns)
     is_astronomy = any(k in query_lower for k in astro_keywords)
     if is_offensive:
-        response_text = (
-            "Entiendo tu frustración, pero estoy aquí para ayudarte con temas de astronomía. "
-            "Por favor, trata de formular tu pregunta de manera respetuosa. "
-            "¿Hay algo sobre el cielo de Canarias que te gustaría saber?"
-        )
+        response_text = _polite_message(lang)
     elif not is_astronomy and query_lower not in ("hola", "buenos días", "buenas", "hello", "hi", "hey"):
-        response_text = "Lo siento, solo puedo ayudar con temas de astronomía y observación del cielo. ¿Tienes alguna pregunta sobre las estrellas, los planetas o los cielos de Canarias?"
+        response_text = _off_topic_message(lang)
     else:
         rate_limited = "429" in str(last_error) or "Too Many" in str(last_error) or "rate_limit" in str(last_error).lower()
         if rate_limited:
-            response_text = (
-                "El servicio de IA está experimentando alta demanda en este momento. "
-                "Tengo acceso a los documentos del Instituto de Astrofísica de Canarias (IAC) "
-                "y puedo responder preguntas sobre los cielos de Canarias.\n\n"
-            )
+            rate_msgs = {
+                "es": "El servicio de IA está experimentando alta demanda en este momento. Tengo acceso a los documentos del Instituto de Astrofísica de Canarias (IAC) y puedo responder preguntas sobre los cielos de Canarias.\n\n",
+                "en": "The AI service is experiencing high demand right now. I have access to the documents of the Instituto de Astrofísica de Canarias (IAC) and can answer questions about the skies of the Canary Islands.\n\n",
+                "de": "Der KI-Dienst hat derzeit eine hohe Nachfrage. Ich habe Zugriff auf die Dokumente des Instituto de Astrofísica de Canarias (IAC) und kann Fragen zum Himmel der Kanarischen Inseln beantworten.\n\n",
+            }
+            fallback_topics = {
+                "es": "Pregúntame sobre:\n• Observatorios en Canarias (Teide, Roque de los Muchachos)\n• Astroturismo y mejores lugares para observar\n• Normativa de protección del cielo (Ley del Cielo)\n• Eventos astronómicos y constelaciones",
+                "en": "Ask me about:\n• Observatories in the Canary Islands (Teide, Roque de los Muchachos)\n• Astrotourism and best places for stargazing\n• Sky protection regulations (Sky Law)\n• Astronomical events and constellations",
+                "de": "Fragen Sie mich zu:\n• Observatorien auf den Kanarischen Inseln (Teide, Roque de los Muchachos)\n• Astrotourismus und die besten Orte zur Beobachtung\n• Himmelsschutzbestimmungen (Ley del Cielo)\n• Astronomische Ereignisse und Sternbilder",
+            }
+            response_text = rate_msgs.get(lang, rate_msgs["es"])
             rag_context = _format_rag_results(rag_results) if rag_results else ""
             if rag_context:
                 response_text += rag_context
             else:
-                response_text += (
-                    "Pregúntame sobre:\n"
-                    "• Observatorios en Canarias (Teide, Roque de los Muchachos)\n"
-                    "• Astroturismo y mejores lugares para observar\n"
-                    "• Normativa de protección del cielo (Ley del Cielo)\n"
-                    "• Eventos astronómicos y constelaciones"
-                )
+                response_text += fallback_topics.get(lang, fallback_topics["es"])
         else:
             response_text = _format_rag_results(rag_results) if rag_results else "Lo siento, no pude procesar tu consulta. Intenta de nuevo más tarde."
     return {"messages": [AIMessage(content=response_text)]}
