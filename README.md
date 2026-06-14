@@ -548,6 +548,23 @@ Todas las decisiones de implementación, revisión de seguridad y despliegue fue
 
 ---
 
+## Tiempo de Desarrollo
+
+El proyecto se desarrolló en un estimado de **224–250 horas**, equivalente a **3–4 semanas** de trabajo intensivo, abarcando:
+
+| Fase | Horas estimadas |
+|------|----------------|
+| Planificación y diseño de arquitectura | ~25 h |
+| Backend (API, modelos, auth, seguridad) | ~60 h |
+| Frontend (componentes, páginas, mapas) | ~55 h |
+| AI Service (LangGraph, RAG, fallbacks) | ~35 h |
+| Integración y pruebas | ~20 h |
+| Despliegue (Render, Vercel) | ~15 h |
+| Documentación y presentación | ~15 h |
+| Refactorización, bugs, auditoría | ~25 h |
+
+---
+
 ## Licencia
 
 MIT
