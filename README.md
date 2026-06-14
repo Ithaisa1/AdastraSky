@@ -1,7 +1,7 @@
 # AdAstra Sky
 
 **Plataforma inteligente de astroturismo para las Islas Canarias**  
-*Bootcamp capstone — Ironhack · Junio 2026*
+*Ithaisa Sánchez gonzález· Junio 2026*
 
 [![Frontend](https://img.shields.io/badge/Frontend-Vercel-8B5CF6?style=flat-square)](https://adastra-sky.vercel.app)
 [![Backend](https://img.shields.io/badge/Backend-Render-06B6D4?style=flat-square)](https://aadastra-sky-backend.onrender.com)
