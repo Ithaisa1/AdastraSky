@@ -97,7 +97,7 @@ const resources = {
       // Home
       home: {
         heroTitle: 'Explora los Cielos de Canarias',
-        heroSubtitle: 'Descubre los mejores lugares del mundo para observar las estrellas',
+        heroSubtitle: 'Descubre uno de los mejores lugares del mundo para observar las estrellas',
         startExploring: 'Comenzar Exploración',
         learnMore: 'Saber más',
         featuredTitle: 'Santuarios Estelares Destacados',
@@ -299,7 +299,7 @@ const resources = {
       },
       home: {
         heroTitle: 'Explore the Skies of the Canary Islands',
-        heroSubtitle: 'Discover the best places in the world for stargazing',
+        heroSubtitle: 'Discover one of the best places in the world for stargazing',
         startExploring: 'Start Exploring',
         learnMore: 'Learn more',
         featuredTitle: 'Featured Stellar Sanctuaries',
@@ -490,7 +490,7 @@ const resources = {
       },
       home: {
         heroTitle: 'Entdecken Sie den Himmel der Kanarischen Inseln',
-        heroSubtitle: 'Entdecken Sie die besten Orte der Welt zur Sternenbeobachtung',
+        heroSubtitle: 'Entdecken Sie einen der besten Orte der Welt zur Sternenbeobachtung',
         startExploring: 'Erkundung starten',
         learnMore: 'Mehr erfahren',
         featuredTitle: 'Ausgewählte Sternheiligtümer',
