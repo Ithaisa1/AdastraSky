@@ -172,6 +172,7 @@ const updateProfileSchema = Joi.object({
   email: Joi.string().email(),
   bio: Joi.string().trim().max(500),
   location: Joi.string().trim().max(255),
+  preferred_language: Joi.string().valid('es', 'en', 'de'),
 });
 
 export const updateProfile = async (req, res, next) => {
@@ -185,7 +186,7 @@ export const updateProfile = async (req, res, next) => {
         details: error.details.map(d => ({ field: d.path.join('.'), message: d.message })),
       });
     }
-    const { first_name, last_name, email, bio, location } = value;
+    const { first_name, last_name, email, bio, location, preferred_language } = value;
     const user = await User.findByPk(req.user.id);
 
     if (!user) {
@@ -212,7 +213,8 @@ export const updateProfile = async (req, res, next) => {
       last_name: last_name ?? user.last_name,
       email: email ?? user.email,
       bio: bio ?? user.bio,
-      location: location ?? user.location
+      location: location ?? user.location,
+      preferred_language: preferred_language ?? user.preferred_language,
     });
 
     const { password, ...userData } = user.toJSON();

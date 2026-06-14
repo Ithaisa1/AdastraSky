@@ -13,7 +13,7 @@ import Sidebar from '../components/Sidebar';
 const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const ProfilePage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, token, logout, updateUserData } = useAuth();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
@@ -58,7 +58,7 @@ const ProfilePage = () => {
     eventReminders: true,
     weatherAlerts: true,
     darkMode: true,
-    language: 'es',
+    language: user?.preferred_language || 'es',
   });
 
   const handleProfileSave = async (e) => {
@@ -93,8 +93,32 @@ const ProfilePage = () => {
     setSaving(false);
   };
 
-  const handleSettingsSave = (e) => {
+  const handleSettingsSave = async (e) => {
     e.preventDefault();
+    setSaving(true);
+    setSaveMessage(null);
+    const newLang = settings.language;
+    try {
+      const res = await fetch(`${API_URL}/api/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ preferred_language: newLang }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        i18n.changeLanguage(newLang);
+        updateUserData(data.data.user);
+        setSaveMessage('success');
+      } else {
+        setSaveMessage(data.message || 'Error al guardar');
+      }
+    } catch {
+      setSaveMessage('Error de conexión');
+    }
+    setSaving(false);
   };
 
   const handleDeleteAccount = () => {
