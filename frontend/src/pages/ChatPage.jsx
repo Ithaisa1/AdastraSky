@@ -44,12 +44,14 @@ const ChatPage = () => {
     return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (retryCount = 0) => {
     if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
-    setInput('');
-    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
+    if (retryCount === 0) {
+      setInput('');
+      setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
+    }
     setIsLoading(true);
 
     try {
@@ -63,12 +65,17 @@ const ChatPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          timeout: 120000,
         }
       );
 
       const aiMessage = response.data.data.response;
       setMessages((prev) => [...prev, { role: 'assistant', content: aiMessage }]);
     } catch (error) {
+      if (retryCount < 2 && (error.code === 'ECONNABORTED' || error.response?.status === 502 || error.response?.status === 504)) {
+        await new Promise(r => setTimeout(r, 2000));
+        return handleSendMessage(retryCount + 1);
+      }
       console.error('Chat error:', error);
       const errorMsg = error.response?.data?.message || '';
       const friendlyMsg = errorMsg.includes('Too Many')
