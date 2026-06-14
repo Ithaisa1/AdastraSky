@@ -39,7 +39,7 @@ import {
 // NAVIGATION MENU COMPONENT (extracted to prevent scroll reset on re-render)
 // ============================================================================
 
-const NavMenuItem = ({ route, showLabels, hoveredRoute, setHoveredRoute, handleNavClick, location }) => {
+const NavMenuItem = ({ route, showLabels, hoveredRoute, setHoveredRoute, handleNavClick, location, isExpanded, isMobile }) => {
   const IconComponent = route.icon;
   const isActive = location.pathname === route.path;
 
