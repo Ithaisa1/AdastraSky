@@ -500,10 +500,11 @@ Este proyecto se desarrolló con asistencia de inteligencia artificial como part
 
 | Herramienta | Uso |
 |-------------|-----|
-| **OpenCode** | Asistente principal de codificación, refactorización, depuración y gestión del proyecto |
+| **OpenCode (DeepSeek)** | Asistente principal de codificación, refactorización, depuración y gestión del proyecto |
 | **Claude (Anthropic)** | Generación de documentación técnica, revisión de arquitectura y diseño de componentes |
 | **ChatGPT (OpenAI)** | Soporte en algoritmos astronómicos (fase lunar, sky score), generación de datos de prueba |
 | **Gemini (Google)** | Validación de documentación técnica y apoyo en estructura de presentación |
+| **Big Pickle** | Asistencia en la estructuración de datos astronómicos y revisión de contenido técnico |
 
 Todas las decisiones de implementación, revisión de seguridad y despliegue fueron supervisadas y validadas por el desarrollador.
 
