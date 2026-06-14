@@ -133,6 +133,17 @@ def _polite_message(lang: str) -> str:
     return msgs.get(lang, msgs["es"])
 
 
+def _today_context(lang: str) -> str:
+    from datetime import date
+    today = date.today()
+    contexts = {
+        "es": f"Hoy es {today.day} de {today.strftime('%B')} de {today.year}.",
+        "en": f"Today is {today.strftime('%B %d, %Y')}.",
+        "de": f"Heute ist der {today.day}. {today.strftime('%B')} {today.year}.",
+    }
+    return contexts.get(lang, contexts["es"])
+
+
 def call_model(state: AgentState) -> dict:
     last_msg = state["messages"][-1]
     query = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
@@ -143,6 +154,7 @@ def call_model(state: AgentState) -> dict:
 
     lang_name = _LANG_LABELS.get(lang, "español")
     system_prompt = BASE_SYSTEM_PROMPT.replace("{{{LANG_IDIOMA}}}", lang_name)
+    system_prompt += f"\n\nFECHA ACTUAL: {_today_context(lang)}"
 
     context_block = ""
     if rag_context:
