@@ -36,6 +36,124 @@ import {
 } from "lucide-react";
 
 // ============================================================================
+// NAVIGATION MENU COMPONENT (extracted to prevent scroll reset on re-render)
+// ============================================================================
+
+const NavMenuItem = ({ route, showLabels, hoveredRoute, setHoveredRoute, handleNavClick, location }) => {
+  const IconComponent = route.icon;
+  const isActive = location.pathname === route.path;
+
+  return (
+    <li key={route.id} className="group">
+      <NavLink
+        to={route.path}
+        onClick={handleNavClick}
+        onMouseEnter={() => setHoveredRoute(route.id)}
+        onMouseLeave={() => setHoveredRoute(null)}
+        className={({ isActive: routeIsActive }) => `
+          flex items-center gap-3 px-4 py-3 rounded-lg
+          transition-all duration-300 ease-in-out
+          relative
+          ${
+            routeIsActive
+              ? "bg-gradient-to-r from-indigo-500/20 to-transparent border-l-2 border-l-cyan-400 text-cyan-300"
+              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
+          }
+        `}
+        title={!showLabels ? route.label : undefined}
+        aria-label={route.label}
+      >
+        {isActive && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-cyan-400 to-indigo-500 rounded-r-full animate-pulse" />
+        )}
+        <IconComponent
+          size={20}
+          className={`flex-shrink-0 transition-all duration-300 ease-in-out ${isActive ? "text-cyan-400" : "text-slate-500 group-hover:text-cyan-400"}`}
+        />
+        {showLabels && (
+          <span className="text-sm font-medium transition-all duration-300 ease-in-out">
+            {route.label}
+          </span>
+        )}
+        {isActive && showLabels && (
+          <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-r from-indigo-500/10 to-transparent blur-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        )}
+      </NavLink>
+      {!isExpanded && !isMobile && hoveredRoute === route.id && (
+        <div className="absolute left-20 top-1/2 -translate-y-1/2 bg-slate-900/95 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg whitespace-nowrap backdrop-blur-sm shadow-lg z-50 font-mono pointer-events-none animate-fadeIn">
+          {route.label}
+          <div className="absolute right-full top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900/95 border-t border-l border-slate-700 rotate-45 -mr-1" />
+        </div>
+      )}
+    </li>
+  );
+};
+
+const NavigationMenu = ({ visibleRoutes, showLabels, hoveredRoute, setHoveredRoute, handleNavClick, location, isExpanded, isMobile }) => (
+  <nav className="flex-1 min-h-0 overflow-y-auto py-6 px-2"
+    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+    <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
+    <div className="mb-8">
+      {showLabels ? (
+        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+          Explorar
+        </div>
+      ) : (
+        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+          NAV
+        </div>
+      )}
+      <ul className="space-y-2">
+        {visibleRoutes.slice(0, 3).map(route => (
+          <NavMenuItem key={route.id} route={route} showLabels={showLabels}
+            hoveredRoute={hoveredRoute} setHoveredRoute={setHoveredRoute}
+            handleNavClick={handleNavClick} location={location}
+            isExpanded={isExpanded} isMobile={isMobile} />
+        ))}
+      </ul>
+    </div>
+    <div className="mb-8">
+      {showLabels ? (
+        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+          Ciencia & Datos
+        </div>
+      ) : (
+        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+          DATA
+        </div>
+      )}
+      <ul className="space-y-2">
+        {visibleRoutes.slice(3, 5).map(route => (
+          <NavMenuItem key={route.id} route={route} showLabels={showLabels}
+            hoveredRoute={hoveredRoute} setHoveredRoute={setHoveredRoute}
+            handleNavClick={handleNavClick} location={location}
+            isExpanded={isExpanded} isMobile={isMobile} />
+        ))}
+      </ul>
+    </div>
+    <div className="mb-8">
+      {showLabels ? (
+        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+          Sistema
+        </div>
+      ) : (
+        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
+          SYS
+        </div>
+      )}
+      <ul className="space-y-2">
+        {visibleRoutes.slice(5).map(route => (
+          <NavMenuItem key={route.id} route={route} showLabels={showLabels}
+            hoveredRoute={hoveredRoute} setHoveredRoute={setHoveredRoute}
+            handleNavClick={handleNavClick} location={location}
+            isExpanded={isExpanded} isMobile={isMobile} />
+        ))}
+      </ul>
+    </div>
+  </nav>
+);
+
+// ============================================================================
 // NAVIGATION ROUTES CONFIGURATION
 // ============================================================================
 
@@ -243,131 +361,8 @@ export default function Sidebar() {
     </div>
   );
 
-  // ============================================================================
-  // RENDER: Navigation Menu Items
-  // ============================================================================
-
-  const NavMenuItem = ({ route }) => {
-    const IconComponent = route.icon;
-    const isActive = location.pathname === route.path;
-
-    return (
-      <li key={route.id} className="group">
-        <NavLink
-          to={route.path}
-          onClick={handleNavClick}
-          onMouseEnter={() => setHoveredRoute(route.id)}
-          onMouseLeave={() => setHoveredRoute(null)}
-          className={({ isActive: routeIsActive }) => `
-            flex items-center gap-3 px-4 py-3 rounded-lg
-            ${transitionClass}
-            relative
-            ${
-              routeIsActive
-                ? "bg-gradient-to-r from-indigo-500/20 to-transparent border-l-2 border-l-cyan-400 text-cyan-300"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
-            }
-          `}
-          title={!showLabels ? route.label : undefined}
-          aria-label={route.label}
-        >
-          {/* Active indicator pulse */}
-          {isActive && (
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-cyan-400 to-indigo-500 rounded-r-full animate-pulse" />
-          )}
-
-          {/* Icon */}
-          <IconComponent
-            size={20}
-            className={`flex-shrink-0 ${transitionClass} ${isActive ? "text-cyan-400" : "text-slate-500 group-hover:text-cyan-400"}`}
-          />
-
-          {/* Label (visible when expanded or mobile drawer open) */}
-          {showLabels && (
-            <span className={`text-sm font-medium ${transitionClass}`}>
-              {route.label}
-            </span>
-          )}
-
-          {/* Glow effect on hover */}
-          {isActive && showLabels && (
-            <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-r from-indigo-500/10 to-transparent blur-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-          )}
-        </NavLink>
-
-        {/* Tooltip (visible in collapsed desktop mode) */}
-        {!isExpanded && !isMobile && hoveredRoute === route.id && (
-          <div className="absolute left-20 top-1/2 -translate-y-1/2 bg-slate-900/95 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg whitespace-nowrap backdrop-blur-sm shadow-lg z-50 font-mono pointer-events-none animate-fadeIn">
-            {route.label}
-            <div className="absolute right-full top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900/95 border-t border-l border-slate-700 rotate-45 -mr-1" />
-          </div>
-        )}
-      </li>
-    );
-  };
-
   const visibleRoutes = navigationRoutes.filter(
     r => r.id !== 'admin' || role === 'admin'
-  );
-
-  const NavigationMenu = () => (
-    <nav className="flex-1 min-h-0 overflow-y-auto py-6 px-2"
-      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-      <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
-      {/* Main Navigation */}
-      <div className="mb-8">
-        {showLabels ? (
-          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-            Explorar
-          </div>
-        ) : (
-          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-            NAV
-          </div>
-        )}
-        <ul className="space-y-2">
-          {visibleRoutes.slice(0, 3).map((route) => (
-            <NavMenuItem key={route.id} route={route} />
-          ))}
-        </ul>
-      </div>
-
-      {/* Science & Data */}
-      <div className="mb-8">
-        {showLabels ? (
-          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-            Ciencia & Datos
-          </div>
-        ) : (
-          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-            DATA
-          </div>
-        )}
-        <ul className="space-y-2">
-          {visibleRoutes.slice(3, 5).map((route) => (
-            <NavMenuItem key={route.id} route={route} />
-          ))}
-        </ul>
-      </div>
-
-      {/* System */}
-      <div className="mb-8">
-        {showLabels ? (
-          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-            Sistema
-          </div>
-        ) : (
-          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-            SYS
-          </div>
-        )}
-        <ul className="space-y-2">
-          {visibleRoutes.slice(5).map((route) => (
-            <NavMenuItem key={route.id} route={route} />
-          ))}
-        </ul>
-      </div>
-    </nav>
   );
 
   // ============================================================================
@@ -495,7 +490,16 @@ export default function Sidebar() {
         <SidebarHeader />
 
         {/* Navigation Menu */}
-        <NavigationMenu />
+        <NavigationMenu
+          visibleRoutes={visibleRoutes}
+          showLabels={showLabels}
+          hoveredRoute={hoveredRoute}
+          setHoveredRoute={setHoveredRoute}
+          handleNavClick={handleNavClick}
+          location={location}
+          isExpanded={isExpanded}
+          isMobile={isMobile}
+        />
 
         {/* User Profile & Status */}
         <UserProfileSection />
