@@ -97,9 +97,9 @@ const DashboardPage = () => {
                 {greeting}, {user?.first_name || 'Explorador'}
               </h1>
               <p className="text-sm sm:text-lg text-gray-300 max-w-xl">
-                {lang === 'es' ? 'Hoy el archipiélago te ofrece' :
-                 lang === 'en' ? 'Today the archipelago offers you' :
-                 'Heute bietet dir der Archipel'}{' '}
+                {lang === 'es' ? 'El archipiélago te ofrece un total de' :
+                 lang === 'en' ? 'The archipelago offers you a total of' :
+                 'Der Archipel bietet dir insgesamt'}{' '}
                 <span className="text-solarFlare font-semibold [text-shadow:0_0_20px_rgba(245,158,11,0.4)]">{santuariosData.length} santuarios estelares</span>{' '}
                 {lang === 'es' ? 'para explorar' :
                  lang === 'en' ? 'to explore' :
