@@ -6,7 +6,8 @@ import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 import {
   Plus, Trash2, Edit3, Shield, Database, Activity, AlertTriangle,
-  X, Save, Search, Users, MapPin, ToggleLeft, ToggleRight, ArrowUp, ArrowDown
+  X, Save, Search, Users, MapPin, Image as ImageIcon,
+  ToggleLeft, ToggleRight, ArrowUp, ArrowDown
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
@@ -57,6 +58,9 @@ const AdminPanel = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [userForm, setUserForm] = useState({});
 
+  const [experiences, setExperiences] = useState([]);
+  const [experiencesLoading, setExperiencesLoading] = useState(false);
+
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const getAuthHeaders = useCallback(() => ({
@@ -81,11 +85,45 @@ const AdminPanel = () => {
     }
   }, [getAuthHeaders]);
 
+  const fetchExperiences = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/admin/experiences`, getAuthHeaders());
+      setExperiences(res.data.data.experiences);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al cargar experiencias');
+    }
+  }, [getAuthHeaders]);
+
+  const handleDeleteExperienceImage = async (expId, imageIndex) => {
+    try {
+      await axios.delete(`${API_URL}/api/admin/experiences/${expId}/images/${imageIndex}`, getAuthHeaders());
+      await fetchExperiences();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al eliminar imagen');
+    }
+  };
+
+  const handleDeleteExperience = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/api/admin/experiences/${id}`, getAuthHeaders());
+      setConfirmDelete(null);
+      await fetchExperiences();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al eliminar experiencia');
+    }
+  };
+
   useEffect(() => {
     if (role !== 'admin') return;
     setLoading(true);
     Promise.all([fetchZones(), fetchUsers()]).finally(() => setLoading(false));
   }, [role, fetchZones, fetchUsers]);
+
+  useEffect(() => {
+    if (role !== 'admin' || activeTab !== 'experiences') return;
+    setExperiencesLoading(true);
+    fetchExperiences().finally(() => setExperiencesLoading(false));
+  }, [role, activeTab, fetchExperiences]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -264,6 +302,9 @@ const AdminPanel = () => {
             <button onClick={() => { setActiveTab('users'); setSearch(''); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'users' ? 'bg-astroAccent text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
               <Users className="w-4 h-4" /> Usuarios
             </button>
+            <button onClick={() => { setActiveTab('experiences'); setSearch(''); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'experiences' ? 'bg-astroAccent text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+              <ImageIcon className="w-4 h-4" /> Experiencias
+            </button>
           </div>
 
           <div className="bg-astroCard rounded-lg border border-white/10 overflow-hidden">
@@ -271,7 +312,7 @@ const AdminPanel = () => {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input
-                  type="text" placeholder={activeTab === 'zones' ? 'Buscar zonas...' : 'Buscar usuarios...'}
+                  type="text" placeholder={activeTab === 'zones' ? 'Buscar zonas...' : activeTab === 'experiences' ? 'Buscar experiencias...' : 'Buscar usuarios...'}
                   value={search} onChange={e => setSearch(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-astroDark border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-astroAccent/50"
                 />
@@ -283,7 +324,7 @@ const AdminPanel = () => {
               )}
             </div>
 
-            {loading ? (
+            {loading || (activeTab === 'experiences' && experiencesLoading) ? (
               <div className="p-12 text-center text-gray-500">Cargando...</div>
             ) : activeTab === 'zones' ? (
               <div className="overflow-x-auto">
@@ -346,10 +387,57 @@ const AdminPanel = () => {
                       </tr>
                     ))}
                     {filteredZones.length === 0 && (
-                      <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">No se encontraron zonas</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                        {search ? 'No se encontraron zonas' : 'No hay zonas disponibles'}
+                      </td></tr>
                     )}
                   </tbody>
                 </table>
+              </div>
+            ) : activeTab === 'experiences' ? (
+              <div className="space-y-3 p-4">
+                {experiences.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <ImageIcon className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                    <p className="text-gray-500">No hay experiencias</p>
+                  </div>
+                ) : (
+                  experiences.map(exp => (
+                    <div key={exp.id} className="bg-astroDark/30 rounded-lg border border-white/10 p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-medium text-sm truncate">{exp.title}</h4>
+                          <p className="text-gray-500 text-xs mt-0.5">
+                            {exp.author?.first_name} {exp.author?.last_name} · {exp.author?.email} · {new Date(exp.created_at).toLocaleDateString()}
+                          </p>
+                          {exp.description && (
+                            <p className="text-gray-400 text-xs mt-1 line-clamp-2">{exp.description}</p>
+                          )}
+                        </div>
+                        <button onClick={() => setConfirmDelete({ type: 'experience', id: exp.id, name: exp.title })}
+                          className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400 flex-shrink-0 ml-2" title="Eliminar experiencia">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {exp.images && exp.images.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {exp.images.map((img, idx) => (
+                            <div key={idx} className="relative group w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                              <img src={`${API_URL}${img}`} alt={`${exp.title} ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                                onError={e => { e.target.style.display = 'none'; }} />
+                              <button onClick={() => handleDeleteExperienceImage(exp.id, idx)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-red-500/80 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Eliminar imagen">
+                                <X className="w-3 h-3 text-white" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -395,7 +483,9 @@ const AdminPanel = () => {
                       </tr>
                     ))}
                     {filteredUsers.length === 0 && (
-                      <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">No se encontraron usuarios</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                        {search ? 'No se encontraron usuarios' : 'No hay usuarios registrados'}
+                      </td></tr>
                     )}
                   </tbody>
                 </table>
@@ -562,15 +652,25 @@ const AdminPanel = () => {
             <p className="text-gray-300 mb-2">
               {confirmDelete.type === 'zone'
                 ? `¿Desactivar la zona "${confirmDelete.name}"?`
+                : confirmDelete.type === 'experience'
+                ? `¿Eliminar la experiencia "${confirmDelete.name}"?`
                 : `¿Desactivar al usuario "${confirmDelete.name}"?`}
             </p>
-            <p className="text-gray-500 text-sm mb-6">El elemento quedará oculto pero no se eliminará permanentemente.</p>
+            <p className="text-gray-500 text-sm mb-6">
+              {confirmDelete.type === 'experience'
+                ? 'La experiencia y todas sus imágenes se eliminarán permanentemente.'
+                : 'El elemento quedará oculto pero no se eliminará permanentemente.'}
+            </p>
             <div className="flex gap-3">
               <button onClick={() => setConfirmDelete(null)} className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
                 Cancelar
               </button>
-              <button onClick={() => confirmDelete.type === 'zone' ? handleDeleteZone(confirmDelete.id) : handleDeleteUser(confirmDelete.id)} className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm">
-                Desactivar
+              <button onClick={() => {
+                if (confirmDelete.type === 'zone') handleDeleteZone(confirmDelete.id);
+                else if (confirmDelete.type === 'experience') handleDeleteExperience(confirmDelete.id);
+                else handleDeleteUser(confirmDelete.id);
+              }} className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm">
+                {confirmDelete.type === 'experience' ? 'Eliminar' : 'Desactivar'}
               </button>
             </div>
             {confirmDelete.type === 'user' && (

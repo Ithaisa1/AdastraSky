@@ -1,9 +1,15 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import SkyQualityZone from '../models/SkyQualityZone.js';
+import Experience from '../models/Experience.js';
 import User from '../models/User.js';
 import { Op } from 'sequelize';
 import { calcGlobalScore } from '../utils/skyScoring.js';
 import bcrypt from 'bcryptjs';
 import ZONES_SEED from '../seed/seedZones.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const withScores = (zone) => {
   const plain = zone.dataValues || zone;
@@ -181,5 +187,60 @@ export const adminHardDeleteUser = async (req, res, next) => {
     if (!user) return res.status(404).json({ status: 'error', code: 'USER_NOT_FOUND', message: 'Usuario no encontrado' });
     await user.destroy();
     res.status(200).json({ status: 'success', message: 'Usuario eliminado permanentemente' });
+  } catch (error) { next(error); }
+};
+
+// ============================================================
+// EXPERIENCES MANAGEMENT
+// ============================================================
+
+export const adminGetAllExperiences = async (req, res, next) => {
+  try {
+    const experiences = await Experience.findAll({
+      include: [{ model: User, as: 'author', attributes: ['id', 'first_name', 'last_name', 'email'] }],
+      order: [['created_at', 'DESC']]
+    });
+    res.status(200).json({ status: 'success', count: experiences.length, data: { experiences } });
+  } catch (error) { next(error); }
+};
+
+export const adminDeleteExperienceImage = async (req, res, next) => {
+  try {
+    const experience = await Experience.findByPk(req.params.id);
+    if (!experience) return res.status(404).json({ status: 'error', code: 'EXP_NOT_FOUND', message: 'Experiencia no encontrada' });
+
+    const images = [...(experience.images || [])];
+    const idx = parseInt(req.params.imageIndex, 10);
+    if (idx < 0 || idx >= images.length) {
+      return res.status(400).json({ status: 'error', code: 'INVALID_INDEX', message: 'Índice de imagen inválido' });
+    }
+
+    const removedUrl = images.splice(idx, 1)[0];
+    await experience.update({ images });
+
+    if (removedUrl && removedUrl.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '..', '..', removedUrl);
+      fs.unlink(filePath, () => {});
+    }
+
+    res.status(200).json({ status: 'success', message: 'Imagen eliminada', data: { experience } });
+  } catch (error) { next(error); }
+};
+
+export const adminDeleteExperience = async (req, res, next) => {
+  try {
+    const experience = await Experience.findByPk(req.params.id);
+    if (!experience) return res.status(404).json({ status: 'error', code: 'EXP_NOT_FOUND', message: 'Experiencia no encontrada' });
+
+    const images = experience.images || [];
+    images.forEach(img => {
+      if (img && img.startsWith('/uploads/')) {
+        const filePath = path.join(__dirname, '..', '..', img);
+        fs.unlink(filePath, () => {});
+      }
+    });
+
+    await experience.destroy();
+    res.status(200).json({ status: 'success', message: 'Experiencia eliminada permanentemente' });
   } catch (error) { next(error); }
 };

@@ -5,7 +5,8 @@ import { requireAdmin } from '../middleware/requireAdmin.js';
 import {
   adminGetAllZones, adminCreateZone, adminUpdateZone, adminDeleteZone, adminHardDeleteZone,
   adminSeedZones, adminClearZones,
-  adminGetAllUsers, adminGetUserById, adminUpdateUser, adminDeleteUser, adminHardDeleteUser
+  adminGetAllUsers, adminGetUserById, adminUpdateUser, adminDeleteUser, adminHardDeleteUser,
+  adminGetAllExperiences, adminDeleteExperienceImage, adminDeleteExperience
 } from '../controllers/admin.controller.js';
 
 const router = express.Router();
@@ -42,5 +43,13 @@ router.get('/users/:id', adminGetUserById);
 router.put('/users/:id', adminUpdateUser);
 router.delete('/users/:id', adminDeleteUser);
 router.delete('/users/:id/hard', adminHardDeleteUser);
+
+// ============================================================
+// EXPERIENCES MANAGEMENT
+// ============================================================
+
+router.get('/experiences', adminGetAllExperiences);
+router.delete('/experiences/:id/images/:imageIndex', adminDeleteExperienceImage);
+router.delete('/experiences/:id', adminDeleteExperience);
 
 export default router;
