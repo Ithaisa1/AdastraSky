@@ -108,18 +108,24 @@ def _format_rag_results(results: list[dict]) -> str:
     if not results:
         return ""
     parts = []
+    seen = set()
     for r in results:
         title = r.get("title", "Documento IAC")
         content = r.get("content", "")
+        lang = r.get("language", "es")
         clean = re.sub(r"#{1,6}\s*", "", content)
         snippet = clean.strip()[:600]
-        parts.append(f"[Documento: {title}]\n{snippet}")
+        dedup = snippet[:100]
+        if dedup in seen:
+            continue
+        seen.add(dedup)
+        parts.append(f"[Documento: {title} | Idioma: {lang.upper()}]\n{snippet}")
     return "\n\n---\n\n".join(parts)
 
 
 def _search_rag(query: str, lang: str = "es") -> list[dict]:
     try:
-        return search_rag_documents.invoke({"query": query, "top_k": 5, "lang": lang})
+        return search_rag_documents.invoke({"query": query, "top_k": 8, "lang": lang})
     except Exception:
         return []
 

@@ -8,10 +8,11 @@ settings = get_settings()
 
 
 @tool
-def search_rag_documents(query: str, top_k: int = 5, lang: str = "es") -> list[dict]:
-    """Busca en documentos IAC (Instituto Astrofísico de Canarias). Úsala SIEMPRE para preguntas sobre observatorios, normativa del cielo, astroturismo, lugares de observación, condiciones del cielo, o cualquier tema relacionado con astronomía en Canarias. Recibe un texto de búsqueda y devuelve fragmentos relevantes filtrados por idioma (es/en/de)."""
+def search_rag_documents(query: str, top_k: int = 8, lang: str = "es") -> list[dict]:
+    """Busca en documentos IAC (Instituto Astrofísico de Canarias). Úsala SIEMPRE para preguntas sobre observatorios, normativa del cielo, astroturismo, lugares de observación, condiciones del cielo, o cualquier tema relacionado con astronomía en Canarias. Recibe un texto de búsqueda y devuelve fragmentos relevantes."""
     rag = get_cached_rag()
-    results = rag.search(query, k=top_k, lang=lang)
+    # Buscar en TODOS los idiomas para dar máximo contexto al LLM
+    results = rag.search(query, k=top_k, lang=None)
     return [
         {
             "content": doc.page_content,
