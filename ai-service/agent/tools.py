@@ -1,7 +1,7 @@
 from langchain_core.tools import tool
 import httpx
 
-from rag.vector_store import get_vector_store
+from rag.vector_store import get_cached_rag
 from config import get_settings
 
 settings = get_settings()
@@ -10,8 +10,8 @@ settings = get_settings()
 @tool
 def search_rag_documents(query: str, top_k: int = 5, lang: str = "es") -> list[dict]:
     """Busca en documentos IAC (Instituto Astrofísico de Canarias). Úsala SIEMPRE para preguntas sobre observatorios, normativa del cielo, astroturismo, lugares de observación, condiciones del cielo, o cualquier tema relacionado con astronomía en Canarias. Recibe un texto de búsqueda y devuelve fragmentos relevantes filtrados por idioma (es/en/de)."""
-    store = get_vector_store()
-    results = store.similarity_search(query, k=top_k, lang=lang)
+    rag = get_cached_rag()
+    results = rag.search(query, k=top_k, lang=lang)
     return [
         {
             "content": doc.page_content,

@@ -1,4 +1,5 @@
 import json
+import asyncio
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, ToolMessage
@@ -9,6 +10,7 @@ from agent.agent import build_agent
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 _agent = None
+_semaphore = asyncio.Semaphore(3)  # max 3 concurrent LLM requests
 
 
 def get_agent():
@@ -45,7 +47,8 @@ async def chat(request: ChatRequest):
     }
 
     try:
-        result = await agent.ainvoke(inputs, config)
+        async with _semaphore:
+            result = await agent.ainvoke(inputs, config)
         last_msg = result["messages"][-1]
         response_text = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
 

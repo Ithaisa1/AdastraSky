@@ -42,14 +42,29 @@ def _get_models() -> list[BaseChatModel]:
     models = []
     groq_key = os.environ.get("GROQ_API_KEY") or s.groq_api_key or ""
     openai_key = os.environ.get("OPENAI_API_KEY") or s.openai_api_key or ""
-    groq_model = os.environ.get("GROQ_MODEL") or s.groq_model or "llama-3.3-70b-versatile"
+    hf_token = os.environ.get("HF_TOKEN") or s.hf_token or ""
+    groq_model = os.environ.get("GROQ_MODEL") or s.groq_model or "llama-3.1-8b-instant"
     openai_model = os.environ.get("OPENAI_MODEL") or s.openai_model or "gpt-4o-mini"
+    hf_model = os.environ.get("HF_MODEL") or s.hf_model or "mistralai/Mistral-7B-Instruct-v0.3"
     if groq_key:
         from langchain_groq import ChatGroq
         models.append(ChatGroq(model=groq_model, api_key=groq_key, temperature=0.3))
     if openai_key:
         from langchain_openai import ChatOpenAI
         models.append(ChatOpenAI(model=openai_model, api_key=openai_key, temperature=0.3))
+    if hf_token:
+        from langchain_huggingface import ChatHuggingFace
+        from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+        try:
+            hf_llm = HuggingFaceEndpoint(
+                repo_id=hf_model,
+                huggingfacehub_api_token=hf_token,
+                temperature=0.3,
+                max_new_tokens=512,
+            )
+            models.append(ChatHuggingFace(llm=hf_llm))
+        except Exception:
+            pass
     return models
 
 

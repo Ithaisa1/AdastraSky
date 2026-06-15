@@ -97,6 +97,28 @@ class InMemoryVectorStore:
         return results
 
 
+class CachedRAG:
+    def __init__(self):
+        self._cache = {}
+
+    def search(self, query: str, k: int = 3, lang: str | None = None) -> list[Document]:
+        key = (query.strip().lower(), k, lang)
+        if key not in self._cache:
+            store = get_vector_store()
+            self._cache[key] = store.similarity_search(query, k=k, lang=lang)
+        return self._cache[key]
+
+
+_cached_rag = None
+
+
+def get_cached_rag() -> CachedRAG:
+    global _cached_rag
+    if _cached_rag is None:
+        _cached_rag = CachedRAG()
+    return _cached_rag
+
+
 @lru_cache()
 def get_vector_store() -> InMemoryVectorStore:
     store = InMemoryVectorStore()
