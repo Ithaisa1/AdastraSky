@@ -1,4 +1,5 @@
 import re
+import time
 import logging
 from typing import Literal, Optional
 from langgraph.graph import StateGraph, END
@@ -9,6 +10,38 @@ from agent.state import AgentState
 from agent.tools import tools, search_rag_documents
 
 logger = logging.getLogger("adastra-ai.agent")
+
+# Cache simple de respuestas: query_normalizada -> (timestamp, respuesta)
+_response_cache: dict[str, tuple[float, str]] = {}
+_CACHE_TTL = 3600  # 1 hora
+
+
+def _cache_key(query: str, lang: str) -> str:
+    q = query.strip().lower()
+    q = re.sub(r"[^a-záéíóúüñäöüß\s]", "", q)
+    q = re.sub(r"\s+", " ", q).strip()
+    return f"{q}::{lang}"
+
+
+def _get_cached(query: str, lang: str) -> str | None:
+    key = _cache_key(query, lang)
+    entry = _response_cache.get(key)
+    if entry is None:
+        return None
+    ts, resp = entry
+    if time.monotonic() - ts > _CACHE_TTL:
+        del _response_cache[key]
+        return None
+    return resp
+
+
+def _set_cache(query: str, lang: str, response: str) -> None:
+    key = _cache_key(query, lang)
+    _response_cache[key] = (time.monotonic(), response)
+    # Limitar tamaño del cache a 200 entries
+    if len(_response_cache) > 200:
+        oldest = min(_response_cache.items(), key=lambda x: x[1][0])
+        del _response_cache[oldest[0]]
 
 BASE_SYSTEM_PROMPT = """Eres AdAstra, un guía astronómico experto en los cielos de las Islas Canarias.
 Hablas con conocimiento sobre: observatorios (Teide, Roque de los Muchachos), constelaciones,
@@ -164,6 +197,21 @@ def call_model(state: AgentState) -> dict:
     query = last_msg.content if hasattr(last_msg, "content") else str(last_msg)
     lang = state.get("language", "es")
 
+    # Fast path: saludos comunes (evita llamada al LLM)
+    greeting_patterns = {
+        "es": ["hola", "buenas", "buenos días", "buenas tardes", "qué tal", "que tal", "hey"],
+        "en": ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"],
+        "de": ["hallo", "guten tag", "guten morgen", "guten abend", "hi", "hey"],
+    }
+    q_clean = query.strip().lower()
+    if any(q_clean == g or q_clean.startswith(g + " ") or q_clean.startswith(g + ",") or q_clean.startswith(g + "!") for g in greeting_patterns.get(lang, greeting_patterns["es"])):
+        greeting_msgs = {
+            "es": "¡Hola! Soy AdAstra, tu guía astronómico. ¿En qué puedo ayudarte a explorar el cielo de Canarias? Puedo informarte sobre observatorios, astroturismo, eventos astronómicos y mucho más.",
+            "en": "Hello! I'm AdAstra, your astronomical guide. How can I help you explore the skies of the Canary Islands? I can tell you about observatories, astrotourism, astronomical events and much more.",
+            "de": "Hallo! Ich bin AdAstra, Ihr astronomischer Führer. Wie kann ich Ihnen helfen, den Himmel der Kanarischen Inseln zu erkunden? Ich kann Ihnen Informationen über Observatorien, Astrotourismus, astronomische Ereignisse und vieles mehr geben.",
+        }
+        return {"messages": [AIMessage(content=greeting_msgs.get(lang, greeting_msgs["es"]))]}
+
     rag_results = _search_rag(query, lang=lang)
     rag_context = _format_rag_results(rag_results)
 
@@ -180,6 +228,12 @@ def call_model(state: AgentState) -> dict:
 
     system_msg = SystemMessage(content=system_prompt + context_block)
 
+    # Consultar caché antes de llamar al LLM
+    cached = _get_cached(query, lang)
+    if cached is not None:
+        logger.info(f"Cache hit para: {query[:50]}")
+        return {"messages": [AIMessage(content=cached)]}
+
     try:
         models = _get_models()
     except Exception as e:
@@ -194,6 +248,7 @@ def call_model(state: AgentState) -> dict:
         try:
             llm_with_tools = llm.bind_tools(tools)
             response = llm_with_tools.invoke([system_msg] + list(state["messages"]))
+            _set_cache(query, lang, response.content)
             return {"messages": [response]}
         except Exception as e:
             logger.error(f"Error con LLM {llm.__class__.__name__}: {str(e)}")
