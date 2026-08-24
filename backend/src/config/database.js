@@ -14,7 +14,7 @@ const {
   DB_PORT = 5432,
   DB_NAME = 'adastrasky',
   DB_USER = 'postgres',
-  DB_PASSWORD = '',
+  DB_PASSWORD = 123456,
   NODE_ENV = 'development'
 } = process.env;
 
