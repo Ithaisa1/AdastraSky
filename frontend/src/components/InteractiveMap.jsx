@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { DivIcon } from 'leaflet';
 import { santuariosData, islands } from '../data/santuariosData';
 import 'leaflet/dist/leaflet.css';
@@ -139,8 +139,8 @@ const InteractiveMap = ({ selectedZone, onZoneSelect, onCoordinateClick }) => {
         className="bg-astroDark"
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url={`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${import.meta.env.VITE_CARTO_API_KEY}`}
         />
 
         <MapClickHandler onCoordinateClick={onCoordinateClick} />
