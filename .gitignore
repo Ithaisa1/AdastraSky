@@ -84,3 +84,8 @@ python-service/.pytest_cache/
 ai-service/venv/
 ai-service/__pycache__/
 ai-service/.pytest_cache/
+
+# Migración de base de datos: copias con datos personales y secretos locales
+database/backups/
+database/migration/output/
+.secrets/

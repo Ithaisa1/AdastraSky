@@ -478,6 +478,9 @@ Ver `docs/13_MANUAL_INSTALACION.md` para instrucciones detalladas.
 | `docs/11_PRESENTACION_FINAL.md` | Presentación del proyecto |
 | `docs/12_MANUAL_USUARIO.md` | Manual de usuario |
 | `docs/13_MANUAL_INSTALACION.md` | Guía de instalación y despliegue |
+| `docs/14_MIGRACION_BASE_DE_DATOS.md` | Migración de la base de datos y pila autoalojada |
+| `docs/15_STELLARIUM_Y_VISUALIZACION.md` | Estudio de integración con Stellarium |
+| `docs/16_MEJORAS_OCTUBRE_2026.md` | Mejoras de octubre 2026 y resultados de pruebas |
 | `docs/api_specification.md` | Especificación detallada de la API |
 | `docs/deployment_guide.md` | Guía de despliegue en producción |
 | `docs/postman/AdAstraSky.postman_collection.json` | Colección de Postman |

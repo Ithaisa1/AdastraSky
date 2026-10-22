@@ -6,7 +6,10 @@
       "name": "Webhook de entrada",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [250, 300],
+      "position": [
+        250,
+        300
+      ],
       "parameters": {
         "path": "adastra-sky-query",
         "responseMode": "responseNode",
@@ -19,7 +22,10 @@
       "name": "¿Es consulta astronómica?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [450, 300],
+      "position": [
+        450,
+        300
+      ],
       "parameters": {
         "conditions": {
           "string": [
@@ -37,7 +43,10 @@
       "name": "Consultar API Backend",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [650, 200],
+      "position": [
+        650,
+        200
+      ],
       "parameters": {
         "method": "GET",
         "url": "={{ $json.backend_url || 'https://aadastra-sky-backend.onrender.com' }}/api/sky/zones/query",
@@ -62,7 +71,10 @@
       "name": "Consultar IA Service",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [650, 400],
+      "position": [
+        650,
+        400
+      ],
       "parameters": {
         "method": "POST",
         "url": "={{ $json.ai_url || 'http://localhost:8001' }}/api/chat",
@@ -80,7 +92,16 @@
             }
           ]
         },
-        "options": {}
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.AI_SERVICE_API_KEY }}"
+            }
+          ]
+        }
       }
     },
     {
@@ -88,7 +109,10 @@
       "name": "Formatear respuesta",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3,
-      "position": [850, 300],
+      "position": [
+        850,
+        300
+      ],
       "parameters": {
         "values": {
           "string": [
@@ -114,7 +138,10 @@
       "name": "Responder",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [1050, 300],
+      "position": [
+        1050,
+        300
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ $json }}"
@@ -123,28 +150,75 @@
   ],
   "connections": {
     "Webhook de entrada": {
-      "main": [[{ "node": "¿Es consulta astronómica?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "¿Es consulta astronómica?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "¿Es consulta astronómica?": {
       "main": [
-        [{ "node": "Consultar API Backend", "type": "main", "index": 0 }],
-        [{ "node": "Consultar IA Service", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Consultar API Backend",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Consultar IA Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Consultar API Backend": {
-      "main": [[{ "node": "Formatear respuesta", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Formatear respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Consultar IA Service": {
-      "main": [[{ "node": "Formatear respuesta", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Formatear respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Formatear respuesta": {
-      "main": [[{ "node": "Responder", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1"
   },
   "staticData": null,
-  "tags": ["astroturismo", "adastra-sky"],
+  "tags": [
+    "astroturismo",
+    "adastra-sky"
+  ],
   "versionId": "adastra-sky-v1"
 }

@@ -22,6 +22,9 @@
 | [11_PRESENTACION_FINAL.md](./11_PRESENTACION_FINAL.md) | Presentación del proyecto: arquitectura, decisiones, retos, demo |
 | [12_MANUAL_USUARIO.md](./12_MANUAL_USUARIO.md) | Manual de usuario: registro, navegación, funcionalidades |
 | [13_MANUAL_INSTALACION.md](./13_MANUAL_INSTALACION.md) | Manual de instalación: setup local, despliegue, scripts |
+| [14_MIGRACION_BASE_DE_DATOS.md](./14_MIGRACION_BASE_DE_DATOS.md) | Migración fuera de Render, opciones gratuitas y pila autoalojada |
+| [15_STELLARIUM_Y_VISUALIZACION.md](./15_STELLARIUM_Y_VISUALIZACION.md) | Integración con Stellarium: opciones, licencias y propuesta |
+| [16_MEJORAS_OCTUBRE_2026.md](./16_MEJORAS_OCTUBRE_2026.md) | Mejoras de octubre 2026: memoria, tests, RAG, planificador, resultados |
 
 ---
 
