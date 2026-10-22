@@ -629,7 +629,9 @@
       "noGeolocation": "Tu navegador no permite obtener la ubicación.",
       "geolocationDenied": "No se pudo obtener tu ubicación. Elige una isla.",
       "outsideCanaries": "Tu ubicación está fuera de Canarias: se han buscado zonas en todo el archipiélago."
-    }
+    },
+    "near": "Cerca de {{place}}",
+    "savedPlan": "Último plan guardado en este dispositivo ({{date}}). Puedes consultarlo sin conexión."
   },
   "nav": {
     "mainNavigation": "Navegación principal",
@@ -657,7 +659,9 @@
     "collapse": "Contraer menú",
     "expand": "Expandir menú",
     "openMenu": "Abrir menú de navegación",
-    "closeMenu": "Cerrar menú"
+    "closeMenu": "Cerrar menú",
+    "nightVisionOn": "Activar visión nocturna (rojo)",
+    "nightVisionOff": "Desactivar visión nocturna"
   },
   "camera": {
     "denied": "Permiso de cámara denegado. Actívalo en la configuración del navegador.",
@@ -727,7 +731,8 @@
       "7": "Transición suburbana-urbana",
       "8": "Cielo urbano",
       "9": "Cielo de centro urbano"
-    }
+    },
+    "planHere": "Planificar observación aquí"
   },
   "hero": {
     "title": "Aproximación estelar...",

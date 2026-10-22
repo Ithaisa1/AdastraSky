@@ -629,7 +629,9 @@
       "noGeolocation": "Ihr Browser kann Ihren Standort nicht ermitteln.",
       "geolocationDenied": "Ihr Standort konnte nicht ermittelt werden. Bitte wählen Sie eine Insel.",
       "outsideCanaries": "Ihr Standort liegt außerhalb der Kanaren: Es wurden Orte im gesamten Archipel gesucht."
-    }
+    },
+    "near": "In der Nähe von {{place}}",
+    "savedPlan": "Zuletzt auf diesem Gerät gespeicherter Plan ({{date}}). Auch offline verfügbar."
   },
   "nav": {
     "mainNavigation": "Hauptnavigation",
@@ -657,7 +659,9 @@
     "collapse": "Menü einklappen",
     "expand": "Menü ausklappen",
     "openMenu": "Navigationsmenü öffnen",
-    "closeMenu": "Menü schließen"
+    "closeMenu": "Menü schließen",
+    "nightVisionOn": "Nachtsicht einschalten (rot)",
+    "nightVisionOff": "Nachtsicht ausschalten"
   },
   "camera": {
     "denied": "Kamerazugriff verweigert. Aktivieren Sie ihn in den Browsereinstellungen.",
@@ -727,7 +731,8 @@
       "7": "Übergang Vorort/Stadt",
       "8": "Stadthimmel",
       "9": "Innenstadthimmel"
-    }
+    },
+    "planHere": "Beobachtung hier planen"
   },
   "hero": {
     "title": "Sternenanflug...",

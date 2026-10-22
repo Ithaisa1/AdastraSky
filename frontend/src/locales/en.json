@@ -629,7 +629,9 @@
       "noGeolocation": "Your browser cannot provide your location.",
       "geolocationDenied": "Your location could not be obtained. Please choose an island.",
       "outsideCanaries": "Your location is outside the Canary Islands: zones across the whole archipelago were searched."
-    }
+    },
+    "near": "Near {{place}}",
+    "savedPlan": "Last plan saved on this device ({{date}}). You can check it offline."
   },
   "nav": {
     "mainNavigation": "Main navigation",
@@ -657,7 +659,9 @@
     "collapse": "Collapse menu",
     "expand": "Expand menu",
     "openMenu": "Open navigation menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "nightVisionOn": "Turn on night vision (red)",
+    "nightVisionOff": "Turn off night vision"
   },
   "camera": {
     "denied": "Camera permission denied. Enable it in your browser settings.",
@@ -727,7 +731,8 @@
       "7": "Suburban/urban transition",
       "8": "City sky",
       "9": "Inner-city sky"
-    }
+    },
+    "planHere": "Plan an observation here"
   },
   "hero": {
     "title": "Stellar approach...",

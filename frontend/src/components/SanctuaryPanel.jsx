@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { X, Thermometer, Cloud, Wind, Eye, Droplets, Mountain, MapPin, Camera, Globe, Star, Compass, Award, Users, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Orbit, X, Thermometer, Cloud, Wind, Eye, Droplets, Mountain, MapPin, Camera, Globe, Star, Compass, Award, Users, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import ScorePanel from './ScoreBadge';
 import ExperienceForm from './ExperienceForm';
 import { calcGlobalScore } from '../utils/scoring';
@@ -72,6 +72,19 @@ const SanctuaryPanel = ({ zone, onClose }) => {
         <span className="inline-block px-3 py-1 bg-astroAccent/20 text-astroAccent text-xs font-medium rounded-full border border-astroAccent/30">
           {t(`categories.${zone.category}`, { defaultValue: zone.category })}
         </span>
+        {hasCoords && (
+          <button
+            onClick={() => navigate(`/planner?${new URLSearchParams({
+              lat: Number(zone.latitude).toFixed(4),
+              lon: Number(zone.longitude).toFixed(4),
+              place: zone.name,
+            })}`)}
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-white bg-astroAccent hover:bg-astroAccent/90 rounded-lg transition-colors"
+          >
+            <Orbit className="w-4 h-4" aria-hidden="true" />
+            {t('sanctuaryPanel.planHere')}
+          </button>
+        )}
       </div>
 
       <div className="p-4 space-y-5">

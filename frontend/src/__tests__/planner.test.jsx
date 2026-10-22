@@ -48,4 +48,38 @@ describe('PlannerPage', () => {
     fireEvent.click(screen.getByText('planner.submit'));
     expect(await screen.findByText('planner.errors.rateLimited')).toBeDefined();
   });
+
+  it('usa el mirador elegido en el mapa (?lat=&lon=&place=)', async () => {
+    axios.post.mockResolvedValue({ data: { data: { ok: true, visible: false, summary: 'ok', recommendations: [], limitations: [], sources: [] } } });
+    render(
+      <MemoryRouter initialEntries={['/planner?lat=28.7564&lon=-17.8919&place=Roque%20de%20los%20Muchachos']}>
+        <AuthProvider><PlannerPage /></AuthProvider>
+      </MemoryRouter>
+    );
+    expect(screen.getByText('planner.near')).toBeDefined();
+    fireEvent.click(screen.getByText('planner.submit'));
+    await screen.findByText('ok');
+    expect(axios.post.mock.calls[0][1]).toMatchObject({ latitude: 28.7564, longitude: -17.8919 });
+  });
+
+  it('guarda el último plan y lo muestra sin conexión', async () => {
+    const store = { adastra_session: 't', adastra_user: '{"id":"u1","role":"user"}' };
+    window.localStorage.getItem.mockImplementation((k) => store[k] ?? null);
+    window.localStorage.setItem.mockImplementation((k, v) => { store[k] = v; });
+    const plan = { ok: true, visible: false, summary: 'Plan guardado', recommendations: [], limitations: [], sources: [] };
+    axios.post.mockResolvedValueOnce({ data: { data: plan } });
+    render(<MemoryRouter><AuthProvider><PlannerPage /></AuthProvider></MemoryRouter>);
+    fireEvent.click(screen.getByText('planner.submit'));
+    await screen.findByText('Plan guardado');
+    expect(JSON.parse(store['adastra.lastPlan']).data.summary).toBe('Plan guardado');
+
+    cleanup();
+    axios.post.mockRejectedValueOnce(new Error('Network Error')); // sin cobertura: sin err.response
+    render(<MemoryRouter><AuthProvider><PlannerPage /></AuthProvider></MemoryRouter>);
+    expect(screen.getByText('Plan guardado')).toBeDefined(); // se ve al abrir la página
+    fireEvent.click(screen.getByText('planner.submit'));
+    expect(await screen.findByText('planner.errors.generic')).toBeDefined();
+    expect(screen.getByText('Plan guardado')).toBeDefined();
+    expect(screen.getByText('planner.savedPlan')).toBeDefined();
+  });
 });

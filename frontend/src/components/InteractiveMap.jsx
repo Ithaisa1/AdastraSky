@@ -27,6 +27,7 @@ const BASE_LAYERS = {
     format: 'image/png',
     attribution: GRAFCAN_ATTRIBUTION,
     background: '#c6dbf7',
+    className: 'map-topo',
   },
   ortho: {
     url: 'https://idecan1.grafcan.es/ServicioWMS/OrtoExpress',

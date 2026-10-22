@@ -228,3 +228,27 @@ input, select, textarea, button {
 .leaflet-tile-pane .map-night {
   filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.7);
 }
+
+/* Modo de visión nocturna: primero escala de grises (para que los azules no desaparezcan)
+   y después una capa roja que multiplica los colores: solo queda luz roja, atenuada. */
+html.night-vision #root {
+  filter: grayscale(1) brightness(1.15);
+}
+html.night-vision body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: #c00000;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 2147483647;
+}
+/* Con visión nocturna, el mapa topográfico (casi blanco) se oscurece para no deslumbrar */
+html.night-vision .leaflet-tile-pane .map-topo {
+  filter: invert(1) hue-rotate(180deg) brightness(0.7);
+}
+html.night-vision .leaflet-control-attribution,
+html.night-vision .leaflet-bar a {
+  background: #111 !important;
+  color: #888 !important;
+}

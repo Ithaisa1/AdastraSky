@@ -35,7 +35,9 @@ import {
   HelpCircle,
   Camera,
   Orbit,
+  Eye,
 } from "lucide-react";
+import useNightVision from "../hooks/useNightVision";
 
 // ============================================================================
 // NAVIGATION MENU COMPONENT (extracted to prevent scroll reset on re-render)
@@ -235,6 +237,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, role, logout } = useAuth();
+  const nightVision = useNightVision();
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [hoveredRoute, setHoveredRoute] = useState(null);
@@ -379,6 +382,21 @@ export default function Sidebar() {
             </p>
           </div>
         )}
+
+        {/* Visión nocturna (rojo) */}
+        <button
+          onClick={nightVision.toggle}
+          className={`p-2 rounded-lg border transition-all duration-200 ${
+            nightVision.enabled
+              ? 'bg-red-900/40 text-red-400 border-red-500/60'
+              : 'bg-slate-800/50 text-slate-400 hover:text-red-400 hover:bg-red-900/20 border-slate-700/50 hover:border-red-500/50'
+          }`}
+          title={t(nightVision.enabled ? "nav.nightVisionOff" : "nav.nightVisionOn")}
+          aria-label={t(nightVision.enabled ? "nav.nightVisionOff" : "nav.nightVisionOn")}
+          aria-pressed={nightVision.enabled}
+        >
+          <Eye size={18} />
+        </button>
 
         {/* Logout Button */}
         <button
