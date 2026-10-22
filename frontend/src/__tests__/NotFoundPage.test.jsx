@@ -14,6 +14,6 @@ describe('NotFoundPage', () => {
       </BrowserRouter>
     );
     expect(screen.getByText('404')).toBeDefined();
-    expect(screen.getByText(/volver/i)).toBeDefined();
+    expect(screen.getByText(/notFound.goHome/)).toBeDefined();
   });
 });

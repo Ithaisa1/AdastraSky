@@ -5,8 +5,10 @@
 
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const HeroTransition = () => {
+  const { t } = useTranslation();
   const { showHeroTransition, completeHeroTransition } = useAuth();
 
   useEffect(() => {
@@ -40,10 +42,10 @@ const HeroTransition = () => {
       <div className="relative z-10 text-center px-4">
         <div className="animate-zoom-hero">
           <h1 className="text-4xl md:text-6xl font-serif text-white mb-4 drop-shadow-2xl">
-            Aproximación Estelar...
+            {t('hero.title')}
           </h1>
           <p className="text-xl md:text-2xl font-serif text-gray-200 drop-shadow-xl">
-            Conectando con los Cielos de Canarias
+            {t('hero.subtitle')}
           </p>
         </div>
 

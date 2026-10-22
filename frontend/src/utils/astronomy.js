@@ -38,16 +38,17 @@ export function calculateSkyScore(zones) {
   return { score, level: 'poor', label: 'Mala' };
 }
 
-export function getNextEvent(events = []) {
-  if (!events || events.length === 0) {
-    return {
-      name: 'Próximo Evento',
-      date: new Date(Date.now() + 7 * 86400000),
-      description: 'No hay eventos próximos programados',
-      type: 'general',
-    };
-  }
-  return events[0];
+/**
+ * Próximo evento (fecha >= hoy) de una lista ordenable por fecha.
+ * Devuelve null si no hay ninguno: la interfaz decide qué mostrar.
+ */
+export function getNextEvent(events = [], now = new Date()) {
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const upcoming = (events || [])
+    .filter((e) => e?.date && !Number.isNaN(new Date(e.date).getTime()))
+    .filter((e) => new Date(`${String(e.date).slice(0, 10)}T23:59:59`) >= today)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return upcoming[0] || null;
 }
 
 export function scoreLabel(skyScore) {

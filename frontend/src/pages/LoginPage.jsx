@@ -45,11 +45,14 @@ const LoginPage = () => {
 
   const validate = () => {
     const errs = {};
-    if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = 'Email inválido';
-    if (!formData.password || !PASSWORD_RE.test(formData.password)) errs.password = 'Mínimo 8 caracteres, mayúscula, minúscula y número';
-    if (!isLogin) {
-      if (!formData.firstName || !NAME_RE.test(formData.firstName)) errs.firstName = 'Mínimo 2 caracteres';
-      if (!formData.lastName || !NAME_RE.test(formData.lastName)) errs.lastName = 'Mínimo 2 caracteres';
+    if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = t('login.errors.email');
+    if (isLogin) {
+      // Al iniciar sesión no se exige la política de contraseñas (cuentas antiguas)
+      if (!formData.password) errs.password = t('login.errors.passwordRequired');
+    } else {
+      if (!formData.password || !PASSWORD_RE.test(formData.password)) errs.password = t('login.errors.passwordPolicy');
+      if (!formData.firstName || !NAME_RE.test(formData.firstName)) errs.firstName = t('login.errors.name');
+      if (!formData.lastName || !NAME_RE.test(formData.lastName)) errs.lastName = t('login.errors.name');
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -64,7 +67,7 @@ const LoginPage = () => {
     if (isLogin) {
       const result = await login(formData.email, formData.password);
       if (!result.success) {
-        setApiError(result.error);
+        setApiError(t(`login.errors.${result.code}`, { defaultValue: t('login.errors.generic') }));
       }
     } else {
       const result = await register(
@@ -75,7 +78,7 @@ const LoginPage = () => {
         language
       );
       if (!result.success) {
-        setApiError(result.error);
+        setApiError(t(`login.errors.${result.code}`, { defaultValue: t('login.errors.generic') }));
       } else {
         setIsLogin(true);
       }
@@ -169,7 +172,7 @@ const LoginPage = () => {
                       value={formData.firstName}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 transition-all duration-300"
-                      placeholder="Tu nombre"
+                      placeholder={t('login.firstNamePlaceholder')}
                     />
                     {errors.firstName && <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>}
                   </div>
@@ -183,7 +186,7 @@ const LoginPage = () => {
                       value={formData.lastName}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 transition-all duration-300"
-                      placeholder="Tu apellido"
+                      placeholder={t('login.lastNamePlaceholder')}
                     />
                     {errors.lastName && <p className="text-red-400 text-xs mt-1">{errors.lastName}</p>}
                   </div>
@@ -202,7 +205,7 @@ const LoginPage = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 bg-astroDark/50 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-astroAccent focus:ring-2 focus:ring-astroAccent/20 transition-all duration-300"
-                    placeholder="tu@email.com"
+                    placeholder={t('login.emailPlaceholder')}
                   />
                 </div>
                 {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
@@ -228,7 +231,7 @@ const LoginPage = () => {
 
               {apiError && (
                 <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                  <p className="text-red-400 text-sm text-center">{apiError}</p>
+                  <p className="text-red-400 text-sm text-center" role="alert">{apiError}</p>
                 </div>
               )}
 
@@ -265,7 +268,7 @@ const LoginPage = () => {
       {/* Regulador Atmosférico Flotante - Parte Inferior Derecha */}
       <div className="hidden md:block absolute bottom-8 right-8 z-20 bg-astroCard/90 backdrop-blur-lg rounded-lg p-4 border border-white/10 shadow-xl">
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Opacidad Atmosférica
+          {t('login.atmosphere')}
         </label>
         <input
           type="range"

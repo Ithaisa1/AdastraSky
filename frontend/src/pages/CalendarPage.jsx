@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
-import { Calendar, ChevronLeft, ChevronRight, Sparkles, Moon, Globe, Star, ExternalLink, Clock, MapPin, Image, SatelliteDish, BookOpen } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Sparkles, Moon, Globe, Star, ExternalLink, MapPin, Image, SatelliteDish, BookOpen } from 'lucide-react';
 import teideImg from '../assets/observatorio-teide.jpg';
 import roqueImg from '../assets/Observacion_estrellas_roque_muchachos_isla_bonita_tours.jpg';
+import { API_URL } from '../config/api';
 
-const API = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
+const API = API_URL;
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-const EVENT_ICONS = { meteor_shower: Sparkles, eclipse: Moon, comet: Star, planetary: Globe, conjunction: Star, supermoon: Moon, other: Calendar };
+const EVENT_ICONS = { meteor_shower: Sparkles, eclipse: Moon, comet: Star, planetary: Globe, conjunction: Star, supermoon: Moon, seasonal: Calendar, moon_phase: Moon, other: Calendar };
 
-const EVENT_COLORS = { meteor_shower: 'text-yellow-400 bg-yellow-400/20', eclipse: 'text-purple-400 bg-purple-400/20', comet: 'text-cyan-400 bg-cyan-400/20', planetary: 'text-orange-400 bg-orange-400/20', conjunction: 'text-pink-400 bg-pink-400/20', supermoon: 'text-blue-400 bg-blue-400/20', other: 'text-gray-400 bg-gray-400/20' };
+const EVENT_COLORS = { meteor_shower: 'text-yellow-400 bg-yellow-400/20', eclipse: 'text-purple-400 bg-purple-400/20', comet: 'text-cyan-400 bg-cyan-400/20', planetary: 'text-orange-400 bg-orange-400/20', conjunction: 'text-pink-400 bg-pink-400/20', supermoon: 'text-blue-400 bg-blue-400/20', seasonal: 'text-emerald-400 bg-emerald-400/20', moon_phase: 'text-slate-300 bg-slate-300/20', other: 'text-gray-400 bg-gray-400/20' };
 
 const OBSERVATORIES = [
   {
@@ -23,14 +24,8 @@ const OBSERVATORIES = [
     image: teideImg,
     website: 'https://www.iac.es/es/observatorios-de-canarias/observatorio-del-teide/visitas',
     bookingUrl: 'https://www.iac.es/es/observatorios-de-canarias/observatorio-del-teide/visitas',
-    info: 'Gestionado por el Instituto de Astrofísica de Canarias (IAC). Visitas guiadas durante todo el año (excepto diciembre a marzo por condiciones meteorológicas).',
-    details: [
-      'Visitas para particulares, grupos y centros escolares',
-      'Jornadas de Puertas Abiertas: 20-21 junio 2026',
-      'Entrada gratuita para menores de 16 años',
-      'Descuento para residentes canarios',
-      'Contacto: +34 922 329 100 / teide-ot@iac.es',
-    ]
+    infoKey: 'reservas.teide.info',
+    detailKeys: ['reservas.teide.d1', 'reservas.teide.d2', 'reservas.teide.d3', 'reservas.teide.d4', 'reservas.teide.contact'],
   },
   {
     name: 'Observatorio Roque de los Muchachos',
@@ -41,15 +36,9 @@ const OBSERVATORIES = [
     website: 'https://www.iac.es/es/observatorios-de-canarias/observatorio-del-roque-de-los-muchachos/visitas',
     bookingUrl: 'https://fundacionstarlight.org/',
     alternativeBooking: 'https://asterark.com/visit-the-observatories/?lang=en',
-    altLabel: 'Reservar con AsterArk (Guía Starlight)',
-    info: 'Gestionado por el IAC. Las reservas se realizan a través de la Fundación Starlight con guías especializados "Guías Starlight".',
-    details: [
-      'Visitas para particulares (con Guía Starlight)',
-      'Visitas para centros sociales y educativos',
-      'Acceso por carretera de montaña (40 km desde Santa Cruz)',
-      'Importante: llevar resguardo de reserva',
-      'Contacto: visitasorm@iac.es',
-    ]
+    altLabelKey: 'reservas.orm.altLabel',
+    infoKey: 'reservas.orm.info',
+    detailKeys: ['reservas.orm.d1', 'reservas.orm.d2', 'reservas.orm.d3', 'reservas.orm.d4', 'reservas.orm.contact'],
   }
 ];
 
@@ -185,7 +174,7 @@ function ObservatoryCard({ obs }) {
         <div className="flex items-center gap-2 text-gray-400 text-xs mt-1 mb-3">
           <MapPin className="w-3 h-3" /> {obs.island} · {obs.altitude}
         </div>
-        <p className="text-gray-400 text-sm mb-3">{obs.info}</p>
+        <p className="text-gray-400 text-sm mb-3">{t(obs.infoKey)}</p>
 
         <div className="flex flex-wrap gap-2 mb-4">
           <a href={obs.bookingUrl} target="_blank" rel="noopener noreferrer"
@@ -202,7 +191,7 @@ function ObservatoryCard({ obs }) {
             <a href={obs.alternativeBooking} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-4 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 rounded-lg text-sm font-medium transition-all"
             >
-              <Star className="w-3 h-3" /> {obs.altLabel}
+              <Star className="w-3 h-3" aria-hidden="true" /> {t(obs.altLabelKey)}
             </a>
           )}
         </div>
@@ -213,7 +202,7 @@ function ObservatoryCard({ obs }) {
 
         {expanded && (
           <ul className="mt-3 space-y-1.5">
-            {obs.details.map((d, i) => (
+            {obs.detailKeys.map((k) => t(k)).map((d, i) => (
               <li key={i} className="flex items-start gap-2 text-gray-400 text-xs">
                 <span className="text-cyan-400 mt-0.5">•</span> {d}
               </li>
@@ -275,25 +264,26 @@ function ApodGallery() {
 }
 
 export default function CalendarPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [events, setEvents] = useState([]);
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [tab, setTab] = useState('calendar');
   const [loading, setLoading] = useState(true);
+  const lang = i18n.language;
 
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     setEvents([]);
-    fetch(`${API}/api/events?month=${month + 1}&year=${year}`, { signal: controller.signal })
+    fetch(`${API}/api/events?month=${month + 1}&year=${year}&lang=${lang}`, { signal: controller.signal })
       .then(r => r.json())
       .then(d => { if (d.success) setEvents(d.data); })
       .catch(() => {})
       .finally(() => setLoading(false));
     return () => controller.abort();
-  }, [month, year]);
+  }, [month, year, lang]);
 
   const handlePrevMonth = () => {
     if (month === 0) { setMonth(11); setYear(y => y - 1); }
@@ -408,21 +398,21 @@ export default function CalendarPage() {
                     {(() => { const Icon = EVENT_ICONS[selectedEvent.type] || Calendar; const cc = EVENT_COLORS[selectedEvent.type] || EVENT_COLORS.other; return <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${cc}`}><Icon className="w-5 h-5" /></div>; })()}
                     <h2 className="text-xl font-bold text-white">{selectedEvent.name}</h2>
                   </div>
-                  <button onClick={() => setSelectedEvent(null)} className="w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors">✕</button>
+                  <button onClick={() => setSelectedEvent(null)} aria-label={t('common.close')} className="w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-colors">✕</button>
                 </div>
                 <p className="text-gray-300 text-sm mb-4">{selectedEvent.description}</p>
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   {selectedEvent.peak && (
-                    <div className="bg-astroDark/50 rounded-lg p-3"><p className="text-gray-500 text-xs">Pico</p><p className="text-white text-sm font-medium">{selectedEvent.peak}</p></div>
+                    <div className="bg-astroDark/50 rounded-lg p-3"><p className="text-gray-500 text-xs">{t('calendar.peak')}</p><p className="text-white text-sm font-medium">{selectedEvent.peak}</p></div>
                   )}
-                  <div className="bg-astroDark/50 rounded-lg p-3"><p className="text-gray-500 text-xs">Hemisfério</p><p className="text-white text-sm font-medium">{selectedEvent.hemisphere}</p></div>
+                  <div className="bg-astroDark/50 rounded-lg p-3"><p className="text-gray-500 text-xs">{t('data.visibility')}</p><p className="text-white text-sm font-medium">{selectedEvent.visible_from_canarias === false ? t('data.notVisibleCanaries') : t('data.visibleCanaries')}</p></div>
                   {selectedEvent.moon_phase && (
-                    <div className="bg-astroDark/50 rounded-lg p-3"><p className="text-gray-500 text-xs">Fase lunar</p><p className="text-white text-sm font-medium">{selectedEvent.moon_phase}</p></div>
+                    <div className="bg-astroDark/50 rounded-lg p-3"><p className="text-gray-500 text-xs">{t('data.moonPhase')}</p><p className="text-white text-sm font-medium">{selectedEvent.moon_phase}</p></div>
                   )}
-                  <div className="bg-astroDark/50 rounded-lg p-3"><p className="text-gray-500 text-xs">Fecha</p><p className="text-white text-sm font-medium">{selectedEvent.date?.split('T')[0] || selectedEvent.date}</p></div>
+                  <div className="bg-astroDark/50 rounded-lg p-3"><p className="text-gray-500 text-xs">{t('data.date')}</p><p className="text-white text-sm font-medium">{selectedEvent.date?.split('T')[0] || selectedEvent.date}</p></div>
                 </div>
                 <button onClick={() => setSelectedEvent(null)}
-                  className="w-full py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm transition-colors">Cerrar</button>
+                  className="w-full py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm transition-colors">{t('common.close')}</button>
               </div>
             </div>
           </div>

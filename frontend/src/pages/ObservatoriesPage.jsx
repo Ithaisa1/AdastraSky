@@ -54,8 +54,8 @@ const ObservatoriesPage = () => {
             {filteredObservatories.length === 0 ? (
               <div className="col-span-full flex flex-col items-center justify-center py-16 text-gray-500">
                 <Radar className="w-16 h-16 mb-4 opacity-50" />
-                <p className="text-lg font-medium text-gray-400 mb-1">No hay observatorios en esta isla</p>
-                <p className="text-sm">Selecciona otra isla para ver sus observatorios</p>
+                <p className="text-lg font-medium text-gray-400 mb-1">{t('observatories.none')}</p>
+                <p className="text-sm">{t('observatories.chooseOther')}</p>
               </div>
             ) : filteredObservatories.map((observatory) => (
               <div
@@ -106,7 +106,7 @@ const ObservatoriesPage = () => {
 
                   {/* Botón */}
                   <button className="flex items-center gap-2 text-astroAccent hover:text-astroAccent/80 transition-colors text-sm font-medium">
-                    Ver detalles
+                    {t('observatories.details')}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -172,7 +172,7 @@ const ObservatoriesPage = () => {
                 <div className="bg-astroDark/50 rounded-lg p-4">
                   <h4 className="text-white font-medium mb-3 flex items-center gap-2">
                     <Star className="w-5 h-5 text-astroAccent" />
-                    Áreas de Investigación
+                    {t('observatories.research')}
                   </h4>
                   <ul className="space-y-2">
                     {selectedObservatory.research_areas.map((area) => (
@@ -188,29 +188,29 @@ const ObservatoriesPage = () => {
               <div className="bg-astroDark/50 rounded-lg p-4 mb-6">
                 <h4 className="text-white font-medium mb-3 flex items-center gap-2">
                   <Clock className="w-5 h-5 text-astroAccent" />
-                  Información de Visita
+                  {t('observatories.visitInfo')}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-400 text-sm">
-                      <span className="text-white">Institución:</span> {selectedObservatory.institution}
+                      <span className="text-white">{t('observatories.institution')}:</span> {selectedObservatory.institution}
                     </p>
                     <p className="text-gray-400 text-sm mt-2">
-                      <span className="text-white">Establecido:</span> {selectedObservatory.established}
+                      <span className="text-white">{t('observatories.established')}:</span> {selectedObservatory.established}
                     </p>
                     <p className="text-gray-400 text-sm mt-2">
-                      <span className="text-white">Altitud:</span> {selectedObservatory.altitude}m
+                      <span className="text-white">{t('sanctuary.altitude')}:</span> {selectedObservatory.altitude}m
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">
-                      <span className="text-white">Horario:</span> {selectedObservatory.visitor_info.visiting_hours}
+                      <span className="text-white">{t('observatories.hours')}:</span> {selectedObservatory.visitor_info.visiting_hours}
                     </p>
                     <p className="text-gray-400 text-sm mt-2">
-                      <span className="text-white">Visitas guiadas:</span> {selectedObservatory.visitor_info.guided_tours ? 'Sí' : 'No'}
+                      <span className="text-white">{t('observatories.guidedTours')}:</span> {selectedObservatory.visitor_info.guided_tours ? t('common.yes') : t('common.no')}
                     </p>
                     <p className="text-gray-400 text-sm mt-2">
-                      <span className="text-white">Reserva:</span> {selectedObservatory.visitor_info.reservation_required ? 'Requerida' : 'No requerida'}
+                      <span className="text-white">{t('observatories.booking')}:</span> {selectedObservatory.visitor_info.reservation_required ? t('observatories.required') : t('observatories.notRequired')}
                     </p>
                   </div>
                 </div>

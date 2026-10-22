@@ -92,7 +92,7 @@ export const constellationsData = [
 export const planetsData = [
   { id:"p1",  name:"Mercurio",   type:"terrestrial",   diameter:4879, dist_sun:0.39,  orbital_days:88,   magnitude:-0.5, visibility:"Atardecer/amanecer", canarias_view:"Visible tras puesta de sol o antes del amanecer. Difícil por horizonte." },
   { id:"p2",  name:"Venus",      type:"terrestrial",   diameter:12104,dist_sun:0.72,  orbital_days:225,  magnitude:-4.4, visibility:"Atardecer/amanecer", canarias_view:"Muy brillante. Visible al atardecer como lucero vespertino." },
-  { id:"p3",  name:"Marte",      type:"terrestrial",   diameter:6792, dist_sun:1.52,  orbital_days:687,  magnitude:-2.0, visibility:"Noche",            canarias_view:"Color rojizo. Oposición cada 26 meses. Próxima: Ene 2027." },
+  { id:"p3",  name:"Marte",      type:"terrestrial",   diameter:6792, dist_sun:1.52,  orbital_days:687,  magnitude:-2.0, visibility:"Noche",            canarias_view:"Color rojizo. Oposición cada 26 meses. Próxima: 19 feb 2027." },
   { id:"p4",  name:"Júpiter",    type:"gas_giant",     diameter:142984,dist_sun:5.20, orbital_days:4333, magnitude:-2.7, visibility:"Noche",            canarias_view:"Bandas visibles con telescopio. 4 lunas galileanas." },
   { id:"p5",  name:"Saturno",    type:"gas_giant",     diameter:120536,dist_sun:9.54, orbital_days:10759,magnitude:-0.2, visibility:"Noche",            canarias_view:"Anillos visibles con telescopio pequeño. Oposición: Ago 2026." },
   { id:"p6",  name:"Urano",      type:"ice_giant",     diameter:51118, dist_sun:19.19,orbital_days:30687,magnitude:5.3,  visibility:"Binoculares",     canarias_view:"Disco azul-verdoso. Visible con binoculares en cielo oscuro." },
@@ -101,20 +101,8 @@ export const planetsData = [
   { id:"p9",  name:"Sol",        type:"star",          diameter:1392700,dist_sun:0.0,  orbital_days:0,    magnitude:-26.7,visibility:"Día",            canarias_view:"Observación solar con filtros certificados." },
 ];
 
-export const astronomicalEvents = [
-  { id:"ev1",  name:"Lluvia de Estrellas Perseidas",           type:"meteor_shower",   date:"2026-08-12", peak:"12-13 Ago",   desc:"Hasta 100 meteoros/hora. Cometa Swift-Tuttle.",         hemi:"Norte",  moon:"Menguante" },
-  { id:"ev2",  name:"Eclipse Lunar Total",                     type:"eclipse",         date:"2026-09-18", peak:"18 Sep",      desc:"Luna rojiza. Visible desde Europa, África, América.",    hemi:"Global", moon:"Llena" },
-  { id:"ev3",  name:"Lluvia de Estrellas Gemínidas",           type:"meteor_shower",   date:"2026-12-14", peak:"13-14 Dic",   desc:"Hasta 150 meteoros/hora. Asteroide 3200 Phaethon.",      hemi:"Norte",  moon:"Nueva" },
-  { id:"ev4",  name:"Cometa C/2026 A3",                        type:"comet",           date:"2026-10-15", peak:"15-20 Oct",   desc:"Posible magnitud 4. Visible a simple vista.",            hemi:"Norte",  moon:"Creciente" },
-  { id:"ev5",  name:"Oposición de Júpiter",                    type:"planetary",       date:"2026-12-07", peak:"7 Dic",       desc:"Júpiter en su punto más brillante y cercano.",           hemi:"Global", moon:"Menguante" },
-  { id:"ev6",  name:"Lluvia de Estrellas Cuádridas",           type:"meteor_shower",   date:"2027-01-03", peak:"3-4 Ene",     desc:"Hasta 40 meteoros/hora. Meteoros brillantes.",           hemi:"Norte",  moon:"Nueva" },
-  { id:"ev7",  name:"Eclipse Solar Parcial",                   type:"eclipse",         date:"2026-10-02", peak:"2 Oct",       desc:"Visible desde el sur de Europa y norte de África.",      hemi:"Global", moon:"Nueva" },
-  { id:"ev8",  name:"Oposición de Saturno",                    type:"planetary",       date:"2026-08-15", peak:"15 Ago",      desc:"Saturno en oposición. Mejor momento para ver anillos.",  hemi:"Global", moon:"Creciente" },
-  { id:"ev9",  name:"Conjunción Venus-Júpiter",                type:"planetary",       date:"2026-05-22", peak:"22 May",      desc:"Venus y Júpiter separados por 0.5°. Espectacular.",      hemi:"Global", moon:"Creciente" },
-  { id:"ev10", name:"Lluvia de Estrellas Leónidas",            type:"meteor_shower",   date:"2026-11-17", peak:"17-18 Nov",   desc:"Hasta 20 meteoros/hora. Cometa Tempel-Tuttle.",          hemi:"Norte",  moon:"Creciente" },
-  { id:"ev11", name:"Eclipse Lunar Parcial",                   type:"eclipse",         date:"2027-03-03", peak:"3 Mar",       desc:"Parcial, visible desde Europa y África.",                hemi:"Global", moon:"Llena" },
-  { id:"ev12", name:"Oposición de Marte",                      type:"planetary",       date:"2027-01-16", peak:"16 Ene",      desc:"Marte en oposición. Excelente para observación.",        hemi:"Global", moon:"Creciente" },
-];
+// Los eventos astronómicos se calculan en el backend (GET /api/events, Astronomy Engine).
+// La antigua lista fija se eliminó: contenía fechas y eventos incorrectos.
 
 export const eventCategories = [
   { id:"all",            label:"Todos",             icon:"Star" },

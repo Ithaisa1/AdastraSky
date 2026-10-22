@@ -14,6 +14,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import logoImg from "../assets/Adastrasky-removebg-preview.png";
 import {
   ChevronLeft,
@@ -33,6 +34,7 @@ import {
   Shield,
   HelpCircle,
   Camera,
+  Orbit,
 } from "lucide-react";
 
 // ============================================================================
@@ -89,67 +91,35 @@ const NavMenuItem = ({ route, showLabels, hoveredRoute, setHoveredRoute, handleN
   );
 };
 
-const NavigationMenu = ({ visibleRoutes, showLabels, hoveredRoute, setHoveredRoute, handleNavClick, location, isExpanded, isMobile }) => (
-  <nav className="flex-1 min-h-0 overflow-y-auto py-6 px-2"
+const NAV_GROUPS = [
+  { key: "explore", short: "NAV", categories: ["main", "exploration"] },
+  { key: "science", short: "DATA", categories: ["science", "ai"] },
+  { key: "system", short: "SYS", categories: ["system"] },
+];
+
+const NavigationMenu = ({ visibleRoutes, showLabels, hoveredRoute, setHoveredRoute, handleNavClick, location, isExpanded, isMobile, t }) => (
+  <nav className="flex-1 min-h-0 overflow-y-auto py-6 px-2" aria-label={t("nav.mainNavigation")}
     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
     <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
-    <div className="mb-8">
-      {showLabels ? (
-        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-          Explorar
+    {NAV_GROUPS.map((group) => {
+      const routes = visibleRoutes.filter((r) => group.categories.includes(r.category));
+      if (!routes.length) return null;
+      return (
+        <div className="mb-8" key={group.key}>
+          <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono" aria-hidden={!showLabels}>
+            {showLabels ? t(`nav.groups.${group.key}`) : group.short}
+          </div>
+          <ul className="space-y-2">
+            {routes.map(route => (
+              <NavMenuItem key={route.id} route={route} showLabels={showLabels}
+                hoveredRoute={hoveredRoute} setHoveredRoute={setHoveredRoute}
+                handleNavClick={handleNavClick} location={location}
+                isExpanded={isExpanded} isMobile={isMobile} />
+            ))}
+          </ul>
         </div>
-      ) : (
-        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-          NAV
-        </div>
-      )}
-      <ul className="space-y-2">
-        {visibleRoutes.slice(0, 3).map(route => (
-          <NavMenuItem key={route.id} route={route} showLabels={showLabels}
-            hoveredRoute={hoveredRoute} setHoveredRoute={setHoveredRoute}
-            handleNavClick={handleNavClick} location={location}
-            isExpanded={isExpanded} isMobile={isMobile} />
-        ))}
-      </ul>
-    </div>
-    <div className="mb-8">
-      {showLabels ? (
-        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-          Ciencia & Datos
-        </div>
-      ) : (
-        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-          DATA
-        </div>
-      )}
-      <ul className="space-y-2">
-        {visibleRoutes.slice(3, 5).map(route => (
-          <NavMenuItem key={route.id} route={route} showLabels={showLabels}
-            hoveredRoute={hoveredRoute} setHoveredRoute={setHoveredRoute}
-            handleNavClick={handleNavClick} location={location}
-            isExpanded={isExpanded} isMobile={isMobile} />
-        ))}
-      </ul>
-    </div>
-    <div className="mb-8">
-      {showLabels ? (
-        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-          Sistema
-        </div>
-      ) : (
-        <div className="text-xs text-slate-600 uppercase tracking-widest px-2 mb-3 font-mono">
-          SYS
-        </div>
-      )}
-      <ul className="space-y-2">
-        {visibleRoutes.slice(5).map(route => (
-          <NavMenuItem key={route.id} route={route} showLabels={showLabels}
-            hoveredRoute={hoveredRoute} setHoveredRoute={setHoveredRoute}
-            handleNavClick={handleNavClick} location={location}
-            isExpanded={isExpanded} isMobile={isMobile} />
-        ))}
-      </ul>
-    </div>
+      );
+    })}
   </nav>
 );
 
@@ -203,8 +173,16 @@ const navigationRoutes = [
     label: "Adastra",
     icon: Star,
     path: "/chat",
-    category: "ai",
+    category: "science",
     description: "AI Astronomic Assistant",
+  },
+  {
+    id: "planner",
+    label: "Planificador",
+    icon: Orbit,
+    path: "/planner",
+    category: "science",
+    description: "Observation planner",
   },
   {
     id: "settings",
@@ -253,6 +231,7 @@ const navigationRoutes = [
 // ============================================================================
 
 export default function Sidebar() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { user, role, logout } = useAuth();
@@ -313,7 +292,7 @@ export default function Sidebar() {
       <button
         onClick={() => setIsMobileOpen(true)}
         className="p-2 rounded-lg bg-astroCard/80 border border-slate-800 text-cyan-400 hover:text-cyan-300 hover:bg-astroCard/90 transition-all duration-200"
-        aria-label="Open navigation menu"
+        aria-label={t("nav.openMenu")}
       >
         <Menu size={24} />
       </button>
@@ -361,9 +340,9 @@ export default function Sidebar() {
     </div>
   );
 
-  const visibleRoutes = navigationRoutes.filter(
-    r => r.id !== 'admin' || role === 'admin'
-  );
+  const visibleRoutes = navigationRoutes
+    .filter(r => r.id !== 'admin' || role === 'admin')
+    .map(r => ({ ...r, label: t(`nav.${r.id}`) }));
 
   // ============================================================================
   // RENDER: User Profile Section
@@ -382,7 +361,7 @@ export default function Sidebar() {
             {(user?.first_name?.[0] || 'A') + (user?.last_name?.[0] || 'S')}
           </span>
           {!showLabels && (
-            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse border border-slate-900" title="System Online" />
+            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse border border-slate-900" title={t("nav.online")} />
           )}
         </div>
 
@@ -393,10 +372,10 @@ export default function Sidebar() {
               <p className="text-sm font-medium text-slate-200 truncate hover:text-cyan-400 transition-colors">
                 {user?.first_name} {user?.last_name}
               </p>
-              <Radio size={10} className="text-green-400 animate-pulse shrink-0" title="System Online" />
+              <Radio size={10} className="text-green-400 animate-pulse shrink-0" title={t("nav.online")} />
             </div>
             <p className="text-xs text-slate-500 truncate">
-              {role === 'admin' ? 'Comandante de Misión' : 'Especialista de Misión'}
+              {role === 'admin' ? t('nav.roleAdmin') : t('nav.roleUser')}
             </p>
           </div>
         )}
@@ -405,8 +384,8 @@ export default function Sidebar() {
         <button
           onClick={handleLogout}
           className="p-2 rounded-lg bg-slate-800/50 text-slate-400 hover:text-red-400 hover:bg-red-900/20 transition-all duration-200 border border-slate-700/50 hover:border-red-500/50"
-          title="Logout"
-          aria-label="Logout"
+          title={t("nav.logout")}
+          aria-label={t("nav.logout")}
         >
           <LogOut size={18} />
         </button>
@@ -423,8 +402,8 @@ export default function Sidebar() {
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="absolute -right-4 top-20 p-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:bg-slate-700 transition-all duration-200 shadow-lg hidden md:flex items-center justify-center"
-        aria-label="Collapse sidebar"
-        title="Collapse"
+        aria-label={t("nav.collapse")}
+        title={t("nav.collapse")}
       >
         <ChevronLeft size={16} />
       </button>
@@ -435,8 +414,8 @@ export default function Sidebar() {
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="absolute -right-4 top-20 p-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:bg-slate-700 transition-all duration-200 shadow-lg hidden md:flex items-center justify-center"
-        aria-label="Expand sidebar"
-        title="Expand"
+        aria-label={t("nav.expand")}
+        title={t("nav.expand")}
       >
         <ChevronRight size={16} />
       </button>
@@ -480,7 +459,7 @@ export default function Sidebar() {
           <button
             onClick={() => setIsMobileOpen(false)}
             className="md:hidden absolute top-4 right-4 p-2 rounded-lg bg-slate-800/80 text-slate-300 hover:text-white transition-colors z-50"
-            aria-label="Close menu"
+            aria-label={t("nav.closeMenu")}
           >
             <X size={24} />
           </button>
@@ -491,6 +470,7 @@ export default function Sidebar() {
 
         {/* Navigation Menu */}
         <NavigationMenu
+          t={t}
           visibleRoutes={visibleRoutes}
           showLabels={showLabels}
           hoveredRoute={hoveredRoute}

@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, X, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const CameraCapture = ({ onCapture, onClose }) => {
+  const { t } = useTranslation();
   const videoRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [error, setError] = useState('');
@@ -25,11 +27,11 @@ const CameraCapture = ({ onCapture, onClose }) => {
       if (videoRef.current) videoRef.current.srcObject = s;
     } catch (err) {
       if (err.name === 'NotAllowedError') {
-        setError('Permiso de cámara denegado. Actívalo en la configuración del navegador.');
+        setError(t('camera.denied'));
       } else if (err.name === 'NotFoundError') {
-        setError('No se detectó ninguna cámara en este dispositivo.');
+        setError(t('camera.notFound'));
       } else {
-        setError('Error al abrir la cámara: ' + err.message);
+        setError(t('camera.error', { message: err.message }));
       }
     }
   };
@@ -72,11 +74,11 @@ const CameraCapture = ({ onCapture, onClose }) => {
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
       <div className="flex items-center justify-between p-4 bg-black/80">
         <button onClick={() => { stopCamera(); onClose(); }}
-          className=" p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
-          <X className="w-5 h-5" />
+          className=" p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors" aria-label={t('common.close')}>
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
-        <button onClick={capturePhoto} className="text-white text-sm font-medium">Tomar foto</button>
-        <button onClick={switchCamera}
+        <button onClick={capturePhoto} className="text-white text-sm font-medium">{t('camera.take')}</button>
+        <button onClick={switchCamera} aria-label={t('camera.switch')}
           className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
           <RefreshCw className="w-5 h-5" />
         </button>
@@ -88,16 +90,16 @@ const CameraCapture = ({ onCapture, onClose }) => {
             <Camera className="w-12 h-12 text-gray-500 mx-auto mb-4" />
             <p className="text-white text-sm mb-4">{error}</p>
             <button onClick={() => startCamera(facingMode)}
-              className="px-4 py-2 bg-astroAccent text-white rounded-lg text-sm">Reintentar</button>
+              className="px-4 py-2 bg-astroAccent text-white rounded-lg text-sm">{t('errors.retry')}</button>
           </div>
         ) : captured ? (
           <>
-            <img src={captured} alt="Captura" className="max-h-full max-w-full object-contain" />
+            <img src={captured} alt={t('camera.captured')} className="max-h-full max-w-full object-contain" />
             <div className="absolute bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2">
               <button onClick={retake}
                 className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors">
                 <RefreshCw className="w-5 h-5" />
-                Repetir
+                {t('camera.retake')}
               </button>
             </div>
           </>
@@ -107,7 +109,7 @@ const CameraCapture = ({ onCapture, onClose }) => {
               className="max-h-full max-w-full object-contain"
               style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }} />
             <div className="absolute bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2">
-              <button onClick={capturePhoto}
+              <button onClick={capturePhoto} aria-label={t('camera.take')}
                 className="w-16 h-16 rounded-full border-4 border-white bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center shadow-lg shadow-black/50">
                 <div className="w-12 h-12 rounded-full bg-white" />
               </button>

@@ -223,3 +223,8 @@ input, select, textarea, button {
   }
 }
 
+
+/* Mapa base «Nocturno»: cartografía de GRAFCAN con los colores invertidos */
+.leaflet-tile-pane .map-night {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.7);
+}

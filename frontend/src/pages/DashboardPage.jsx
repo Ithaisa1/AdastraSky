@@ -9,13 +9,13 @@ import {
   getLunarPhase, calculateSkyScore, getNextEvent, getGreeting
 } from '../utils/astronomy';
 import { santuariosData } from '../data/santuariosData';
-import { astronomicalEvents } from '../data/astronomicalData';
+import { useAstronomyEvents } from '../hooks/useAstronomyEvents';
 import Sidebar from '../components/Sidebar';
+import { API_URL } from '../config/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const DashboardPage = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const lang = i18n.language;
@@ -51,13 +51,14 @@ const DashboardPage = () => {
     return islands[Math.floor(Math.random() * islands.length)];
   }, []);
 
-  const nextEvent = getNextEvent(astronomicalEvents);
+  const { events: computedEvents } = useAstronomyEvents({ year: new Date().getFullYear(), lang, includeNextYear: true });
+  const nextEvent = getNextEvent(computedEvents);
 
   const handleExport = async (format) => {
     const ext = format === 'pdf' ? 'pdf' : format === 'csv' ? 'csv' : 'geojson';
     try {
       const res = await fetch(`${API_URL}/api/sky/zones/${ext}`);
-      if (!res.ok) throw new Error('Error al exportar');
+      if (!res.ok) throw new Error(`export ${res.status}`);
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -65,7 +66,9 @@ const DashboardPage = () => {
       a.download = `adastra-zones.${ext}`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch {}
+    } catch {
+      alert(t('dashboard.exportError'));
+    }
   };
 
   const gaugeCircumference = 283;
@@ -94,7 +97,7 @@ const DashboardPage = () => {
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-2">
-                {greeting}, {user?.first_name || 'Explorador'}
+                {greeting}, {user?.first_name || t('dashboard.explorer')}
               </h1>
               <p className="text-sm sm:text-lg text-gray-300 max-w-xl">
                 {lang === 'es' ? 'El archipiélago te ofrece un total de' :
@@ -191,14 +194,11 @@ const DashboardPage = () => {
                   <Sun className="w-6 h-6 text-solarFlare" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-lg font-semibold text-white truncate">{nextEvent.name || 'Próximo Evento'}</p>
+                  <p className="text-lg font-semibold text-white truncate">{nextEvent ? nextEvent.name : t('dashboard.noUpcoming')}</p>
                   <p className="text-sm text-gray-400">
-                    {(() => {
-                      const d = new Date(nextEvent.date);
-                      return isNaN(d.getTime())
-                        ? (lang === 'es' ? 'Agosto 2026' : 'August 2026')
-                        : d.toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' });
-                    })()}
+                    {nextEvent
+                      ? new Date(`${nextEvent.date}T12:00:00`).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' })
+                      : '—'}
                   </p>
                 </div>
               </div>
@@ -261,9 +261,7 @@ const DashboardPage = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-astroAccent" />
-                {lang === 'es' ? 'Mejores Santuarios Hoy' :
-                 lang === 'en' ? 'Best Sanctuaries Today' :
-                 'Beste Heiligtümer Heute'}
+                {t('dashboard.darkestSanctuaries')}
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">

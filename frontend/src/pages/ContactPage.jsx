@@ -7,11 +7,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
-import { Mail, Phone, MapPin, Send, Star, Globe } from 'lucide-react';
+import { Mail, Send, Star, Globe } from 'lucide-react';
+import { santuariosData } from '../data/santuariosData';
+import { API_URL } from '../config/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Correo público de contacto (opcional). Si no se define, solo se muestra el formulario.
+const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || '';
 
 const ContactPage = () => {
   const { t } = useTranslation();
@@ -28,10 +31,10 @@ const ContactPage = () => {
 
   const validate = () => {
     const errs = {};
-    if (!formData.name || formData.name.length < 2) errs.name = t('contact.nameError', 'Mínimo 2 caracteres');
-    if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = t('contact.emailError', 'Email inválido');
-    if (!formData.subject) errs.subject = 'Selecciona un asunto';
-    if (!formData.message || formData.message.length < 10) errs.message = 'Mínimo 10 caracteres';
+    if (!formData.name || formData.name.length < 2) errs.name = t('contact.nameError');
+    if (!formData.email || !EMAIL_RE.test(formData.email)) errs.email = t('contact.emailError');
+    if (!formData.subject) errs.subject = t('contact.subjectError');
+    if (!formData.message || formData.message.length < 10) errs.message = t('contact.messageError');
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -50,7 +53,7 @@ const ContactPage = () => {
       setFormData({ name: '', email: '', subject: '', message: '' });
       setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (err) {
-      setSubmitError(err.response?.data?.message || 'Error al enviar el mensaje. Intenta de nuevo.');
+      setSubmitError(err.response?.status === 429 ? t('contact.rateLimited') : t('contact.sendError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -82,63 +85,33 @@ const ContactPage = () => {
             {/* Información de Contacto */}
             <div className="space-y-6">
               <div className="bg-astroCard/50 backdrop-blur-lg rounded-lg border border-white/10 p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">{t('contact.title')}</h2>
-                <p className="text-gray-400 mb-6">
-                  {t('contact.subtitle')}
-                </p>
-
-                <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-white mb-4">{t('contact.infoTitle')}</h2>
+                <p className="text-gray-400 mb-6">{t('contact.infoText')}</p>
+                {CONTACT_EMAIL && (
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-astroDark/50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6 text-astroAccent" />
+                      <Mail className="w-6 h-6 text-astroAccent" aria-hidden="true" />
                     </div>
                     <div>
-                      <h3 className="text-white font-medium mb-1">Email</h3>
-                      <p className="text-gray-400 text-sm">contacto@adastrasky.com</p>
-                      <p className="text-gray-400 text-sm">soporte@adastrasky.com</p>
+                      <h3 className="text-white font-medium mb-1">{t('contact.email')}</h3>
+                      <a href={`mailto:${CONTACT_EMAIL}`} className="text-gray-300 text-sm underline hover:text-white">{CONTACT_EMAIL}</a>
                     </div>
                   </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-astroDark/50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-6 h-6 text-astroAccent" />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-medium mb-1">Teléfono</h3>
-                      <p className="text-gray-400 text-sm">+34 922 123 456</p>
-                      <p className="text-gray-400 text-sm">Lun - Vie: 9:00 - 18:00</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-astroDark/50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-astroAccent" />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-medium mb-1">Ubicación</h3>
-                      <p className="text-gray-400 text-sm">Instituto de Astrofísica de Canarias</p>
-                      <p className="text-gray-400 text-sm">C/ Vía Láctea, s/n</p>
-                      <p className="text-gray-400 text-sm">38205 San Cristóbal de La Laguna, España</p>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Información Adicional */}
               <div className="bg-astroCard/50 backdrop-blur-lg rounded-lg border border-white/10 p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Sobre Adastra Sky</h3>
-                <p className="text-gray-400 text-sm mb-4">
-                  Adastra Sky es una plataforma dedicada a promover la calidad astronómica de las Islas Canarias, 
-                  conectando a entusiastas de la astronomía con los mejores lugares para observar el firmamento.
-                </p>
+                <h3 className="text-xl font-bold text-white mb-4">{t('contact.aboutTitle')}</h3>
+                <p className="text-gray-400 text-sm mb-4">{t('contact.aboutText')}</p>
                 <div className="flex gap-4">
                   <div className="flex items-center gap-2 text-gray-300 text-sm">
-                    <Star className="w-4 h-4 text-astroAccent" />
-                    <span>42+ Santuarios</span>
+                    <Star className="w-4 h-4 text-astroAccent" aria-hidden="true" />
+                    <span>{t('contact.sanctuariesCount', { count: santuariosData.length })}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-300 text-sm">
-                    <Globe className="w-4 h-4 text-astroAccent" />
-                    <span>8 Islas</span>
+                    <Globe className="w-4 h-4 text-astroAccent" aria-hidden="true" />
+                    <span>{t('contact.islandsCount', { count: 8 })}</span>
                   </div>
                 </div>
               </div>
@@ -146,85 +119,97 @@ const ContactPage = () => {
 
             {/* Formulario de Contacto */}
             <div className="bg-astroCard/50 backdrop-blur-lg rounded-lg border border-white/10 p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">{t('contact.title')}</h2>
+              <h2 className="text-2xl font-bold text-white mb-6">{t('contact.formTitle')}</h2>
               
               {submitSuccess && (
-                <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg" role="status">
                   <p className="text-green-400 text-sm">{t('contact.success')}</p>
                 </div>
               )}
               {submitError && (
-                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg" role="alert">
                   <p className="text-red-400 text-sm">{submitError}</p>
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Nombre
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-gray-300 mb-2">
+                    {t('contact.name')}
                   </label>
                   <input
                     type="text"
+                    id="contact-name"
                     name="name"
+                    aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? 'contact-name-error' : undefined}
                     value={formData.name}
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors"
-                    placeholder="Tu nombre"
+                    placeholder={t('login.firstNamePlaceholder')}
                   />
-                  {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
+                  {errors.name && <p id="contact-name-error" className="text-red-400 text-xs mt-1">{errors.name}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email
+                  <label htmlFor="contact-email" className="block text-sm font-medium text-gray-300 mb-2">
+                    {t('contact.email')}
                   </label>
                   <input
                     type="email"
+                    id="contact-email"
                     name="email"
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? 'contact-email-error' : undefined}
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors"
-                    placeholder="tu@email.com"
+                    placeholder={t('login.emailPlaceholder')}
                   />
-                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                  {errors.email && <p id="contact-email-error" className="text-red-400 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Asunto
+                  <label htmlFor="contact-subject" className="block text-sm font-medium text-gray-300 mb-2">
+                    {t('contact.subject')}
                   </label>
                   <select
+                    id="contact-subject"
                     name="subject"
+                    aria-invalid={!!errors.subject}
+                    aria-describedby={errors.subject ? 'contact-subject-error' : undefined}
                     value={formData.subject}
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors"
                   >
-                    <option value="">Selecciona un asunto</option>
-                    <option value="general">Consulta General</option>
-                    <option value="observatories">Información sobre Observatorios</option>
-                    <option value="events">Eventos Astronómicos</option>
-                    <option value="technical">Problema Técnico</option>
-                    <option value="account">Problema con la Cuenta</option>
-                    <option value="collaboration">Colaboración</option>
-                    <option value="other">Otro</option>
+                    <option value="">{t('contact.subjects.choose')}</option>
+                    <option value="general">{t('contact.subjects.general')}</option>
+                    <option value="observatories">{t('contact.subjects.observatories')}</option>
+                    <option value="events">{t('contact.subjects.events')}</option>
+                    <option value="technical">{t('contact.subjects.technical')}</option>
+                    <option value="account">{t('contact.subjects.account')}</option>
+                    <option value="collaboration">{t('contact.subjects.collaboration')}</option>
+                    <option value="other">{t('contact.subjects.other')}</option>
                   </select>
-                  {errors.subject && <p className="text-red-400 text-xs mt-1">{errors.subject}</p>}
+                  {errors.subject && <p id="contact-subject-error" className="text-red-400 text-xs mt-1">{errors.subject}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Mensaje
+                  <label htmlFor="contact-message" className="block text-sm font-medium text-gray-300 mb-2">
+                    {t('contact.message')}
                   </label>
                   <textarea
+                    id="contact-message"
                     name="message"
+                    aria-invalid={!!errors.message}
+                    aria-describedby={errors.message ? 'contact-message-error' : undefined}
                     value={formData.message}
                     onChange={handleChange}
                     rows={6}
                     className="w-full px-4 py-3 bg-astroDark/50 border border-white/10 rounded-lg text-white focus:border-astroAccent focus:outline-none transition-colors resize-none"
-                    placeholder="Escribe tu mensaje aquí..."
+                    placeholder={t('contact.messagePlaceholder')}
                   />
-                  {errors.message && <p className="text-red-400 text-xs mt-1">{errors.message}</p>}
+                  {errors.message && <p id="contact-message-error" className="text-red-400 text-xs mt-1">{errors.message}</p>}
                 </div>
 
                 <button
@@ -235,12 +220,12 @@ const ContactPage = () => {
                   {isSubmitting ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Enviando...</span>
+                      <span>{t('contact.sending')}</span>
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5" />
-                      <span>Enviar Mensaje</span>
+                      <Send className="w-5 h-5" aria-hidden="true" />
+                      <span>{t('contact.send')}</span>
                     </>
                   )}
                 </button>
@@ -248,7 +233,7 @@ const ContactPage = () => {
 
               <div className="mt-6 text-center">
                 <p className="text-gray-500 text-xs">
-                  Al enviar este formulario, aceptas nuestra política de privacidad.
+                  {t('contact.privacy')}
                 </p>
               </div>
             </div>

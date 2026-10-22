@@ -6,10 +6,10 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 const AuthContext = createContext(null);
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
@@ -68,7 +68,8 @@ export const AuthProvider = ({ children }) => {
       console.error('Login error:', error);
       return {
         success: false,
-        error: error.response?.data?.message || 'Error al iniciar sesión',
+        error: error.response?.data?.message || 'login_failed',
+        code: error.response?.data?.code || (error.response ? 'generic' : 'network'),
       };
     }
   };
@@ -100,7 +101,8 @@ export const AuthProvider = ({ children }) => {
       console.error('Register error:', error);
       return {
         success: false,
-        error: error.response?.data?.message || 'Error al registrarse',
+        error: error.response?.data?.message || 'register_failed',
+        code: error.response?.data?.code || (error.response ? 'generic' : 'network'),
       };
     }
   };

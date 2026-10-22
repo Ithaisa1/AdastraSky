@@ -1,32 +1,35 @@
 import { useState } from 'react';
 import { MapPin, Clock, Trash2, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { API_URL } from '../config/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const ExperienceCard = ({ experience, onDelete, onZoneClick }) => {
   const { user, token } = useAuth();
+  const { t, i18n } = useTranslation();
   const [currentImage, setCurrentImage] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
   const images = experience.images || [];
-  const date = new Date(experience.created_at).toLocaleDateString('es-ES', {
+  const date = new Date(experience.created_at).toLocaleDateString(i18n.language, {
     year: 'numeric', month: 'long', day: 'numeric'
   });
 
   const isOwner = user?.id === experience.user_id;
 
   const handleDelete = async () => {
-    if (!window.confirm('¿Eliminar esta experiencia?')) return;
+    if (!window.confirm(t('experiences.confirmDelete'))) return;
     setDeleting(true);
     try {
-      await fetch(`${API_URL}/api/experiences/${experience.id}`, {
+      const res = await fetch(`${API_URL}/api/experiences/${experience.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (!res.ok) throw new Error('delete failed');
       onDelete?.(experience.id);
     } catch {
-      alert('Error al eliminar la experiencia');
+      alert(t('experiences.deleteError'));
     } finally {
       setDeleting(false);
     }
@@ -100,8 +103,8 @@ const ExperienceCard = ({ experience, onDelete, onZoneClick }) => {
 
         <button onClick={() => onZoneClick?.(experience.zone_id)}
           className="flex items-center gap-1.5 text-xs text-astroAccent hover:text-astroAccent/80 transition-colors">
-          <MapPin className="w-3.5 h-3.5" />
-          Ver ubicación
+          <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+          {t('sanctuaryPanel.viewLocation')}
         </button>
       </div>
     </div>

@@ -1,29 +1,43 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import HeroTransition from './components/HeroTransition';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
-import DashboardPage from './pages/DashboardPage';
-import ChatPage from './pages/ChatPage';
-import AdminPanel from './pages/AdminPanel';
-import ProfilePage from './pages/ProfilePage';
-import ObservatoriesPage from './pages/ObservatoriesPage';
-import DataPage from './pages/DataPage';
-import CalendarPage from './pages/CalendarPage';
-import ContactPage from './pages/ContactPage';
-import ExploradorPage from './pages/ExploradorPage';
-import FAQPage from './pages/FAQPage';
-import ExperiencesPage from './pages/ExperiencesPage';
-import NotFoundPage from './pages/NotFoundPage';
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const PlannerPage = lazy(() => import('./pages/PlannerPage'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const ObservatoriesPage = lazy(() => import('./pages/ObservatoriesPage'));
+const DataPage = lazy(() => import('./pages/DataPage'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const ExploradorPage = lazy(() => import('./pages/ExploradorPage'));
+const FAQPage = lazy(() => import('./pages/FAQPage'));
+const ExperiencesPage = lazy(() => import('./pages/ExperiencesPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Componente protegido de ruta
+// Las páginas se cargan bajo demanda: el primer acceso descarga mucho menos JavaScript.
+const PageLoader = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="min-h-screen bg-astroDark flex items-center justify-center">
+      <div className="text-white text-xl" role="status">{t('common.loading')}</div>
+    </div>
+  );
+};
+
 const ProtectedRoute = ({ children }) => {
+  const { t } = useTranslation();
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-astroDark flex items-center justify-center">
-        <div className="text-white text-xl">Cargando...</div>
+        <div className="text-white text-xl" role="status">{t('common.loading')}</div>
       </div>
     );
   }
@@ -36,12 +50,13 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const AdminRoute = ({ children }) => {
+  const { t } = useTranslation();
   const { isAuthenticated, isLoading, role } = useAuth();
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-astroDark flex items-center justify-center">
-        <div className="text-white text-xl">Cargando...</div>
+        <div className="text-white text-xl" role="status">{t('common.loading')}</div>
       </div>
     );
   }
@@ -62,6 +77,7 @@ function App() {
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <HeroTransition />
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Ruta pública de home */}
           <Route path="/" element={<HomePage />} />
@@ -119,6 +135,14 @@ function App() {
             }
           />
           <Route
+            path="/planner"
+            element={
+              <ProtectedRoute>
+                <PlannerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/settings"
             element={
               <ProtectedRoute>
@@ -162,6 +186,7 @@ function App() {
           {/* Página 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </Suspense>
       </AuthProvider>
     </BrowserRouter>
   );

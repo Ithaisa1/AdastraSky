@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import InteractiveMap from '../components/InteractiveMap';
 import SanctuaryPanel from '../components/SanctuaryPanel';
@@ -8,7 +7,6 @@ import Sidebar from '../components/Sidebar';
 import { santuariosData } from '../data/santuariosData';
 
 const ExploradorPage = () => {
-  const { t } = useTranslation();
   const location = useLocation();
   const [selectedZone, setSelectedZone] = useState(null);
   const [clickedCoords, setClickedCoords] = useState(null);

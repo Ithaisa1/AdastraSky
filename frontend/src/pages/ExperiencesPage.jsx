@@ -1,30 +1,35 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Users, MapPin, Plus, Camera, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { MapPin, Plus, Camera, Sparkles, Image as ImageIcon, AlertTriangle } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import ExperienceCard from '../components/ExperienceCard';
 import ExperienceForm from '../components/ExperienceForm';
 import { santuariosData } from '../data/santuariosData';
+import { API_URL } from '../config/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
 const ExperiencesPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { t } = useTranslation();
   const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
   const zoneMap = {};
   santuariosData.forEach(z => { zoneMap[z.id] = z; });
 
   const fetchExperiences = useCallback(async () => {
+    setLoadError(false);
     try {
       const res = await fetch(`${API_URL}/api/experiences?limit=50`);
       const data = await res.json();
-      if (data.status === 'success') setExperiences(data.data.experiences);
-    } catch {} finally {
+      if (!res.ok || data.status !== 'success') throw new Error(String(res.status));
+      setExperiences(Array.isArray(data.data?.experiences) ? data.data.experiences : []);
+    } catch {
+      setLoadError(true);
+    } finally {
       setLoading(false);
     }
   }, []);
@@ -53,17 +58,17 @@ const ExperiencesPage = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
-                <Camera className="w-7 h-7 text-astroAccent" />
-                Experiencias
+                <Camera className="w-7 h-7 text-astroAccent" aria-hidden="true" />
+                {t('experiences.title')}
               </h1>
               <p className="text-gray-400 mt-1">
-                Recuerdos y vivencias compartidos por la comunidad
+                {t('experiences.subtitle')}
               </p>
             </div>
             <button onClick={() => setShowForm(true)}
               className="flex items-center gap-2 px-6 py-3 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-xl transition-all duration-300 shadow-lg shadow-astroAccent/30 whitespace-nowrap">
-              <Plus className="w-4 h-4" />
-              Compartir experiencia
+              <Plus className="w-4 h-4" aria-hidden="true" />
+              {t('experiences.share')}
             </button>
           </div>
 
@@ -75,7 +80,7 @@ const ExperiencesPage = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">{experiences.length}</p>
-                  <p className="text-xs text-gray-400">Experiencias</p>
+                  <p className="text-xs text-gray-400">{t('experiences.statsExperiences')}</p>
                 </div>
               </div>
             </div>
@@ -86,7 +91,7 @@ const ExperiencesPage = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">{totalPhotos}</p>
-                  <p className="text-xs text-gray-400">Fotografías</p>
+                  <p className="text-xs text-gray-400">{t('experiences.statsPhotos')}</p>
                 </div>
               </div>
             </div>
@@ -99,14 +104,14 @@ const ExperiencesPage = () => {
                   <p className="text-2xl font-bold text-white">
                     {new Set(experiences.map(e => e.zone_id)).size}
                   </p>
-                  <p className="text-xs text-gray-400">Ubicaciones</p>
+                  <p className="text-xs text-gray-400">{t('experiences.statsLocations')}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="status" aria-label={t('common.loading')}>
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="bg-astroCard/50 rounded-xl border border-white/5 overflow-hidden animate-pulse">
                   <div className="aspect-[4/3] bg-astroDark" />
@@ -118,19 +123,26 @@ const ExperiencesPage = () => {
                 </div>
               ))}
             </div>
+          ) : loadError ? (
+            <div className="text-center py-20" role="alert">
+              <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto mb-3" aria-hidden="true" />
+              <p className="text-gray-300 mb-4">{t('experiences.loadError')}</p>
+              <button onClick={() => { setLoading(true); fetchExperiences(); }}
+                className="px-5 py-2 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-xl">{t('errors.retry')}</button>
+            </div>
           ) : experiences.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-astroAccent/20 to-cosmicPurple/20 border border-astroAccent/20 flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-astroAccent" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Aún no hay experiencias</h2>
+              <h2 className="text-xl font-bold text-white mb-2">{t('experiences.noExperiences')}</h2>
               <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                Sé el primero en compartir tu vivencia en los santuarios estelares de Canarias
+                {t('experiences.beFirst')}
               </p>
               <button onClick={() => setShowForm(true)}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-astroAccent hover:bg-astroAccent/90 text-white rounded-xl transition-all duration-300 shadow-lg shadow-astroAccent/30">
-                <Camera className="w-4 h-4" />
-                Compartir mi experiencia
+                <Camera className="w-4 h-4" aria-hidden="true" />
+                {t('experiences.shareMine')}
               </button>
             </div>
           ) : (

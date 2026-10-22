@@ -1,0 +1,736 @@
+{
+  "login": {
+    "title": "Adastra Sky",
+    "subtitle": "Explora los Cielos de Canarias",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "loginButton": "Iniciar Sesión",
+    "registerButton": "Registrarse",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "atmosphere": "Densidad Atmosférica",
+    "firstNamePlaceholder": "Tu nombre",
+    "lastNamePlaceholder": "Tu apellido",
+    "emailPlaceholder": "tu@email.com",
+    "errors": {
+      "email": "Email inválido",
+      "passwordRequired": "Introduce tu contraseña",
+      "passwordPolicy": "Mínimo 8 caracteres, con mayúscula, minúscula y número",
+      "name": "Mínimo 2 caracteres",
+      "INVALID_CREDENTIALS": "Email o contraseña incorrectos",
+      "USER_INACTIVE": "Esta cuenta está desactivada",
+      "USER_EXISTS": "Ya existe una cuenta con ese email",
+      "EMAIL_EXISTS": "Ya existe una cuenta con ese email",
+      "VALIDATION_ERROR": "Revisa los datos del formulario",
+      "network": "No se pudo conectar con el servidor. Inténtalo de nuevo en unos segundos.",
+      "generic": "No se pudo completar la operación. Inténtalo de nuevo."
+    }
+  },
+  "dashboard": {
+    "title": "Santuarios Estelares",
+    "search": "Buscar santuario...",
+    "allIslands": "Todas las Islas",
+    "observatories": "Observatorios",
+    "astronomicalViewpoints": "Miradores Astronómicos",
+    "landscapeViewpoints": "Miradores Paisajísticos",
+    "explorer": "Explorador",
+    "noUpcoming": "Sin eventos próximos",
+    "darkestSanctuaries": "Santuarios con el cielo más oscuro",
+    "exportError": "No se pudo exportar el archivo. Inténtalo de nuevo."
+  },
+  "categories": {
+    "observatory": "Observatorio Astronómico",
+    "astronomical_viewpoint": "Mirador Astronómico",
+    "landscape_viewpoint": "Mirador Paisajístico"
+  },
+  "sanctuary": {
+    "realImage": "Imagen Real",
+    "live": "EN DIRECTO",
+    "altitude": "Altitud",
+    "accessibility": "Accesibilidad",
+    "weather": "Meteorología",
+    "temperature": "Temperatura",
+    "cloudiness": "Nubosidad",
+    "wind": "Viento",
+    "visibility": "Visibilidad",
+    "humidity": "Humedad",
+    "skyQuality": "Calidad del Cielo",
+    "bortleScale": "Escala Bortle",
+    "seeing": "Seeing",
+    "lightPollution": "Contaminación Lumínica",
+    "sources": "Fuentes Consultadas",
+    "loading": "Cargando"
+  },
+  "chat": {
+    "title": "Adastra",
+    "placeholder": "Pregunta sobre los cielos de Canarias...",
+    "thinking": "Pensando...",
+    "send": "Enviar",
+    "connecting": "Iniciando servicio de IA...",
+    "connectedAs": "Conectado como {{email}}",
+    "newConversation": "Nueva conversación",
+    "history": "Conversaciones",
+    "noHistory": "Aún no tienes conversaciones guardadas.",
+    "untitled": "Conversación sin título",
+    "messagesCount_one": "{{count}} mensaje",
+    "messagesCount_other": "{{count}} mensajes",
+    "delete": "Borrar conversación",
+    "confirmDelete": "¿Borrar esta conversación? No se puede deshacer.",
+    "emptyDescription": "Pregunta sobre los cielos de Canarias, observatorios, condiciones meteorológicas o cualquier tema astronómico. Recuerdo lo que hablamos en esta conversación.",
+    "suggestions": {
+      "roque": "¿Cómo es el cielo del Roque de los Muchachos?",
+      "saturn": "Quiero observar Saturno este fin de semana",
+      "law": "¿Qué protege la Ley del Cielo de Canarias?"
+    },
+    "sources": "Fuentes",
+    "you": "Tú",
+    "hint": "Intro para enviar · Mayús+Intro para nueva línea",
+    "errors": {
+      "busy": "El servicio de IA está saturado en este momento. Espera unos segundos y vuelve a intentarlo.",
+      "starting": "El servicio de IA está arrancando. Inténtalo de nuevo en unos segundos.",
+      "session": "Tu sesión ha caducado. Vuelve a iniciar sesión.",
+      "tooLong": "El mensaje es demasiado largo (máximo 4000 caracteres).",
+      "generic": "Lo siento, hubo un error al procesar tu mensaje. Inténtalo de nuevo."
+    }
+  },
+  "calendar": {
+    "title": "Calendario Astronómico",
+    "subtitle": "Eventos astronómicos y reservas en observatorios",
+    "today": "Hoy",
+    "eventsIn": "Eventos en",
+    "loading": "Cargando eventos...",
+    "noEvents": "No hay eventos este mes",
+    "tabCalendar": "Calendario",
+    "tabReservas": "Reservas",
+    "apodTitle": "Astronomy Picture of the Day (NASA)",
+    "peak": "Máximo"
+  },
+  "reservas": {
+    "title": "Reservar Visita a los Observatorios",
+    "subtitle": "Los observatorios del IAC en Canarias ofrecen visitas guiadas. Las reservas se gestionan directamente a través de las plataformas oficiales.",
+    "bookVisit": "Reservar Visita",
+    "officialWeb": "Web Oficial",
+    "moreInfo": "Más información",
+    "lessInfo": "Menos info",
+    "importantTitle": "Información Importante",
+    "suspended": "Las visitas a ambos observatorios quedan suspendidas entre diciembre y marzo por condiciones meteorológicas adversas.",
+    "accessTeide": "El acceso al Observatorio del Teide requiere permiso del IAC (gestionado en la reserva).",
+    "accessORM": "Para el ORM (La Palma), la carretera es de alta montaña. Se recomienda consultar el estado meteorológico antes de viajar.",
+    "jppaa": "El Observatorio del Teide organiza cada año jornadas de puertas abiertas con plazas muy limitadas. Consulta fechas e inscripción en la web del IAC.",
+    "teide": {
+      "info": "Gestionado por el Instituto de Astrofísica de Canarias (IAC). Visitas guiadas durante gran parte del año (habitualmente sin visitas de diciembre a marzo por la meteorología).",
+      "d1": "Visitas para particulares, grupos y centros escolares",
+      "d2": "Jornadas de puertas abiertas anuales (consulta las fechas en la web del IAC)",
+      "d3": "Entrada gratuita para menores de 16 años",
+      "d4": "Descuento para residentes canarios",
+      "contact": "Contacto: +34 922 329 100 / teide-ot@iac.es"
+    },
+    "orm": {
+      "altLabel": "Reservar con AsterArk (Guía Starlight)",
+      "info": "Gestionado por el IAC. Las reservas se realizan a través de la Fundación Starlight con «Guías Starlight» especializados.",
+      "d1": "Visitas para particulares (con Guía Starlight)",
+      "d2": "Visitas para centros sociales y educativos",
+      "d3": "Acceso por carretera de montaña (40 km desde Santa Cruz de La Palma)",
+      "d4": "Importante: lleva el resguardo de la reserva",
+      "contact": "Contacto: visitasorm@iac.es"
+    }
+  },
+  "notFound": {
+    "message": "Esta página no existe en el universo conocido",
+    "goHome": "Volver al inicio"
+  },
+  "home": {
+    "heroTitle": "Explora los Cielos de Canarias",
+    "heroSubtitle": "Descubre uno de los mejores lugares del mundo para observar las estrellas",
+    "startExploring": "Comenzar Exploración",
+    "learnMore": "Saber más",
+    "featuredTitle": "Santuarios Estelares Destacados",
+    "chatWithAI": "Habla con Adastra",
+    "chatDesc": "Pregunta a nuestro guía astronómico inteligente sobre los cielos canarios"
+  },
+  "profile": {
+    "title": "Perfil de usuario",
+    "personalInfo": "Información Personal",
+    "changePassword": "Cambiar Contraseña",
+    "preferences": "Preferencias",
+    "language": "Idioma",
+    "saveChanges": "Guardar Cambios",
+    "subtitle": "Gestiona tu información y preferencias",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "bio": "Biografía",
+    "bioPlaceholder": "Cuéntanos sobre ti...",
+    "locationPlaceholder": "Ciudad, país",
+    "saved": "Cambios guardados correctamente",
+    "saving": "Guardando...",
+    "saveSettings": "Guardar configuración",
+    "saveError": "No se pudieron guardar los cambios",
+    "emailExists": "Ese email ya está en uso",
+    "connectionError": "Error de conexión",
+    "galleryHint": "Comparte tus vivencias en los santuarios estelares",
+    "languageHint": "El idioma se aplica a toda la interfaz y a las respuestas de Adastra.",
+    "notificationsTitle": "Notificaciones",
+    "notificationsSoon": "Los avisos por email y los recordatorios de eventos llegarán en una próxima versión.",
+    "account": "Gestión de la cuenta",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteWarning": "Se borrarán tu cuenta, tus conversaciones con Adastra y tus experiencias con sus fotos. Esta acción no se puede deshacer.",
+    "confirmPassword": "Escribe tu contraseña para confirmar",
+    "deleteConfirm": "Eliminar definitivamente",
+    "deleting": "Eliminando...",
+    "wrongPassword": "Contraseña incorrecta",
+    "deleteError": "No se pudo eliminar la cuenta. Inténtalo de nuevo."
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "zones": "Zonas Astronómicas",
+    "users": "Usuarios",
+    "createZone": "Crear Zona",
+    "editZone": "Editar Zona",
+    "deleteZone": "Eliminar Zona",
+    "confirmDelete": "¿Estás seguro de eliminar esta zona?",
+    "accessDenied": "ACCESO DENEGADO",
+    "credentialsRequired": "SE REQUIEREN CREDENCIALES DE ADMINISTRADOR",
+    "restricted": "Esta área está restringida a personal autorizado.",
+    "backToDashboard": "Volver al Dashboard",
+    "subtitle": "Gestión de zonas astronómicas y usuarios del sistema",
+    "totalZones": "Total Zonas",
+    "observatories": "Observatorios",
+    "usersStat": "Usuarios",
+    "admins": "Administradores",
+    "tabZones": "Zonas",
+    "tabExperiences": "Experiencias",
+    "searchZones": "Buscar zonas...",
+    "searchExperiences": "Buscar experiencias...",
+    "searchUsers": "Buscar usuarios...",
+    "newZone": "Nueva Zona",
+    "name": "Nombre",
+    "island": "Isla",
+    "category": "Categoría",
+    "altitude": "Altitud",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "actions": "Acciones",
+    "catObservatory": "Observatorio",
+    "catAstro": "Mirador Astro",
+    "catLandscape": "Mirador Paisaje",
+    "edit": "Editar",
+    "deactivate": "Desactivar",
+    "noZonesFound": "No se encontraron zonas",
+    "noZones": "No hay zonas disponibles",
+    "noExperiences": "No hay experiencias",
+    "deleteExperience": "Eliminar experiencia",
+    "deleteImage": "Eliminar imagen",
+    "email": "Email",
+    "role": "Rol",
+    "language": "Idioma",
+    "lastLogin": "Último Login",
+    "never": "Nunca",
+    "noUsersFound": "No se encontraron usuarios",
+    "noUsers": "No hay usuarios registrados",
+    "nameRequired": "Nombre *",
+    "islandRequired": "Isla *",
+    "municipality": "Municipio",
+    "categoryRequired": "Categoría *",
+    "subcategory": "Subcategoría",
+    "latitudeRequired": "Latitud *",
+    "longitudeRequired": "Longitud *",
+    "altitudeRequired": "Altitud (m) *",
+    "bortleRequired": "Escala Bortle (1-9) *",
+    "accessType": "Tipo de Acceso",
+    "safetyRisk": "Riesgo de Seguridad (1-5)",
+    "description": "Descripción",
+    "imageUrl": "URL de Imagen",
+    "cancel": "Cancelar",
+    "update": "Actualizar",
+    "create": "Crear",
+    "editUser": "Editar Usuario",
+    "lastName": "Apellido",
+    "status": "Estado",
+    "save": "Guardar",
+    "confirm": "Confirmar",
+    "experienceDeleteWarning": "La experiencia y todas sus imágenes se eliminarán permanentemente.",
+    "softDeleteWarning": "El elemento quedará oculto pero no se eliminará permanentemente.",
+    "delete": "Eliminar",
+    "deletePermanently": "Eliminar permanentemente",
+    "loading": "Cargando...",
+    "errLoadZones": "Error al cargar zonas",
+    "errLoadUsers": "Error al cargar usuarios",
+    "errLoadExperiences": "Error al cargar experiencias",
+    "errDeleteImage": "Error al eliminar imagen",
+    "errDeleteExperience": "Error al eliminar experiencia",
+    "errSaveZone": "Error al guardar zona",
+    "errDeleteZone": "Error al eliminar zona",
+    "errUpdateUser": "Error al actualizar usuario",
+    "errDeactivateUser": "Error al desactivar usuario",
+    "errDeleteUser": "Error al eliminar usuario",
+    "confirmZone": "¿Desactivar la zona «{{name}}»?",
+    "confirmExperience": "¿Eliminar la experiencia «{{name}}»?",
+    "confirmUser": "¿Desactivar al usuario «{{name}}»?"
+  },
+  "contact": {
+    "title": "Contacto",
+    "subtitle": "Envíanos un mensaje y te responderemos lo antes posible",
+    "name": "Nombre",
+    "email": "Email",
+    "subject": "Asunto",
+    "message": "Mensaje",
+    "send": "Enviar Mensaje",
+    "success": "Mensaje enviado correctamente",
+    "infoTitle": "¿Cómo contactar?",
+    "infoText": "Escríbenos con el formulario: los mensajes llegan directamente al equipo de Adastra Sky.",
+    "aboutTitle": "Sobre Adastra Sky",
+    "aboutText": "Adastra Sky es una plataforma dedicada a promover la calidad astronómica de las Islas Canarias, conectando a entusiastas de la astronomía con los mejores lugares para observar el firmamento.",
+    "sanctuariesCount": "{{count}} santuarios",
+    "islandsCount": "{{count}} islas",
+    "nameError": "Mínimo 2 caracteres",
+    "emailError": "Email inválido",
+    "subjectError": "Selecciona un asunto",
+    "messageError": "Mínimo 10 caracteres",
+    "rateLimited": "Has enviado demasiados mensajes. Inténtalo más tarde.",
+    "sendError": "Error al enviar el mensaje. Inténtalo de nuevo.",
+    "formTitle": "Envíanos un mensaje",
+    "messagePlaceholder": "Escribe tu mensaje aquí...",
+    "sending": "Enviando...",
+    "privacy": "Usaremos tus datos únicamente para responder a tu mensaje.",
+    "subjects": {
+      "choose": "Selecciona un asunto",
+      "general": "Consulta general",
+      "observatories": "Información sobre observatorios",
+      "events": "Eventos astronómicos",
+      "technical": "Problema técnico",
+      "account": "Problema con la cuenta",
+      "collaboration": "Colaboración",
+      "other": "Otro"
+    }
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "search": "Buscar preguntas...",
+    "subtitle": "Todo lo que necesitas saber sobre Adastra Sky",
+    "noResults": "No hay preguntas que coincidan con tu búsqueda.",
+    "sections": [
+      {
+        "category": "General",
+        "items": [
+          {
+            "q": "¿Qué es Adastra Sky?",
+            "a": "Adastra Sky es una plataforma de astroturismo para las Islas Canarias que te permite descubrir y explorar santuarios estelares —puntos de observación astronómica con condiciones privilegiadas para la contemplación del cielo nocturno."
+          },
+          {
+            "q": "¿Qué es un Santuario Estelar?",
+            "a": "Es un punto de observación astronómica seleccionado por su baja contaminación lumínica, altitud, accesibilidad y calidad del cielo. En Adastra Sky encontrarás observatorios, miradores astronómicos y paisajísticos repartidos por las 8 islas del archipiélago canario."
+          },
+          {
+            "q": "¿Cómo se calcula la escala Bortle?",
+            "a": "La escala Bortle mide la calidad del cielo nocturno del 1 al 9, donde 1 es un cielo totalmente oscuro y 9 un cielo urbano muy contaminado. En Canarias muchos santuarios tienen valores entre 1 y 4."
+          }
+        ]
+      },
+      {
+        "category": "Uso de la Plataforma",
+        "items": [
+          {
+            "q": "¿Cómo explorar los santuarios?",
+            "a": "Usa el mapa interactivo de la sección «Mapa del cielo» para ver todos los puntos de interés. Puedes filtrar por isla, tipo de santuario o escala Bortle. Cada punto incluye altitud, coordenadas, accesibilidad y servicios disponibles."
+          },
+          {
+            "q": "¿Cómo funciona Adastra?",
+            "a": "Adastra es el asistente astronómico de la plataforma. Consulta documentos del Instituto de Astrofísica de Canarias y herramientas de datos (clima, zonas, efemérides) y cita las fuentes que usa. Recuerda lo que habéis hablado en la conversación actual, así que puedes hacer preguntas de seguimiento como «¿Y desde el Teide?»."
+          },
+          {
+            "q": "¿Puedo borrar mis conversaciones con Adastra?",
+            "a": "Sí. En el chat, abre «Conversaciones» y pulsa el icono de la papelera junto a la conversación que quieras borrar. Solo tú puedes ver tus conversaciones."
+          },
+          {
+            "q": "¿Cómo planifico una observación?",
+            "a": "En «Planificador» eliges qué quieres ver (por ejemplo, Saturno) y cuándo. La plataforma calcula con efemérides reales cuándo estará alto en el cielo, consulta la previsión de nubes de los mejores santuarios cercanos y te propone lugares y horas, indicando siempre la confianza del resultado y sus limitaciones."
+          },
+          {
+            "q": "¿Puedo guardar mis santuarios favoritos?",
+            "a": "Por ahora puedes explorar y descubrir santuarios. La lista de favoritos estará disponible en una próxima actualización."
+          }
+        ]
+      },
+      {
+        "category": "Astronomía en Canarias",
+        "items": [
+          {
+            "q": "¿Por qué Canarias es un destino privilegiado?",
+            "a": "Por su ubicación subtropical, la baja contaminación lumínica protegida por la Ley del Cielo, la estabilidad atmosférica y la presencia de dos de los observatorios más importantes del mundo: el Roque de los Muchachos (La Palma) y el Teide (Tenerife)."
+          },
+          {
+            "q": "¿Cuál es la mejor época para observar?",
+            "a": "Canarias ofrece buenas condiciones todo el año. El verano suele tener cielos más despejados y es ideal para la Vía Láctea; el invierno ofrece noches más largas. Consulta el calendario y el planificador para elegir la noche."
+          },
+          {
+            "q": "¿Necesito equipo especial?",
+            "a": "No necesariamente. Muchos objetos se ven a simple vista desde un cielo oscuro. Para una experiencia más completa recomendamos prismáticos o un telescopio portátil, y ropa de abrigo: en altura la temperatura baja mucho de noche."
+          },
+          {
+            "q": "¿Qué son los objetos Messier?",
+            "a": "El Catálogo Messier, creado por Charles Messier en el siglo XVIII, contiene 110 objetos —nebulosas, cúmulos estelares y galaxias— que recopiló para no confundirlos con cometas. Desde Canarias se ven la mayoría, como la Galaxia de Andrómeda (M31), la Nebulosa de Orión (M42) o el Cúmulo de Hércules (M13)."
+          },
+          {
+            "q": "¿Los planetas tienen objetos Messier?",
+            "a": "No. El catálogo Messier solo incluye objetos fuera del Sistema Solar. Los planetas visibles desde Canarias —Marte, Júpiter, Saturno, Venus— se observan directamente y no forman parte del catálogo. Algunos objetos Messier, como las Pléyades (M45) o la Nebulosa de Orión (M42), se ven a simple vista desde cielos oscuros (Bortle 1-3)."
+          }
+        ]
+      },
+      {
+        "category": "Puntuaciones y Métricas",
+        "items": [
+          {
+            "q": "¿Qué es el Sky Score Global?",
+            "a": "Es un indicador general de la calidad del cielo del archipiélago, calculado a partir de la escala Bortle de los santuarios registrados, en una escala del 0 al 10. Describe la oscuridad del cielo, no el tiempo que hace: no garantiza que una noche concreta esté despejada."
+          },
+          {
+            "q": "¿Qué es la Puntuación AdAstraSky?",
+            "a": "Es una valoración propia del 0 al 100 que combina altitud, escala Bortle, seeing estimado, transparencia, accesibilidad y servicios para comparar rápidamente los puntos de observación."
+          },
+          {
+            "q": "¿Qué significan las categorías Astro, Photo, Turismo y Global?",
+            "a": "Astro valora la observación visual (Bortle, seeing, transparencia, altitud, nubosidad y humedad medias). Photo valora la astrofotografía (calidad del paisaje, orientación, composición, acceso para fotógrafos y Bortle). Turismo valora el acceso, la seguridad y los servicios. Global es la media ponderada de las tres."
+          }
+        ]
+      },
+      {
+        "category": "Técnico",
+        "items": [
+          {
+            "q": "¿Cómo actualizar mi perfil?",
+            "a": "Ve a «Ajustes» desde el menú lateral, modifica tus datos y pulsa «Guardar cambios»."
+          },
+          {
+            "q": "¿Cómo cambiar el idioma?",
+            "a": "En «Ajustes» puedes elegir entre Español, English y Deutsch. El cambio se aplica inmediatamente a toda la interfaz y a las respuestas de Adastra."
+          },
+          {
+            "q": "¿Qué hago si olvido mi contraseña?",
+            "a": "Contacta con el equipo a través de la sección «Contacto» para gestionar el restablecimiento de tu contraseña."
+          }
+        ]
+      }
+    ]
+  },
+  "events": {
+    "title": "Eventos Astronómicos",
+    "filters": "Filtros",
+    "allTypes": "Todos los tipos",
+    "meteorShower": "Lluvia de Estrellas",
+    "eclipse": "Eclipse",
+    "comet": "Cometa",
+    "planetary": "Planetario"
+  },
+  "observatories": {
+    "title": "Observatorios",
+    "subtitle": "Los observatorios astronómicos más importantes de Canarias",
+    "visit": "Visitar",
+    "none": "No hay observatorios en esta isla",
+    "chooseOther": "Selecciona otra isla para ver sus observatorios",
+    "visitInfo": "Información de visita",
+    "institution": "Institución",
+    "established": "Fundado",
+    "hours": "Horario",
+    "guidedTours": "Visitas guiadas",
+    "booking": "Reserva",
+    "required": "Necesaria",
+    "notRequired": "No necesaria",
+    "details": "Ver detalles",
+    "research": "Áreas de investigación"
+  },
+  "data": {
+    "title": "Datos Astronómicos",
+    "exportGeoJSON": "Exportar GeoJSON",
+    "exportCSV": "Exportar CSV",
+    "zones": "Zonas",
+    "total": "Total",
+    "subtitle": "{{count}} constelaciones, planetas, Luna y Sol, y eventos astronómicos calculados",
+    "tabs": {
+      "constellations": "Constelaciones",
+      "planets": "Planetas",
+      "events": "Eventos"
+    },
+    "searchPlanet": "Buscar planeta...",
+    "searchConstellation": "Buscar constelación...",
+    "searchEvent": "Buscar evento...",
+    "season": "Temporada",
+    "hemisphere": "Hemisferio",
+    "area": "Área",
+    "allSeasons": "Todas las temporadas",
+    "allHemispheres": "Todos los hemisferios",
+    "constellationsCount_one": "{{count}} constelación",
+    "constellationsCount_other": "{{count}} constelaciones",
+    "seasons": {
+      "winter": "Invierno",
+      "spring": "Primavera",
+      "summer": "Verano",
+      "autumn": "Otoño"
+    },
+    "hemispheres": {
+      "north": "Norte",
+      "south": "Sur",
+      "equatorial": "Ecuatorial"
+    },
+    "noConstellations": "Ninguna constelación coincide",
+    "tryOtherFilters": "Prueba con otros filtros o cambia la búsqueda",
+    "noPlanets": "Ningún planeta coincide",
+    "tryOtherSearch": "Prueba con otro término de búsqueda",
+    "noEvents": "Ningún evento coincide",
+    "eventsError": "No se pudieron cargar los eventos astronómicos.",
+    "planetTypes": {
+      "terrestrial": "Planeta terrestre",
+      "gas_giant": "Gigante gaseoso",
+      "ice_giant": "Gigante helado",
+      "moon": "Satélite natural",
+      "star": "Estrella"
+    },
+    "diameter": "Diámetro",
+    "distanceSun": "Distancia al Sol",
+    "au": "UA",
+    "magnitude": "Magnitud",
+    "seeWith": "Ver con",
+    "orbit": "Órbita",
+    "days_one": "{{formatted}} día",
+    "days_other": "{{formatted}} días",
+    "bestVisibility": "Mejor visibilidad",
+    "mainStars": "Estrellas principales",
+    "messier": "Objetos Messier",
+    "visibleCanaries": "Visible desde Canarias",
+    "notVisibleCanaries": "No visible desde Canarias",
+    "visibilityNorth": "Excelente visibilidad desde las Islas Canarias",
+    "visibilitySouth": "Parcialmente visible cerca del horizonte sur",
+    "visibilityEquatorial": "Visible en distintas épocas del año",
+    "date": "Fecha",
+    "timeUtc": "Hora (UTC)",
+    "visibility": "Visibilidad",
+    "moonPhase": "Fase lunar",
+    "eventsSource": "Eventos calculados con Astronomy Engine para un observador en Canarias. Lluvias de meteoros: máximos según la IMO."
+  },
+  "experiences": {
+    "title": "Experiencias",
+    "subtitle": "Recuerdos y vivencias compartidos por la comunidad",
+    "share": "Compartir experiencia",
+    "createTitle": "Comparte tu experiencia",
+    "titleField": "Título",
+    "titlePlaceholder": "Un atardecer inolvidable...",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Cuenta tu experiencia en este lugar...",
+    "location": "Ubicación",
+    "selectLocation": "Selecciona un lugar...",
+    "photos": "Fotografías (máx. 5)",
+    "publish": "Publicar experiencia",
+    "noExperiences": "Aún no hay experiencias",
+    "beFirst": "Sé el primero en compartir tu vivencia en los santuarios estelares de Canarias",
+    "shareMine": "Compartir mi experiencia",
+    "viewAll": "Ver todas las experiencias →",
+    "statsExperiences": "Experiencias",
+    "statsPhotos": "Fotografías",
+    "statsLocations": "Ubicaciones",
+    "myGallery": "Mi Galería",
+    "noGallery": "Aún no has compartido experiencias",
+    "goToExperiences": "Ir a Experiencias",
+    "confirmDelete": "¿Eliminar esta experiencia?",
+    "deleteError": "Error al eliminar la experiencia",
+    "missingFields": "Completa el título y selecciona una ubicación",
+    "publishError": "Error al publicar",
+    "publishing": "Publicando...",
+    "upload": "Subir archivos",
+    "removePhoto": "Quitar foto",
+    "loadError": "No se pudieron cargar las experiencias. Comprueba tu conexión."
+  },
+  "explorer": {
+    "title": "Explorador de Cielo",
+    "filters": "Filtros",
+    "island": "Isla",
+    "category": "Categoría",
+    "allIslands": "Todas las Islas"
+  },
+  "errors": {
+    "generic": "Ha ocurrido un error",
+    "retry": "Intentar de nuevo",
+    "notFound": "No encontrado",
+    "unauthorized": "No autorizado"
+  },
+  "common": {
+    "back": "Volver",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "noData": "No hay datos disponibles",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "planner": {
+    "title": "Planificador de observación",
+    "subtitle": "Elige qué quieres ver y cuándo: calculo dónde y a qué hora tendrás más opciones, con efemérides reales y la previsión de nubes.",
+    "target": "¿Qué quieres observar?",
+    "when": "¿Cuándo?",
+    "island": "Isla",
+    "anyIsland": "Cualquier isla",
+    "location": "Tu ubicación",
+    "useLocation": "Usar mi ubicación",
+    "locationSet": "Ubicación: {{lat}}, {{lon}}",
+    "submit": "Planificar",
+    "calculating": "Calculando...",
+    "whenOptions": {
+      "tonight": "Esta noche",
+      "tomorrow": "Mañana",
+      "weekend": "Este fin de semana",
+      "week": "Próximos 7 días"
+    },
+    "targets": {
+      "saturn": "Saturno",
+      "jupiter": "Júpiter",
+      "mars": "Marte",
+      "venus": "Venus",
+      "mercury": "Mercurio",
+      "uranus": "Urano",
+      "neptune": "Neptuno",
+      "moon": "La Luna",
+      "m31": "Galaxia de Andrómeda (M31)",
+      "m42": "Nebulosa de Orión (M42)",
+      "m45": "Pléyades (M45)",
+      "m13": "Cúmulo de Hércules (M13)",
+      "milky_way_core": "Núcleo de la Vía Láctea"
+    },
+    "yourLocation": "Tu ubicación",
+    "km": "{{km}} km en línea recta",
+    "score": "Puntuación",
+    "scoreHelp": "Combina visibilidad, nubes previstas, oscuridad del cielo y Luna. No garantiza un cielo despejado.",
+    "confidence": {
+      "high": "Confianza alta",
+      "medium": "Confianza media",
+      "low": "Confianza baja"
+    },
+    "window": "Franja horaria",
+    "maxAltitude": "Altura máxima",
+    "altitudeValue": "Hasta {{alt}}° hacia el {{dir}}",
+    "clouds": "Nubosidad",
+    "cloudValue": "{{value}}% de nubes",
+    "noForecast": "Sin previsión",
+    "moon": "Luna",
+    "moonValue": "Luna al {{value}}%",
+    "limitations": "Limitaciones",
+    "noResults": "No hay franjas recomendables con los datos disponibles.",
+    "stellariumHint": "Para ver cómo estará el cielo en esa fecha y lugar puedes usar",
+    "errors": {
+      "generic": "No se pudo calcular el plan. Inténtalo de nuevo en unos segundos.",
+      "rateLimited": "Has hecho muchas consultas seguidas. Espera unos minutos.",
+      "noGeolocation": "Tu navegador no permite obtener la ubicación.",
+      "geolocationDenied": "No se pudo obtener tu ubicación. Elige una isla.",
+      "outsideCanaries": "Tu ubicación está fuera de Canarias: se han buscado zonas en todo el archipiélago."
+    }
+  },
+  "nav": {
+    "mainNavigation": "Navegación principal",
+    "groups": {
+      "explore": "Explorar",
+      "science": "Ciencia y datos",
+      "system": "Sistema"
+    },
+    "dashboard": "Panel",
+    "observatories": "Observatorios",
+    "sky-map": "Mapa del cielo",
+    "experiences": "Experiencias",
+    "data": "Datos",
+    "chat": "Adastra",
+    "planner": "Planificador",
+    "settings": "Ajustes",
+    "events": "Calendario",
+    "contact": "Contacto",
+    "admin": "Administración",
+    "faq": "Preguntas frecuentes",
+    "roleAdmin": "Comandante de misión",
+    "roleUser": "Especialista de misión",
+    "online": "Sistema en línea",
+    "logout": "Cerrar sesión",
+    "collapse": "Contraer menú",
+    "expand": "Expandir menú",
+    "openMenu": "Abrir menú de navegación",
+    "closeMenu": "Cerrar menú"
+  },
+  "camera": {
+    "denied": "Permiso de cámara denegado. Actívalo en la configuración del navegador.",
+    "notFound": "No se detectó ninguna cámara en este dispositivo.",
+    "error": "Error al abrir la cámara: {{message}}",
+    "take": "Tomar foto",
+    "switch": "Cambiar de cámara",
+    "captured": "Foto capturada",
+    "retake": "Repetir"
+  },
+  "errorBoundary": {
+    "title": "Algo salió mal",
+    "message": "Ha ocurrido un error inesperado. Por favor, recarga la página.",
+    "reload": "Recargar página"
+  },
+  "map": {
+    "hint": "Haz clic en un marcador o en cualquier punto para explorar",
+    "legend": "Leyenda",
+    "allIslands": "Todas",
+    "baseLayer": "Mapa base",
+    "layers": {
+      "topo": "Topográfico",
+      "ortho": "Ortofoto",
+      "dark": "Nocturno"
+    },
+    "cat": {
+      "all": "Todos",
+      "observatory": "Observatorios",
+      "astronomical_viewpoint": "Miradores astronómicos",
+      "landscape_viewpoint": "Miradores paisajísticos"
+    }
+  },
+  "streetView": {
+    "coordinates": "Coordenadas del área seleccionada",
+    "title": "Vista de calle"
+  },
+  "sanctuaryPanel": {
+    "realImage": "Imagen real",
+    "referenceImage": "Imagen de referencia",
+    "score": "Puntuación AdAstraSky",
+    "map": "Mapa del lugar",
+    "currentConditions": "Condiciones actuales",
+    "noWeather": "No hay datos meteorológicos disponibles ahora mismo para este lugar.",
+    "skyQuality": "Calidad del cielo para astronomía",
+    "bortleMin": "1 (excelente)",
+    "bortleMax": "9 (urbano)",
+    "darkness": "Nivel de oscuridad del cielo",
+    "darknessScore": "Puntuación (1-10)",
+    "darknessMin": "1 (muy iluminado)",
+    "darknessMax": "10 (totalmente oscuro)",
+    "darknessHigh": "Excelente para observación astronómica",
+    "darknessMid": "Aceptable, cielo semioscuro",
+    "darknessLow": "Mala calidad, demasiada luz artificial",
+    "community": "Experiencias de la comunidad",
+    "beFirst": "Sé el primero en compartir",
+    "beFirstDetail": "tu experiencia en este lugar",
+    "viewExperiences": "Ver experiencias",
+    "viewLocation": "Ver ubicación",
+    "coordinates": "Coordenadas y altitud",
+    "bortle": {
+      "1": "Cielo prístino, luz zodiacal visible",
+      "2": "Cielo oscuro, Vía Láctea muy definida",
+      "3": "Contaminación lumínica leve",
+      "4": "Transición rural-suburbana",
+      "5": "Cielo suburbano",
+      "6": "Cielo suburbano brillante",
+      "7": "Transición suburbana-urbana",
+      "8": "Cielo urbano",
+      "9": "Cielo de centro urbano"
+    }
+  },
+  "hero": {
+    "title": "Aproximación estelar...",
+    "subtitle": "Conectando con los cielos de Canarias"
+  }
+}

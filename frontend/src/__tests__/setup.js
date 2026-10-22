@@ -1,3 +1,4 @@
+/* eslint-env node */
 import { vi } from 'vitest';
 
 const localStorageMock = {
@@ -10,8 +11,8 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key, fallback) => fallback || key,
-    i18n: { language: 'es', changeLanguage: vi.fn() },
+    t: (key, opts) => (typeof opts === 'string' ? opts : opts?.defaultValue ?? key),
+    i18n: { language: 'es', changeLanguage: vi.fn(), on: vi.fn() },
   }),
   initReactI18next: { type: '3rdParty', init: vi.fn() },
   default: vi.fn(),

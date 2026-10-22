@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { X, Thermometer, Cloud, Wind, Eye, Droplets, Mountain, MapPin, Video, Camera, Globe, Star, Compass, Award, Users, Heart, Clock, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Thermometer, Cloud, Wind, Eye, Droplets, Mountain, MapPin, Camera, Globe, Star, Compass, Award, Users, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import ScorePanel from './ScoreBadge';
 import ExperienceForm from './ExperienceForm';
 import { calcGlobalScore } from '../utils/scoring';
+import { API_URL } from '../config/api';
 
 const SanctuaryPanel = ({ zone, onClose }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const lang = i18n.language;
   const [showForm, setShowForm] = useState(false);
@@ -18,7 +19,6 @@ const SanctuaryPanel = ({ zone, onClose }) => {
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
   const [experiences, setExperiences] = useState([]);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'https://aadastra-sky-backend.onrender.com';
 
   useEffect(() => {
     const fetchWeatherData = async () => {
@@ -30,10 +30,11 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           });
           setWeatherData(response.data.data);
         } else {
-          setWeatherData({ temperature: 18, cloudiness: 15, windSpeed: 12, windDirection: 'NE', visibility: 25, humidity: 45 });
+          setWeatherData(null);
         }
       } catch {
-        setWeatherData({ temperature: 18, cloudiness: 15, windSpeed: 12, windDirection: 'NE', visibility: 25, humidity: 45 });
+        // Sin datos reales no se muestra nada inventado
+        setWeatherData(null);
       } finally {
         setIsLoadingWeather(false);
       }
@@ -45,32 +46,10 @@ const SanctuaryPanel = ({ zone, onClose }) => {
       .catch(() => {});
   }, [zone.latitude, zone.longitude, lang, zone.id]);
 
-  const getWindDirection = (degrees) => {
-    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-    return directions[Math.round(degrees / 45) % 8];
-  };
-
-  const bortleLabels = {
-    1: { label: 'Excelente', desc: 'Cielo prístino, Zodiacaal visible' },
-    2: { label: 'Excelente', desc: 'Cielo oscuro, Láctea muy definida' },
-    3: { label: 'Buena', desc: 'Contaminación lumínica leve' },
-    4: { label: 'Buena', desc: 'Cielo rural-urbano' },
-    5: { label: 'Aceptable', desc: 'Cielo suburbano' },
-    6: { label: 'Aceptable', desc: 'Cielo suburbano brillante' },
-    7: { label: 'Mala', desc: 'Cielo de transición' },
-    8: { label: 'Muy mala', desc: 'Cielo urbano' },
-    9: { label: 'Pésima', desc: 'Cielo de centro urbano' },
-  };
 
   const darknessScore = Math.max(1, 11 - (zone.bortle_scale || 5));
-  const bortleInfo = bortleLabels[zone.bortle_scale] || { label: 'Buena', desc: '' };
+  const bortleDesc = zone.bortle_scale >= 1 && zone.bortle_scale <= 9 ? t(`sanctuaryPanel.bortle.${zone.bortle_scale}`) : '';
   const scores = zone.scores || calcGlobalScore(zone);
-
-  const categoryNames = {
-    observatory: 'Observatorio Astronómico',
-    astronomical_viewpoint: 'Mirador Astronómico',
-    landscape_viewpoint: 'Mirador Paisajístico',
-  };
 
   const hasCoords = zone.latitude != null && zone.longitude != null;
   const osmIframeUrl = hasCoords
@@ -81,8 +60,8 @@ const SanctuaryPanel = ({ zone, onClose }) => {
     <div className="h-full overflow-y-auto bg-astroCard scrollbar-thin">
       <div className="sticky top-0 bg-astroCard/95 backdrop-blur-lg border-b border-white/10 p-4 z-10">
         <div className="flex items-center justify-between mb-3">
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <X className="w-5 h-5 text-gray-400" />
+          <button onClick={onClose} aria-label={t('common.close')} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <X className="w-5 h-5 text-gray-400" aria-hidden="true" />
           </button>
         </div>
         <h2 className="text-2xl font-bold text-white mb-1">{zone.name}</h2>
@@ -91,7 +70,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           <span>{zone.island}</span>
         </div>
         <span className="inline-block px-3 py-1 bg-astroAccent/20 text-astroAccent text-xs font-medium rounded-full border border-astroAccent/30">
-          {categoryNames[zone.category] || zone.category}
+          {t(`categories.${zone.category}`, { defaultValue: zone.category })}
         </span>
       </div>
 
@@ -104,14 +83,14 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           />
           <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-white flex items-center gap-1">
             <Camera className="w-3 h-3" />
-            {zone.image_url ? 'Imagen real' : 'Imagen de referencia'}
+            {zone.image_url ? t('sanctuaryPanel.realImage') : t('sanctuaryPanel.referenceImage')}
           </div>
         </div>
 
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <Award className="w-5 h-5 text-astroAccent" />
-            Puntuación AdAstraSky
+            {t('sanctuaryPanel.score')}
           </h3>
           <ScorePanel astro={scores.astro} photo={scores.photo} tourism={scores.tourism} global={scores.global} />
         </div>
@@ -120,11 +99,11 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           <div>
             <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
               <Globe className="w-5 h-5 text-astroAccent" />
-              Mapa 3D del lugar
+              {t('sanctuaryPanel.map')}
             </h3>
             <div className="rounded-xl overflow-hidden border border-white/10 h-40">
               <iframe
-                title="OSM Location"
+                title={t('sanctuaryPanel.map')}
                 src={osmIframeUrl}
                 className="w-full h-full"
                 style={{ filter: 'invert(0.9) hue-rotate(180deg)' }}
@@ -137,7 +116,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <Cloud className="w-5 h-5 text-astroAccent" />
-            Condición actual ({new Date().toLocaleDateString(lang, { hour: '2-digit', minute: '2-digit' })})
+            {t('sanctuaryPanel.currentConditions')} ({new Date().toLocaleDateString(lang, { hour: '2-digit', minute: '2-digit' })})
           </h3>
 
           {isLoadingWeather ? (
@@ -152,40 +131,40 @@ const SanctuaryPanel = ({ zone, onClose }) => {
           ) : weatherData ? (
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10">
-                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Thermometer className="w-3 h-3" />Temperatura</div>
+                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Thermometer className="w-3 h-3" aria-hidden="true" />{t('sanctuary.temperature')}</div>
                 <p className="text-xl font-bold text-white">{weatherData.temperature}°C</p>
               </div>
               <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10">
-                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Cloud className="w-3 h-3" />Nubosidad</div>
+                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Cloud className="w-3 h-3" aria-hidden="true" />{t('sanctuary.cloudiness')}</div>
                 <p className="text-xl font-bold text-white">{weatherData.cloudiness}%</p>
               </div>
               <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10">
-                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Wind className="w-3 h-3" />Viento</div>
+                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Wind className="w-3 h-3" aria-hidden="true" />{t('sanctuary.wind')}</div>
                 <p className="text-xl font-bold text-white">{weatherData.windSpeed} km/h</p>
                 <p className="text-xs text-gray-500">{weatherData.windDirection}</p>
               </div>
               <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10">
-                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Eye className="w-3 h-3" />Visibilidad</div>
+                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Eye className="w-3 h-3" aria-hidden="true" />{t('sanctuary.visibility')}</div>
                 <p className="text-xl font-bold text-white">{weatherData.visibility} km</p>
               </div>
               <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10 col-span-2">
-                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Droplets className="w-3 h-3" />Humedad</div>
+                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1"><Droplets className="w-3 h-3" aria-hidden="true" />{t('sanctuary.humidity')}</div>
                 <p className="text-xl font-bold text-white">{weatherData.humidity}%</p>
               </div>
             </div>
           ) : (
-            <p className="text-gray-400 text-sm">No se pudieron obtener datos meteorológicos</p>
+            <p className="text-gray-400 text-sm" role="status">{t('sanctuaryPanel.noWeather')}</p>
           )}
         </div>
 
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <Star className="w-5 h-5 text-astroAccent" />
-            Calidad del cielo para astronomía
+            {t('sanctuaryPanel.skyQuality')}
           </h3>
           <div className="bg-astroDark/50 p-4 rounded-lg border border-white/10 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-400 text-sm">Escala Bortle</span>
+              <span className="text-gray-400 text-sm">{t('sanctuary.bortleScale')}</span>
               <span className="text-2xl font-bold text-astroAccent">{zone.bortle_scale}/9</span>
             </div>
             <div className="relative h-3 rounded-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-600">
@@ -193,21 +172,21 @@ const SanctuaryPanel = ({ zone, onClose }) => {
                 style={{ left: `${((zone.bortle_scale - 1) / 8) * 100}%` }} />
             </div>
             <div className="flex justify-between text-xs text-gray-500">
-              <span>1 (Excelente)</span>
-              <span>9 (Urbano)</span>
+              <span>{t('sanctuaryPanel.bortleMin')}</span>
+              <span>{t('sanctuaryPanel.bortleMax')}</span>
             </div>
-            <p className="text-sm text-gray-300">{bortleInfo.desc}</p>
+            <p className="text-sm text-gray-300">{bortleDesc}</p>
           </div>
         </div>
 
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <Compass className="w-5 h-5 text-astroAccent" />
-            Nivel de oscuridad del cielo
+            {t('sanctuaryPanel.darkness')}
           </h3>
           <div className="bg-astroDark/50 p-4 rounded-lg border border-white/10">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-gray-400 text-sm">Puntuación (1-10)</span>
+              <span className="text-gray-400 text-sm">{t('sanctuaryPanel.darknessScore')}</span>
               <span className={`text-3xl font-bold ${darknessScore >= 8 ? 'text-green-400' : darknessScore >= 5 ? 'text-amber-400' : 'text-red-400'}`}>
                 {darknessScore}/10
               </span>
@@ -217,13 +196,13 @@ const SanctuaryPanel = ({ zone, onClose }) => {
                 style={{ left: `${(darknessScore / 10) * 100}%`, transform: 'translate(-50%, -50%)' }} />
             </div>
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>1 (Muy iluminado)</span>
-              <span>10 (Totalmente oscuro)</span>
+              <span>{t('sanctuaryPanel.darknessMin')}</span>
+              <span>{t('sanctuaryPanel.darknessMax')}</span>
             </div>
             <p className="text-center text-sm text-gray-400 mt-2">
-              {darknessScore >= 8 ? '🌌 Excelente para observación astronómica' :
-               darknessScore >= 5 ? '🌃 Aceptable, cielos半 oscuros' :
-               '🌆 Mala calidad, demasiada luz artificial'}
+              {darknessScore >= 8 ? `🌌 ${t('sanctuaryPanel.darknessHigh')}` :
+               darknessScore >= 5 ? `🌃 ${t('sanctuaryPanel.darknessMid')}` :
+               `🌆 ${t('sanctuaryPanel.darknessLow')}`}
             </p>
           </div>
         </div>
@@ -231,7 +210,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <Users className="w-5 h-5 text-astroAccent" />
-            Experiencias de la comunidad
+            {t('sanctuaryPanel.community')}
             {experiences.length > 0 && (
               <span className="text-xs font-normal text-gray-400 ml-1">({experiences.length})</span>
             )}
@@ -241,8 +220,8 @@ const SanctuaryPanel = ({ zone, onClose }) => {
               <div className="bg-astroDark/50 p-4 rounded-lg border border-white/10">
                 <div className="flex flex-col items-center justify-center py-4 text-gray-500">
                   <Camera className="w-8 h-8 mb-2" />
-                  <p className="text-sm">Sé el primero en compartir</p>
-                  <p className="text-xs text-gray-600 mt-1">tu experiencia en este lugar</p>
+                  <p className="text-sm">{t('sanctuaryPanel.beFirst')}</p>
+                  <p className="text-xs text-gray-600 mt-1">{t('sanctuaryPanel.beFirstDetail')}</p>
                 </div>
               </div>
             ) : (
@@ -262,7 +241,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
                       <span className="text-xs text-gray-400">{exp.author?.first_name}</span>
                       <span className="text-[10px] text-gray-600 ml-auto flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {new Date(exp.created_at).toLocaleDateString()}
+                        {new Date(exp.created_at).toLocaleDateString(lang)}
                       </span>
                     </div>
                     <h4 className="text-sm font-semibold text-white mt-1">{exp.title}</h4>
@@ -277,12 +256,12 @@ const SanctuaryPanel = ({ zone, onClose }) => {
               {experiences.length > 0 && (
                 <button onClick={() => { setCarouselIdx(0); setShowCarousel(true); }}
                   className="flex-1 py-2 text-sm text-cyan-300 hover:text-cyan-200 bg-cyan-900/20 border border-cyan-700/30 hover:bg-cyan-900/40 hover:border-cyan-500/50 rounded-lg transition-colors">
-                  Ver experiencias
+                  {t('sanctuaryPanel.viewExperiences')}
                 </button>
               )}
               <button onClick={() => setShowForm(true)}
                 className={`py-2 text-sm rounded-lg transition-colors ${experiences.length > 0 ? 'flex-1 text-astroAccent border border-dashed border-astroAccent/30 hover:border-astroAccent/60' : 'w-full text-astroAccent border border-dashed border-astroAccent/30 hover:border-astroAccent/60'}`}>
-                Compartir experiencia
+                {t('experiences.share')}
               </button>
             </div>
           </div>
@@ -292,7 +271,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
         {showCarousel && experiences.length > 0 && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowCarousel(false)}>
             <div className="relative bg-astroCard rounded-2xl border border-white/10 w-full max-w-lg max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
-              <button onClick={() => setShowCarousel(false)}
+              <button onClick={() => setShowCarousel(false)} aria-label={t('common.close')}
                 className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
                 <X className="w-5 h-5" />
               </button>
@@ -308,11 +287,11 @@ const SanctuaryPanel = ({ zone, onClose }) => {
                 )}
                 {experiences.length > 1 && (
                   <>
-                    <button onClick={() => setCarouselIdx(i => (i - 1 + experiences.length) % experiences.length)}
+                    <button onClick={() => setCarouselIdx(i => (i - 1 + experiences.length) % experiences.length)} aria-label={t('common.previous')}
                       className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
                       <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <button onClick={() => setCarouselIdx(i => (i + 1) % experiences.length)}
+                    <button onClick={() => setCarouselIdx(i => (i + 1) % experiences.length)} aria-label={t('common.next')}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors">
                       <ChevronRight className="w-5 h-5" />
                     </button>
@@ -339,10 +318,10 @@ const SanctuaryPanel = ({ zone, onClose }) => {
                   <button onClick={() => { setShowCarousel(false); navigate('/map', { state: { selectedZone: experiences[carouselIdx].zone_id } }); }}
                     className="flex items-center gap-1 text-astroAccent hover:text-astroAccent/80 transition-colors ml-auto">
                     <MapPin className="w-3.5 h-3.5" />
-                    Ver ubicación
+                    {t('sanctuaryPanel.viewLocation')}
                   </button>
                 </div>
-                <p className="text-[10px] text-gray-600 mt-1">{new Date(experiences[carouselIdx].created_at).toLocaleDateString()}</p>
+                <p className="text-[10px] text-gray-600 mt-1">{new Date(experiences[carouselIdx].created_at).toLocaleDateString(lang)}</p>
               </div>
             </div>
           </div>
@@ -351,17 +330,17 @@ const SanctuaryPanel = ({ zone, onClose }) => {
         <div>
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-astroAccent" />
-            Coordenadas y altitud
+            {t('sanctuaryPanel.coordinates')}
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10">
-              <p className="text-xs text-gray-400 mb-1">Latitud</p>
+              <p className="text-xs text-gray-400 mb-1">{t('common.latitude')}</p>
               <p className="text-lg font-bold text-white font-mono">
                 {zone.latitude != null ? `${Number(zone.latitude).toFixed(4)}°` : '—'}
               </p>
             </div>
             <div className="bg-astroDark/50 p-3 rounded-lg border border-white/10">
-              <p className="text-xs text-gray-400 mb-1">Longitud</p>
+              <p className="text-xs text-gray-400 mb-1">{t('common.longitude')}</p>
               <p className="text-lg font-bold text-white font-mono">
                 {zone.longitude != null ? `${Number(zone.longitude).toFixed(4)}°` : '—'}
               </p>
@@ -370,7 +349,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
               <div className="flex items-center gap-2">
                 <Mountain className="w-5 h-5 text-astroAccent" />
                 <div>
-                  <p className="text-xs text-gray-400">Altitud</p>
+                  <p className="text-xs text-gray-400">{t('sanctuary.altitude')}</p>
                   <p className="text-lg font-bold text-white">{zone.altitude != null ? `${zone.altitude} m` : '—'}</p>
                 </div>
               </div>
@@ -380,7 +359,7 @@ const SanctuaryPanel = ({ zone, onClose }) => {
 
         {zone.description && (
           <div className="bg-astroDark/50 p-4 rounded-lg border border-white/10">
-            <p className="text-xs text-gray-400 mb-1">Descripción</p>
+            <p className="text-xs text-gray-400 mb-1">{t('experiences.description')}</p>
             <p className="text-sm text-gray-300">{zone.description}</p>
           </div>
         )}
