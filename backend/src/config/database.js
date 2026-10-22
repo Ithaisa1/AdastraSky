@@ -12,6 +12,9 @@
  */
 
 import { Sequelize } from 'sequelize';
+// Import explícito: Sequelize carga «pg» de forma dinámica y Vercel no lo incluye en el
+// paquete si nadie lo importa directamente («Please install pg package manually»).
+import pg from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -30,6 +33,7 @@ const useSsl = (process.env.DB_SSL ?? (DATABASE_URL ? 'true' : 'false')) === 'tr
 
 const baseOptions = {
   dialect: 'postgres',
+  dialectModule: pg,
   logging: NODE_ENV === 'development' && process.env.DB_LOGGING !== 'false' ? console.log : false,
   pool: {
     max: parseInt(process.env.DB_POOL_MAX, 10) || 5,
