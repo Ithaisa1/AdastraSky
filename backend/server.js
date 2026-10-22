@@ -50,9 +50,13 @@ app.set('trust proxy', 1);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Carpeta de fotos antiguas (las nuevas se guardan en PostgreSQL y se sirven en /media).
+// En plataformas con disco de solo lectura (Vercel) no se puede crear: se sigue sin ella.
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (err) {
+  console.log(`ℹ️  Sin carpeta uploads (${err.code}): las fotos se sirven desde la base de datos`);
 }
 
 // ============================================================
@@ -219,14 +223,15 @@ async function startServer() {
       const adminPw = process.env.SEED_ADMIN_PASSWORD;
       const demoPw = process.env.SEED_DEMO_PASSWORD;
       if (!adminPw || !demoPw) {
-        console.log('⚠️  SEED_ADMIN_PASSWORD y SEED_DEMO_PASSWORD requeridos para auto-seed');
-        return;
+        // Antes había un «return» aquí y el servidor no llegaba a escuchar: ahora solo se omite la siembra
+        console.log('⚠️  SEED_ADMIN_PASSWORD y SEED_DEMO_PASSWORD requeridos para auto-seed: no se crean usuarios');
+      } else {
+        const hash = await bcrypt.hash(adminPw, 10);
+        await UserModel.create({ email: 'admin@adastra.sky', password: hash, role: 'admin', first_name: 'Admin', last_name: 'AdAstra', preferred_language: 'es' });
+        const hashDemo = await bcrypt.hash(demoPw, 10);
+        await UserModel.create({ email: 'demo@adastra.sky', password: hashDemo, role: 'user', first_name: 'Demo', last_name: 'User', preferred_language: 'es' });
+        console.log('🧑‍💻 Usuarios semilla creados (admin/demo)');
       }
-      const hash = await bcrypt.hash(adminPw, 10);
-      await UserModel.create({ email: 'admin@adastra.sky', password: hash, role: 'admin', first_name: 'Admin', last_name: 'AdAstra', preferred_language: 'es' });
-      const hashDemo = await bcrypt.hash(demoPw, 10);
-      await UserModel.create({ email: 'demo@adastra.sky', password: hashDemo, role: 'user', first_name: 'Demo', last_name: 'User', preferred_language: 'es' });
-      console.log('🧑‍💻 Usuarios semilla creados (admin/demo)');
     }
 
     console.log('🧱 Tablas sincronizadas');
