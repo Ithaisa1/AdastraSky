@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
@@ -21,10 +21,12 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          if [ -z "$HF_TOKEN" ]; then echo "::error::Falta el secreto HF_TOKEN (GitHub > Settings > Secrets > Actions)"; exit 1; fi
           cd ai-service
-          git init
+          # -b main: sin esto la rama nueva puede llamarse «master» y el push de «main» falla
+          git init -b main
           git config user.email "athysangon@gmail.com"
           git config user.name "Ithaisa"
           git add .
           git commit -m "sync from main repo"
-          git push --force https://Ithaisa:$HF_TOKEN@huggingface.co/spaces/Ithaisa/adastrasky-ai-service main
+          git push --force https://Ithaisa:$HF_TOKEN@huggingface.co/spaces/Ithaisa/adastrasky-ai-service HEAD:main

@@ -25,6 +25,7 @@
 | [14_MIGRACION_BASE_DE_DATOS.md](./14_MIGRACION_BASE_DE_DATOS.md) | Migración fuera de Render, opciones gratuitas y pila autoalojada |
 | [15_STELLARIUM_Y_VISUALIZACION.md](./15_STELLARIUM_Y_VISUALIZACION.md) | Integración con Stellarium: opciones, licencias y propuesta |
 | [16_MEJORAS_OCTUBRE_2026.md](./16_MEJORAS_OCTUBRE_2026.md) | Mejoras de octubre 2026: memoria, tests, RAG, planificador, resultados |
+| [17_PUESTA_EN_PRODUCCION.md](./17_PUESTA_EN_PRODUCCION.md) | Pasos para volver a publicar: Neon, Render, Hugging Face y Vercel |
 
 ---
 

@@ -22,14 +22,20 @@ services:
         sync: false
       - key: JWT_EXPIRES_IN
         value: 7d
+      # Base de datos externa (Neon): la PostgreSQL gratuita de Render caduca a los 30 días
+      # y se borra 14 días después. Pega aquí la cadena de conexión de Neon.
       - key: DATABASE_URL
-        fromDatabase:
-          name: adastra-sky-db
-          property: connectionString
+        sync: false
+      - key: DB_SSL
+        value: "true"
+      - key: AI_SERVICE_API_KEY
+        sync: false
+      # Dirección del servicio de IA: el Space de Hugging Face
+      # (https://ithaisa-adastrasky-ai-service.hf.space) o el servicio adastra-sky-ai de abajo
       - key: AI_SERVICE_URL
-        value: https://adastra-sky-ai.onrender.com
+        sync: false
       - key: FRONTEND_URL
-        value: https://adastra-sky.vercel.app
+        value: https://adastrasky.vercel.app,https://adastra-sky.vercel.app
       - key: OPENWEATHER_API_KEY
         sync: false
       - key: NASA_API_KEY
@@ -58,11 +64,10 @@ services:
       - key: HF_MODEL
         value: mistralai/Mistral-7B-Instruct-v0.3
       - key: FRONTEND_URL
-        value: https://adastra-sky.vercel.app
+        value: https://adastrasky.vercel.app,https://adastra-sky.vercel.app
+      - key: AI_SERVICE_API_KEY
+        sync: false
+      - key: BACKEND_URL
+        value: https://adastra-sky-backend.onrender.com
 
-databases:
-  # ─── PostgreSQL ────────────────────────────────────────────
-  - name: adastra-sky-db
-    databaseName: adastrasky
-    plan: free
-    postgresMajorVersion: 18
+# Sin base de datos de Render: se usa Neon (ver docs/14_MIGRACION_BASE_DE_DATOS.md).

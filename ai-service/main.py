@@ -42,7 +42,9 @@ app = FastAPI(
 )
 
 # CORS
-origins = [settings.frontend_url, "http://localhost:5173", "http://localhost:3000"]
+# FRONTEND_URL admite varios dominios separados por comas (igual que en el backend)
+origins = [o.strip() for o in (settings.frontend_url or "").split(",") if o.strip()]
+origins += ["http://localhost:5173", "http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

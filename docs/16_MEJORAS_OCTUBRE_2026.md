@@ -165,6 +165,17 @@ Se mide con `ai-service/scripts/eval_rag.py`:
   - Servicios WMS públicos y sin clave: `idecan2.grafcan.es/ServicioWMS/MTI` e `idecan1.grafcan.es/ServicioWMS/OrtoExpress`.
   - Condiciones de GRAFCAN: «Acceso libre. Prohibido el uso comercial y la descarga masiva». Si el proyecto pasa a ser comercial, hay que pedir licencia a GRAFCAN o cambiar de fondo.
 
+## 8 bis. Mejoras para la observación (segunda tanda)
+
+- **Visión nocturna en rojo**: botón del ojo en la barra lateral. Pasa la app a escala de grises y la tiñe de rojo, que es lo que usan los astrónomos para no perder la adaptación a la oscuridad. El mapa topográfico se oscurece automáticamente. Se recuerda entre visitas.
+- **«Planificar observación aquí»** en la ficha de cada mirador del mapa: abre el planificador con ese lugar ya elegido.
+- **Uso sin cobertura**:
+  - La app se puede instalar en el móvil (PWA, con `vite-plugin-pwa`) y la interfaz funciona sin conexión.
+  - El último plan calculado se guarda en el dispositivo y se muestra si no hay red.
+  - Del mapa solo se guardan las teselas ya vistas, nunca descargas masivas, por las condiciones de GRAFCAN.
+- **Fotos de los miradores**: de 19 MB a 1,5 MB (máximo 1600 px, JPEG al 82 %). Los originales siguen en el historial de Git.
+- **Tests en GitHub** (`.github/workflows/tests.yml`): servicio de IA, backend con PostgreSQL 18, frontend, linter y compilación. Los mismos pasos se han ejecutado en local y pasan.
+
 ## 9. Despliegue y control
 
 - `docker-compose.yml`: pila completa autoalojable (ver `14_MIGRACION_BASE_DE_DATOS.md`).
