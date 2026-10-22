@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import SkyQualityZone from '../models/SkyQualityZone.js';
 import Experience from '../models/Experience.js';
 import User from '../models/User.js';
@@ -8,8 +5,8 @@ import { Op } from 'sequelize';
 import { calcGlobalScore } from '../utils/skyScoring.js';
 import bcrypt from 'bcryptjs';
 import ZONES_SEED from '../seed/seedZones.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { deleteImagesByUrls } from '../utils/imageStore.js';
+import { purgeUser } from '../services/userPurge.js';
 
 const withScores = (zone) => {
   const plain = zone.dataValues || zone;
@@ -183,9 +180,11 @@ export const adminDeleteUser = async (req, res, next) => {
 
 export const adminHardDeleteUser = async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ status: 'error', code: 'USER_NOT_FOUND', message: 'Usuario no encontrado' });
-    await user.destroy();
+    if (req.params.id === req.user?.id) {
+      return res.status(400).json({ status: 'error', code: 'CANNOT_DELETE_SELF', message: 'No puedes eliminar tu propia cuenta desde el panel' });
+    }
+    const deleted = await purgeUser(req.params.id);
+    if (!deleted) return res.status(404).json({ status: 'error', code: 'USER_NOT_FOUND', message: 'Usuario no encontrado' });
     res.status(200).json({ status: 'success', message: 'Usuario eliminado permanentemente' });
   } catch (error) { next(error); }
 };
@@ -217,11 +216,7 @@ export const adminDeleteExperienceImage = async (req, res, next) => {
 
     const removedUrl = images.splice(idx, 1)[0];
     await experience.update({ images });
-
-    if (removedUrl && removedUrl.startsWith('/uploads/')) {
-      const filePath = path.join(__dirname, '..', '..', removedUrl);
-      fs.unlink(filePath, () => {});
-    }
+    await deleteImagesByUrls([removedUrl]);
 
     res.status(200).json({ status: 'success', message: 'Imagen eliminada', data: { experience } });
   } catch (error) { next(error); }
@@ -232,14 +227,7 @@ export const adminDeleteExperience = async (req, res, next) => {
     const experience = await Experience.findByPk(req.params.id);
     if (!experience) return res.status(404).json({ status: 'error', code: 'EXP_NOT_FOUND', message: 'Experiencia no encontrada' });
 
-    const images = experience.images || [];
-    images.forEach(img => {
-      if (img && img.startsWith('/uploads/')) {
-        const filePath = path.join(__dirname, '..', '..', img);
-        fs.unlink(filePath, () => {});
-      }
-    });
-
+    await deleteImagesByUrls(experience.images || []);
     await experience.destroy();
     res.status(200).json({ status: 'success', message: 'Experiencia eliminada permanentemente' });
   } catch (error) { next(error); }

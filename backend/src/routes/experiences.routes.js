@@ -2,32 +2,19 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs/promises';
-import sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import Experience from '../models/Experience.js';
+import ExperienceImage from '../models/ExperienceImage.js';
 import User from '../models/User.js';
-import { fileURLToPath } from 'url';
+import { saveImage, deleteImagesByUrls, mediaIdFromUrl } from '../utils/imageStore.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', '..', 'uploads'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${uuidv4()}${ext}`);
-  }
-});
-
+// Las imágenes se procesan en memoria y se guardan en PostgreSQL (ver utils/imageStore.js).
+// Formatos RAW (cr2, nef, arw, dng) no se aceptan: no se pueden convertir a WebP en el servidor.
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 5 },
   fileFilter: (req, file, cb) => {
-    const allowed = /jpe?g|png|tiff?|raw|cr2|nef|arw|dng/;
+    const allowed = /\.(jpe?g|png|tiff?|webp)$/;
     const extOk = allowed.test(path.extname(file.originalname).toLowerCase());
     const mimeOk = file.mimetype.startsWith('image/');
     cb(null, extOk && mimeOk);
@@ -106,19 +93,16 @@ router.post('/', authenticateToken, createLimiter, upload.array('images', 5), as
     }
 
     const images = [];
-    if (req.files) {
-      for (const file of req.files) {
-        const baseName = path.parse(file.filename).name;
-        const webpFilename = `${baseName}.webp`;
-        const webpPath = path.join(file.destination, webpFilename);
-
-        try {
-          await sharp(file.path).webp({ quality: 85 }).toFile(webpPath);
-          await fs.unlink(file.path);
-          images.push(`/uploads/${webpFilename}`);
-        } catch {
-          images.push(`/uploads/${file.filename}`);
-        }
+    for (const file of req.files || []) {
+      try {
+        images.push(await saveImage(file.buffer));
+      } catch {
+        await deleteImagesByUrls(images);
+        return res.status(400).json({
+          status: 'error',
+          code: 'INVALID_IMAGE',
+          message: `No se pudo procesar la imagen ${file.originalname}`
+        });
       }
     }
 
@@ -129,6 +113,11 @@ router.post('/', authenticateToken, createLimiter, upload.array('images', 5), as
       description: description || '',
       images
     });
+
+    const imageIds = images.map(mediaIdFromUrl).filter(Boolean);
+    if (imageIds.length) {
+      await ExperienceImage.update({ experience_id: experience.id }, { where: { id: imageIds } });
+    }
 
     const fullExperience = await Experience.findByPk(experience.id, {
       include: [{
@@ -167,6 +156,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       });
     }
 
+    await deleteImagesByUrls(experience.images || []);
     await experience.destroy();
 
     res.json({

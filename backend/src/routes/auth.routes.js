@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getProfile, updateProfile } from '../controllers/auth.controller.js';
+import { register, login, getProfile, updateProfile, deleteAccount } from '../controllers/auth.controller.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import rateLimit from 'express-rate-limit';
 
@@ -77,5 +77,15 @@ router.post('/login', authLimiter, login);
  */
 router.get('/profile', authenticateToken, getProfile);
 router.put('/profile', authenticateToken, updateProfile);
+
+/**
+ * @openapi
+ * /api/auth/account:
+ *   delete:
+ *     tags: [Auth]
+ *     summary: Elimina la cuenta del usuario y todos sus datos (requiere contraseña)
+ *     security: [{ bearerAuth: [] }]
+ */
+router.delete('/account', authenticateToken, authLimiter, deleteAccount);
 
 export default router;

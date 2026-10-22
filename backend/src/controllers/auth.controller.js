@@ -7,9 +7,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Joi from 'joi';
 import User from '../models/User.js';
+import { purgeUser } from '../services/userPurge.js';
 
 const registerSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().email({ tlds: { allow: false } }).required(),
   password: Joi.string().min(8).max(128).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'must contain uppercase, lowercase and number').required(),
   first_name: Joi.string().trim().max(100).required(),
   last_name: Joi.string().trim().max(100).required(),
@@ -17,7 +18,7 @@ const registerSchema = Joi.object({
 });
 
 const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().email({ tlds: { allow: false } }).required(),
   password: Joi.string().required(),
 });
 
@@ -169,9 +170,9 @@ export const login = async (req, res, next) => {
 const updateProfileSchema = Joi.object({
   first_name: Joi.string().trim().max(100),
   last_name: Joi.string().trim().max(100),
-  email: Joi.string().email(),
-  bio: Joi.string().trim().max(500),
-  location: Joi.string().trim().max(255),
+  email: Joi.string().email({ tlds: { allow: false } }),
+  bio: Joi.string().trim().max(500).allow(''),
+  location: Joi.string().trim().max(255).allow(''),
   preferred_language: Joi.string().valid('es', 'en', 'de'),
 });
 
@@ -247,6 +248,34 @@ export const getProfile = async (req, res, next) => {
       status: 'success',
       data: { user }
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+/**
+ * Elimina la cuenta del usuario autenticado y TODOS sus datos:
+ * conversaciones con la IA, experiencias e imágenes. Exige la contraseña.
+ */
+export const deleteAccount = async (req, res, next) => {
+  try {
+    const { password } = req.body || {};
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({ status: 'error', code: 'PASSWORD_REQUIRED', message: 'Confirma con tu contraseña' });
+    }
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ status: 'error', code: 'USER_NOT_FOUND', message: 'Usuario no encontrado' });
+    }
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return res.status(401).json({ status: 'error', code: 'INVALID_PASSWORD', message: 'Contraseña incorrecta' });
+    }
+
+    await purgeUser(user.id);
+
+    res.status(200).json({ status: 'success', message: 'Cuenta eliminada' });
   } catch (error) {
     next(error);
   }

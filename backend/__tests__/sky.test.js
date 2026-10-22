@@ -1,7 +1,9 @@
 import request from 'supertest';
 import app from '../server.js';
+import { describeDb } from './helpers/db.js';
 
-describe('Sky Zones Endpoints', () => {
+// Requiere PostgreSQL (TEST_DATABASE_URL); sin BD se omite.
+describeDb('Sky Zones Endpoints', () => {
   describe('GET /api/sky/zones', () => {
     it('lista zonas astronómicas', async () => {
       const res = await request(app).get('/api/sky/zones');

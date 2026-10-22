@@ -1,5 +1,6 @@
 import request from 'supertest';
 import app from '../server.js';
+import { describeDb } from './helpers/db.js';
 
 const TEST_EMAIL = `test_${Date.now()}@adastra.test`;
 const TEST_PASSWORD = 'TestPass123!';
@@ -57,7 +58,8 @@ describe('Auth Endpoints', () => {
     });
   });
 
-  describe('POST /api/auth/login', () => {
+  // Requiere PostgreSQL (TEST_DATABASE_URL): usa el usuario registrado arriba
+  describeDb('POST /api/auth/login', () => {
     it('inicia sesión con credenciales válidas', async () => {
       const res = await request(app)
         .post('/api/auth/login')

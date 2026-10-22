@@ -10,6 +10,7 @@ import SkyScore from './SkyScore.js';
 import Event from './Event.js';
 import Experience from './Experience.js';
 import ContactMessage from './ContactMessage.js';
+import ExperienceImage from './ExperienceImage.js';
 
 // Definir relaciones entre modelos
 ChatHistory.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
@@ -18,6 +19,8 @@ User.hasMany(ChatHistory, { foreignKey: 'user_id', as: 'chatHistory' });
 Experience.belongsTo(User, { foreignKey: 'user_id', as: 'author' });
 User.hasMany(Experience, { foreignKey: 'user_id', as: 'experiences' });
 
+ExperienceImage.belongsTo(Experience, { foreignKey: 'experience_id', as: 'experience', constraints: false });
+
 export {
   User,
   SkyQualityZone,
@@ -25,7 +28,8 @@ export {
   SkyScore,
   Event,
   Experience,
-  ContactMessage
+  ContactMessage,
+  ExperienceImage
 };
 
 export default {
@@ -35,5 +39,6 @@ export default {
   SkyScore,
   Event,
   Experience,
-  ContactMessage
+  ContactMessage,
+  ExperienceImage
 };

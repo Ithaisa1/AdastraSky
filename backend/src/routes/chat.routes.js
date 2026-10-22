@@ -1,5 +1,5 @@
 import express from 'express';
-import { sendMessage, getChatHistory } from '../controllers/chat.controller.js';
+import { sendMessage, getChatHistory, listSessions, deleteSession } from '../controllers/chat.controller.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -57,6 +57,29 @@ router.get('/warmup', async (req, res) => {
  *     responses:
  *       200: { description: Historial de conversaciones }
  */
+router.get('/history', authenticateToken, getChatHistory);
 router.get('/history/:session_id', authenticateToken, getChatHistory);
+
+/**
+ * @openapi
+ * /api/chat/sessions:
+ *   get:
+ *     tags: [Chat]
+ *     summary: Lista las conversaciones del usuario autenticado
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Sesiones con título, número de mensajes y fechas }
+ */
+router.get('/sessions', authenticateToken, listSessions);
+
+/**
+ * @openapi
+ * /api/chat/history/{session_id}:
+ *   delete:
+ *     tags: [Chat]
+ *     summary: Borra una conversación del usuario autenticado
+ *     security: [{ bearerAuth: [] }]
+ */
+router.delete('/history/:session_id', authenticateToken, deleteSession);
 
 export default router;

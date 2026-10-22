@@ -30,6 +30,8 @@ import contactRoutes from './src/routes/contact.routes.js';
 import eventsRoutes from './src/routes/events.routes.js';
 import weatherRoutes from './src/routes/weather.routes.js';
 import experienceRoutes from './src/routes/experiences.routes.js';
+import plannerRoutes from './src/routes/planner.routes.js';
+import { serveImage } from './src/utils/imageStore.js';
 
 // ============================================================
 // INIT APP
@@ -65,7 +67,7 @@ app.use(helmet({
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "http:", "https:"],
-      connectSrc: ["'self'", process.env.AI_SERVICE_URL || "http://localhost:8001"],
+      connectSrc: ["'self'"],
     },
   },
 }));
@@ -100,7 +102,9 @@ app.use('/api/', rateLimit({
 // LOGS
 // ============================================================
 
-app.use(morgan(NODE_ENV === 'development' ? 'dev' : 'combined'));
+if (NODE_ENV !== 'test') {
+  app.use(morgan(NODE_ENV === 'development' ? 'dev' : 'combined'));
+}
 
 // ============================================================
 // BODY PARSER
@@ -164,6 +168,10 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/experiences', experienceRoutes);
+app.use('/api/planner', plannerRoutes);
+
+// Imágenes de experiencias guardadas en PostgreSQL (fuera de /api: no consumen el rate limit)
+app.get('/media/:id', serveImage);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -191,6 +199,16 @@ async function startServer() {
 
     // 🔥 CLAVE: crear tablas SIEMPRE (fix del error users)
     await sequelize.sync();
+
+    // Auto-seed de zonas: solo si la tabla está vacía (instalación nueva). Nunca sobrescribe.
+    if (process.env.AUTO_SEED_ZONES !== 'false') {
+      const { default: ZoneModel } = await import('./src/models/SkyQualityZone.js');
+      if (await ZoneModel.count() === 0) {
+        const { default: ZONES_SEED } = await import('./src/seed/seedZones.js');
+        await ZoneModel.bulkCreate(ZONES_SEED, { validate: false });
+        console.log(`🌌 ${ZONES_SEED.length} zonas de observación sembradas (tabla vacía)`);
+      }
+    }
 
     // Auto-seed: crear usuarios por defecto si la tabla está vacía
     const { default: UserModel } = await import('./src/models/User.js');

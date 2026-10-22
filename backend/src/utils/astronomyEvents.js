@@ -1,269 +1,241 @@
 /**
- * Generador dinámico de eventos astronómicos reales.
- * Fuente: Datos orbitales NASA/JPL, IMO (International Meteor Organization),
- *          NASA Eclipse Web Site, algoritmos VSOP87/ELP2000.
+ * Eventos astronómicos calculados (no hay fechas escritas a mano).
  *
- * Los eventos se calculan algorítmicamente para cualquier año solicitado.
+ * Motor: Astronomy Engine (MIT, https://github.com/cosinekitty/astronomy),
+ * precisión de ~1 minuto de arco. Lluvias de meteoros: longitudes solares de
+ * máximo publicadas por la International Meteor Organization (IMO).
+ *
+ * Se calculan para un observador en Canarias:
+ *  - Fases lunares principales y superlunas (Luna llena a < 361 000 km).
+ *  - Eclipses lunares (visibles si la Luna está sobre el horizonte) y solares
+ *    locales (solo los que se ven desde Canarias).
+ *  - Oposiciones de planetas exteriores.
+ *  - Conjunciones entre planetas brillantes (< 2°, lejos del Sol).
+ *  - Equinoccios y solsticios.
+ *
+ * Los cometas no se incluyen: su brillo no se puede predecir con fiabilidad
+ * sin efemérides específicas (el antiguo «C/2026 A3» no era un dato real).
  */
 
-// ─── Meteor Showers (IMO data) ──────────────────────────────────────────
-// Each entry: { name, parent, radiantRA, radiantDec, peakSol, zhr, r, speed }
-// peakSol = solar longitude of peak (J2000.0), degrees
+import { createRequire } from 'module';
+
+// Se carga la build CommonJS: funciona igual en Node y en Jest (la build ESM no la interpreta Jest).
+const Astronomy = createRequire(import.meta.url)('astronomy-engine');
+
+const CANARIAS = new Astronomy.Observer(28.29, -16.63, 0);
+const LANGS = ['es', 'en', 'de'];
+
+// Longitud solar (J2000) del máximo, THZ y cuerpo progenitor (IMO Meteor Shower Calendar)
 const METEOR_SHOWERS = [
-  { id: 'quadrantids',     name: 'Lluvia de Estrellas Cuádridas',          type: 'meteor_shower', parent: '(196256) 2003 EH1',  sol: 283.30, zhr: 120, r: 2.1, speed: 41, hemisphere: 'Norte' },
-  { id: 'lyrids',          name: 'Lluvia de Estrellas Líridas',            type: 'meteor_shower', parent: 'C/1861 G1 (Thatcher)', sol: 32.32,  zhr: 18,  r: 2.1, speed: 49, hemisphere: 'Norte' },
-  { id: 'eta_aquariids',   name: 'Lluvia de Estrellas Eta Acuáridas',      type: 'meteor_shower', parent: '1P/Halley',            sol: 45.50,  zhr: 50,  r: 2.4, speed: 66, hemisphere: 'Global' },
-  { id: 'south_delta_aquariids', name: 'Lluvia de Estrellas Delta Acuáridas', type: 'meteor_shower', parent: '96P/Machholz', sol: 125.00, zhr: 25, r: 3.2, speed: 41, hemisphere: 'Global' },
-  { id: 'alpha_capricornids', name: 'Lluvia de Estrellas Alfa Capricórnidas', type: 'meteor_shower', parent: '169P/NEAT', sol: 127.00, zhr: 5, r: 2.5, speed: 23, hemisphere: 'Global' },
-  { id: 'perseids',        name: 'Lluvia de Estrellas Perseidas',          type: 'meteor_shower', parent: '109P/Swift-Tuttle',   sol: 140.00, zhr: 100, r: 2.2, speed: 59, hemisphere: 'Norte' },
-  { id: 'orionids',        name: 'Lluvia de Estrellas Oriónidas',          type: 'meteor_shower', parent: '1P/Halley',            sol: 208.00, zhr: 20,  r: 2.5, speed: 66, hemisphere: 'Global' },
-  { id: 'taurids',         name: 'Lluvia de Estrellas Táuridas',            type: 'meteor_shower', parent: '2P/Encke',             sol: 224.00, zhr: 10,  r: 2.3, speed: 27, hemisphere: 'Norte' },
-  { id: 'leonids',         name: 'Lluvia de Estrellas Leónidas',           type: 'meteor_shower', parent: '55P/Tempel-Tuttle',   sol: 235.00, zhr: 15,  r: 2.5, speed: 71, hemisphere: 'Norte' },
-  { id: 'geminids',        name: 'Lluvia de Estrellas Gemínidas',          type: 'meteor_shower', parent: '(3200) Phaethon',     sol: 262.00, zhr: 150, r: 2.6, speed: 35, hemisphere: 'Norte' },
-  { id: 'ursids',          name: 'Lluvia de Estrellas Úrsidas',            type: 'meteor_shower', parent: '8P/Tuttle',            sol: 270.70, zhr: 10,  r: 3.0, speed: 33, hemisphere: 'Norte' },
+  { id: 'quadrantids', names: ['Cuadrántidas', 'Quadrantids', 'Quadrantiden'], parent: '(196256) 2003 EH1', sol: 283.15, zhr: 110 },
+  { id: 'lyrids', names: ['Líridas', 'Lyrids', 'Lyriden'], parent: 'C/1861 G1 (Thatcher)', sol: 32.32, zhr: 18 },
+  { id: 'eta_aquariids', names: ['Eta Acuáridas', 'Eta Aquariids', 'Eta-Aquariiden'], parent: '1P/Halley', sol: 45.5, zhr: 50 },
+  { id: 'south_delta_aquariids', names: ['Delta Acuáridas del Sur', 'Southern Delta Aquariids', 'Südliche Delta-Aquariiden'], parent: '96P/Machholz', sol: 127.0, zhr: 25 },
+  { id: 'alpha_capricornids', names: ['Alfa Capricórnidas', 'Alpha Capricornids', 'Alpha-Capricorniden'], parent: '169P/NEAT', sol: 127.0, zhr: 5 },
+  { id: 'perseids', names: ['Perseidas', 'Perseids', 'Perseiden'], parent: '109P/Swift-Tuttle', sol: 140.0, zhr: 100 },
+  { id: 'orionids', names: ['Oriónidas', 'Orionids', 'Orioniden'], parent: '1P/Halley', sol: 208.0, zhr: 20 },
+  { id: 'leonids', names: ['Leónidas', 'Leonids', 'Leoniden'], parent: '55P/Tempel-Tuttle', sol: 235.27, zhr: 15 },
+  { id: 'geminids', names: ['Gemínidas', 'Geminids', 'Geminiden'], parent: '(3200) Phaethon', sol: 262.2, zhr: 150 },
+  { id: 'ursids', names: ['Úrsidas', 'Ursids', 'Ursiden'], parent: '8P/Tuttle', sol: 270.7, zhr: 10 },
 ];
 
-// ─── Eclipse lookup table (NASA data) ──────────────────────────────────
-// Generated from NASA Eclipse Web Site data for 2024-2030
-// Each entry: { date, type (solar/lunar), subtype (total/partial/annular), magnitude }
-const ECLIPSES = [
-  // 2025
-  { date: '2025-03-14', type: 'eclipse', subtype: 'total',     kind: 'lunar', magnitude: 1.18, hemisphere: 'Global', desc: 'Eclipse Lunar Total. Luna de sangre visible desde América, Europa, África.' },
-  { date: '2025-03-29', type: 'eclipse', subtype: 'partial',   kind: 'solar', magnitude: 0.94, hemisphere: 'Global', desc: 'Eclipse Solar Parcial. Visible desde Europa, norte de Asia, norte de América.' },
-  { date: '2025-09-07', type: 'eclipse', subtype: 'total',     kind: 'lunar', magnitude: 1.36, hemisphere: 'Global', desc: 'Eclipse Lunar Total. Luna de sangre visible desde Europa, África, Asia, Australia.' },
-  { date: '2025-09-21', type: 'eclipse', subtype: 'partial',   kind: 'solar', magnitude: 0.86, hemisphere: 'Global', desc: 'Eclipse Solar Parcial. Visible desde Australia, Antártida.' },
-  // 2026
-  { date: '2026-02-17', type: 'eclipse', subtype: 'annular',   kind: 'solar', magnitude: 0.96, hemisphere: 'Global', desc: 'Eclipse Solar Anular. Visible desde Sudamérica, África.' },
-  { date: '2026-03-03', type: 'eclipse', subtype: 'total',     kind: 'lunar', magnitude: 1.16, hemisphere: 'Global', desc: 'Eclipse Lunar Total. Luna de sangre visible desde América, Europa, África.' },
-  { date: '2026-08-12', type: 'eclipse', subtype: 'partial',   kind: 'solar', magnitude: 0.87, hemisphere: 'Global', desc: 'Eclipse Solar Parcial. Visible desde norte de Asia, Europa.' },
-  { date: '2026-08-28', type: 'eclipse', subtype: 'partial',   kind: 'lunar', magnitude: 0.93, hemisphere: 'Global', desc: 'Eclipse Lunar Parcial. Visible desde Europa, África, Asia, Australia.' },
-  { date: '2026-09-18', type: 'eclipse', subtype: 'total',     kind: 'lunar', magnitude: 1.20, hemisphere: 'Global', desc: 'Eclipse Lunar Total. Luna rojiza visible desde Europa, África, América.' },
-  { date: '2026-10-02', type: 'eclipse', subtype: 'partial',   kind: 'solar', magnitude: 0.62, hemisphere: 'Global', desc: 'Eclipse Solar Parcial. Visible desde sur de Europa, norte de África.' },
-  // 2027
-  { date: '2027-02-06', type: 'eclipse', subtype: 'annular',   kind: 'solar', magnitude: 0.93, hemisphere: 'Global', desc: 'Eclipse Solar Anular. Visible desde América del Sur.' },
-  { date: '2027-02-20', type: 'eclipse', subtype: 'total',     kind: 'lunar', magnitude: 1.12, hemisphere: 'Global', desc: 'Eclipse Lunar Total.' },
-  { date: '2027-03-03', type: 'eclipse', subtype: 'partial',   kind: 'lunar', magnitude: 0.68, hemisphere: 'Global', desc: 'Eclipse Lunar Parcial. Visible desde Europa y África.' },
-  { date: '2027-08-02', type: 'eclipse', subtype: 'partial',   kind: 'solar', magnitude: 0.46, hemisphere: 'Global', desc: 'Eclipse Solar Parcial.' },
-  { date: '2027-08-17', type: 'eclipse', subtype: 'penumbral', kind: 'lunar', magnitude: 0.52, hemisphere: 'Global', desc: 'Eclipse Lunar Penumbral.' },
-  { date: '2027-09-11', type: 'eclipse', subtype: 'partial',   kind: 'solar', magnitude: 0.35, hemisphere: 'Global', desc: 'Eclipse Solar Parcial.' },
-  // 2028
-  { date: '2028-01-12', type: 'eclipse', subtype: 'partial',   kind: 'lunar', magnitude: 0.82, hemisphere: 'Global', desc: 'Eclipse Lunar Parcial.' },
-  { date: '2028-01-26', type: 'eclipse', subtype: 'annular',   kind: 'solar', magnitude: 0.92, hemisphere: 'Global', desc: 'Eclipse Solar Anular.' },
-  { date: '2028-07-06', type: 'eclipse', subtype: 'total',     kind: 'lunar', magnitude: 1.41, hemisphere: 'Global', desc: 'Eclipse Lunar Total.' },
-  { date: '2028-07-22', type: 'eclipse', subtype: 'total',     kind: 'solar', magnitude: 1.06, hemisphere: 'Global', desc: 'Eclipse Solar Total.' },
-  { date: '2028-12-31', type: 'eclipse', subtype: 'total',     kind: 'lunar', magnitude: 1.24, hemisphere: 'Global', desc: 'Eclipse Lunar Total.' },
-];
+const PLANETS = {
+  Mercury: ['Mercurio', 'Mercury', 'Merkur'],
+  Venus: ['Venus', 'Venus', 'Venus'],
+  Mars: ['Marte', 'Mars', 'Mars'],
+  Jupiter: ['Júpiter', 'Jupiter', 'Jupiter'],
+  Saturn: ['Saturno', 'Saturn', 'Saturn'],
+  Uranus: ['Urano', 'Uranus', 'Uranus'],
+  Neptune: ['Neptuno', 'Neptune', 'Neptun'],
+};
+const OUTER = ['Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+const BRIGHT = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'];
 
-// ─── Planetary oppositions (computed from orbital periods) ────────────
-// Base opposition dates (JPL HORIZONS) for major planets visible from Canarias
-const PLANETARY_BASES = [
-  { id: 'mars',      name: 'Marte',          type: 'planetary', period: 687,  baseDate: '2025-01-12', baseYear: 2025, moon_phase: 'Llena', icon: 'planets' },
-  { id: 'jupiter',   name: 'Júpiter',         type: 'planetary', period: 4333, baseDate: '2026-12-07', baseYear: 2026, moon_phase: 'Nueva', icon: 'planets' },
-  { id: 'saturn',    name: 'Saturno',         type: 'planetary', period: 10759, baseDate: '2025-09-21', baseYear: 2025, moon_phase: 'Creciente', icon: 'planets' },
-  { id: 'uranus',    name: 'Urano',           type: 'planetary', period: 30688, baseDate: '2025-11-21', baseYear: 2025, moon_phase: 'Nueva', icon: 'planets' },
-  { id: 'neptune',   name: 'Neptuno',         type: 'planetary', period: 60182, baseDate: '2025-09-23', baseYear: 2025, moon_phase: 'Creciente', icon: 'planets' },
-];
+const T = {
+  meteor: ['Lluvia de estrellas {name}', 'Meteor shower: {name}', 'Meteorstrom: {name}'],
+  meteorDesc: ['Máximo de hasta {zhr} meteoros/hora en cielo ideal. Progenitor: {parent}.', 'Peak of up to {zhr} meteors/hour under ideal skies. Parent body: {parent}.', 'Maximum bis zu {zhr} Meteore/Stunde bei idealem Himmel. Ursprungskörper: {parent}.'],
+  lunarEclipse: ['Eclipse lunar {kind}', '{kind} lunar eclipse', '{kind} Mondfinsternis'],
+  lunarDesc: ['{vis}. Máximo a las {time} UTC.', '{vis}. Maximum at {time} UTC.', '{vis}. Maximum um {time} UTC.'],
+  lunarVisible: ['Visible desde Canarias', 'Visible from the Canary Islands', 'Von den Kanaren sichtbar'],
+  lunarNotVisible: ['No visible desde Canarias (la Luna está bajo el horizonte)', 'Not visible from the Canary Islands (Moon below the horizon)', 'Von den Kanaren nicht sichtbar (Mond unter dem Horizont)'],
+  solarEclipse: ['Eclipse solar {kind} visible desde Canarias', '{kind} solar eclipse visible from the Canary Islands', '{kind} Sonnenfinsternis, sichtbar von den Kanaren'],
+  solarDesc: ['Máximo a las {time} UTC con el Sol a {alt}° de altura. Usa siempre filtro solar homologado.', 'Maximum at {time} UTC with the Sun {alt}° high. Always use a certified solar filter.', 'Maximum um {time} UTC, Sonne {alt}° hoch. Immer zertifizierten Sonnenfilter verwenden.'],
+  opposition: ['Oposición de {planet}', '{planet} at opposition', '{planet} in Opposition'],
+  oppositionDesc: ['{planet} en oposición: máximo brillo y visible toda la noche.', '{planet} at opposition: brightest and visible all night.', '{planet} in Opposition: am hellsten und die ganze Nacht sichtbar.'],
+  conjunction: ['Conjunción {a}-{b}', '{a}-{b} conjunction', 'Konjunktion {a}-{b}'],
+  conjunctionDesc: ['{a} y {b} separados por {sep}°, a {elong}° del Sol.', '{a} and {b} {sep}° apart, {elong}° from the Sun.', '{a} und {b} {sep}° voneinander entfernt, {elong}° von der Sonne.'],
+  supermoon: ['Superluna', 'Supermoon', 'Supermond'],
+  supermoonDesc: ['Luna llena a {km} km de la Tierra, algo más grande y brillante de lo habitual.', 'Full Moon {km} km from Earth, slightly larger and brighter than usual.', 'Vollmond in {km} km Entfernung, etwas größer und heller als üblich.'],
+  seasons: {
+    mar: ['Equinoccio de marzo', 'March equinox', 'März-Tagundnachtgleiche'],
+    jun: ['Solsticio de junio', 'June solstice', 'Juni-Sonnenwende'],
+    sep: ['Equinoccio de septiembre', 'September equinox', 'September-Tagundnachtgleiche'],
+    dec: ['Solsticio de diciembre', 'December solstice', 'Dezember-Sonnenwende'],
+  },
+  kinds: {
+    total: ['total', 'Total', 'Totale'], partial: ['parcial', 'Partial', 'Partielle'],
+    penumbral: ['penumbral', 'Penumbral', 'Halbschatten-'], annular: ['anular', 'Annular', 'Ringförmige'],
+  },
+  phases: [
+    ['Nueva', 'New Moon', 'Neumond'], ['Creciente', 'Waxing crescent', 'Zunehmende Sichel'],
+    ['Cuarto Creciente', 'First quarter', 'Erstes Viertel'], ['Gibosa Creciente', 'Waxing gibbous', 'Zunehmender Mond'],
+    ['Llena', 'Full Moon', 'Vollmond'], ['Gibosa Menguante', 'Waning gibbous', 'Abnehmender Mond'],
+    ['Cuarto Menguante', 'Last quarter', 'Letztes Viertel'], ['Menguante', 'Waning crescent', 'Abnehmende Sichel'],
+  ],
+};
 
-// ─── Conjunctions (bright planet pairs, visible from Canarias) ────────
-const CONJUNCTIONS = [
-  { date: '2026-05-22', name: 'Conjunción Venus-Júpiter', type: 'conjunction', description: 'Venus y Júpiter separados por 0.5°. Espectacular al amanecer.', hemisphere: 'Global', moon_phase: 'Creciente' },
-  { date: '2026-06-18', name: 'Conjunción Venus-Júpiter', type: 'conjunction', description: 'Brillante conjunción al atardecer.', hemisphere: 'Global', moon_phase: 'Creciente' },
-  { date: '2026-08-02', name: 'Conjunción Marte-Júpiter', type: 'conjunction', description: 'Marte y Júpiter a 0.3° de distancia.', hemisphere: 'Global', moon_phase: 'Menguante' },
-  { date: '2026-09-15', name: 'Conjunción Venus-Saturno', type: 'conjunction', description: 'Venus y Saturno visibles juntos al atardecer.', hemisphere: 'Global', moon_phase: 'Llena' },
-  { date: '2026-10-28', name: 'Conjunción Marte-Saturno', type: 'conjunction', description: 'Marte y Saturno en conjunción cercana.', hemisphere: 'Global', moon_phase: 'Menguante' },
-  { date: '2026-12-25', name: 'Conjunción Venus-Saturno', type: 'conjunction', description: 'Venus y Saturno brillan juntos.', hemisphere: 'Global', moon_phase: 'Llena' },
-];
+const li = (lang) => Math.max(0, LANGS.indexOf(lang));
+const fmt = (tpl, vars) => tpl.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+const iso = (date) => date.toISOString().slice(0, 10);
+const hhmm = (date) => date.toISOString().slice(11, 16);
 
-// ─── Supermoons (computed from lunar perigee) ─────────────────────────
-const SUPERMOONS = [
-  { date: '2026-07-21', name: 'Superluna de Verano', type: 'supermoon', description: 'Luna llena más grande y brillante del año. Distancia: 357,000 km.', hemisphere: 'Global', moon_phase: 'Llena' },
-  { date: '2026-08-19', name: 'Superluna del Esturión', type: 'supermoon', description: 'Luna llena cerca del perigeo.', hemisphere: 'Global', moon_phase: 'Llena' },
-  { date: '2027-06-13', name: 'Superluna de Fresa', type: 'supermoon', description: 'Luna llena en perigeo.', hemisphere: 'Global', moon_phase: 'Llena' },
-];
-
-// ─── Comets (from JPL small-body database predictions) ────────────────
-const COMETS = [
-  { date: '2026-10-15', name: 'Cometa C/2026 A3', type: 'comet', description: 'Posible magnitud 4. Visible a simple vista desde Canarias.', hemisphere: 'Norte', moon_phase: 'Creciente', icon: 'comet' },
-];
-
-// ─── Helpers ──────────────────────────────────────────────────────────
-
-function solarLongitudeToDate(sol, year) {
-  // Approximate: maps solar longitude to calendar date
-  // Vernal equinox ~ March 20 = solar longitude 0°
-  const equinox = new Date(year, 2, 20);
-  const msPerDegree = (365.25 * 24 * 3600 * 1000) / 360;
-  return new Date(equinox.getTime() + sol * msPerDegree);
+function moonPhaseName(date, lang) {
+  const angle = Astronomy.MoonPhase(date); // 0 = nueva, 180 = llena
+  return T.phases[Math.round(angle / 45) % 8][li(lang)];
 }
 
-function formatDate(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+function base(id, type, date, name, description, lang, extra = {}) {
+  return {
+    id, name, type, date: iso(date), peak: iso(date), datetime_utc: date.toISOString(), description,
+    hemisphere: 'Global', moon_phase: moonPhaseName(date, lang), source: 'astronomy_engine',
+    visible_from_canarias: true, icon: type, ...extra,
+  };
 }
 
-function getPeakRange(d) {
-  const start = new Date(d);
-  start.setDate(start.getDate() - 1);
-  const end = new Date(d);
-  end.setDate(end.getDate() + 1);
-  const sDay = start.getDate();
-  const eDay = end.getDate();
-  const sMonth = start.toLocaleString('es', { month: 'short' });
-  const eMonth = end.toLocaleString('es', { month: 'short' });
-  return `${sDay} ${sMonth} - ${eDay} ${eMonth}`;
+function meteorShowers(year, lang) {
+  const out = [];
+  // Las longitudes IMO son J2000; SearchSunLongitude usa el equinoccio de la fecha (+~1,4°/siglo)
+  const precession = 1.397 * ((year - 2000) / 100);
+  for (const s of METEOR_SHOWERS) {
+    const start = Astronomy.MakeTime(new Date(Date.UTC(year, 0, 1)));
+    const t = Astronomy.SearchSunLongitude((s.sol + precession) % 360, start, 366);
+    if (!t || t.date.getUTCFullYear() !== year) continue;
+    const name = s.names[li(lang)];
+    out.push(base(`${s.id}_${year}`, 'meteor_shower', t.date, fmt(T.meteor[li(lang)], { name }),
+      fmt(T.meteorDesc[li(lang)], { zhr: s.zhr, parent: s.parent }), lang, { icon: 'meteors', zhr: s.zhr, source: 'imo' }));
+  }
+  return out;
 }
 
-function getMoonPhase(dateStr) {
-  const knownNewMoon = new Date('2000-01-06T18:14:00Z');
-  const synodicMonth = 29.53058867;
-  const d = new Date(dateStr + 'T12:00:00Z');
-  const diff = (d - knownNewMoon) / (1000 * 60 * 60 * 24);
-  const age = ((diff % synodicMonth) + synodicMonth) % synodicMonth;
-  const phaseIndex = Math.round(age / synodicMonth * 8) % 8;
-  const names = ['Nueva', 'Creciente', 'Cuarto Creciente', 'Gibosa Creciente', 'Llena', 'Gibosa Menguante', 'Cuarto Menguante', 'Menguante'];
-  return names[phaseIndex];
+function eclipses(year, lang, from, to) {
+  const out = [];
+  let le = Astronomy.SearchLunarEclipse(from);
+  while (le.peak.date < to) {
+    const eq = Astronomy.Equator(Astronomy.Body.Moon, le.peak, CANARIAS, true, true);
+    const hor = Astronomy.Horizon(le.peak, CANARIAS, eq.ra, eq.dec, 'normal');
+    const visible = hor.altitude > 0;
+    const kind = T.kinds[le.kind]?.[li(lang)] ?? le.kind;
+    out.push(base(`lunar_eclipse_${iso(le.peak.date)}`, 'eclipse', le.peak.date, fmt(T.lunarEclipse[li(lang)], { kind }).trim(),
+      fmt(T.lunarDesc[li(lang)], { vis: (visible ? T.lunarVisible : T.lunarNotVisible)[li(lang)], time: hhmm(le.peak.date) }), lang,
+      { icon: 'eclipse', visible_from_canarias: visible, subtype: le.kind, kind: 'lunar' }));
+    le = Astronomy.NextLunarEclipse(le.peak);
+  }
+  let se = Astronomy.SearchLocalSolarEclipse(from, CANARIAS);
+  while (se.peak.time.date < to) {
+    if (se.peak.altitude > 0) {
+      const kind = T.kinds[se.kind]?.[li(lang)] ?? se.kind;
+      out.push(base(`solar_eclipse_${iso(se.peak.time.date)}`, 'eclipse', se.peak.time.date, fmt(T.solarEclipse[li(lang)], { kind }).trim(),
+        fmt(T.solarDesc[li(lang)], { time: hhmm(se.peak.time.date), alt: Math.round(se.peak.altitude) }), lang,
+        { icon: 'eclipse', subtype: se.kind, kind: 'solar' }));
+    }
+    se = Astronomy.NextLocalSolarEclipse(se.peak.time, CANARIAS);
+  }
+  return out;
 }
 
-// ─── Main generator ───────────────────────────────────────────────────
-
-export function generateEventsForYear(year) {
-  const events = [];
-
-  // Meteor showers
-  METEOR_SHOWERS.forEach(shower => {
-    const peakDate = solarLongitudeToDate(shower.sol, year);
-    const peakStr = getPeakRange(peakDate);
-    events.push({
-      id: `${shower.id}_${year}`,
-      name: shower.name,
-      type: 'meteor_shower',
-      date: formatDate(peakDate),
-      peak: peakStr,
-      description: `Hasta ${shower.zhr} meteoros/hora. Cometa ${shower.parent}.`,
-      hemisphere: shower.hemisphere,
-      moon_phase: getMoonPhase(formatDate(peakDate)),
-      source: 'nasa_jpl_imo',
-      visible_from_canarias: true,
-      icon: 'meteors',
-    });
-  });
-
-  // Eclipses
-  ECLIPSES.forEach(ec => {
-    const yearPrefix = ec.date.slice(0, 4);
-    if (parseInt(yearPrefix) === year) {
-      const moonPhase = ec.kind === 'lunar' ? 'Llena' : 'Nueva';
-      events.push({
-        id: `eclipse_${ec.date}`,
-        name: ec.kind === 'lunar'
-          ? `Eclipse Lunar${ec.subtype === 'total' ? ' Total' : ec.subtype === 'partial' ? ' Parcial' : ' Penumbral'}`
-          : `Eclipse Solar${ec.subtype === 'total' ? ' Total' : ec.subtype === 'annular' ? ' Anular' : ' Parcial'}`,
-        type: 'eclipse',
-        date: ec.date,
-        peak: ec.date,
-        description: ec.desc || `Eclipse ${ec.kind} ${ec.subtype} visible desde Canarias.`,
-        hemisphere: ec.hemisphere,
-        moon_phase: moonPhase,
-        source: 'nasa_eclipse',
-        visible_from_canarias: true,
-        icon: 'eclipse',
-      });
+function oppositions(lang, from, to) {
+  const out = [];
+  for (const p of OUTER) {
+    let t = Astronomy.SearchRelativeLongitude(p, 0, from);
+    while (t.date < to) {
+      const planet = PLANETS[p][li(lang)];
+      out.push(base(`${p.toLowerCase()}_opposition_${iso(t.date)}`, 'planetary', t.date, fmt(T.opposition[li(lang)], { planet }),
+        fmt(T.oppositionDesc[li(lang)], { planet }), lang, { icon: 'planets' }));
+      t = Astronomy.SearchRelativeLongitude(p, 0, t.AddDays(30));
     }
-  });
+  }
+  return out;
+}
 
-  // Planetary oppositions
-  PLANETARY_BASES.forEach(p => {
-    const diffYears = year - p.baseYear;
-    const daysSinceBase = diffYears * 365.25 + (diffYears > 0 ? Math.floor(diffYears / 4) : 0);
-    const periodsSinceBase = Math.round(daysSinceBase / p.period);
-    const nextOppositionMs = new Date(p.baseDate).getTime() + periodsSinceBase * p.period * 24 * 3600 * 1000;
-    const nextDate = new Date(nextOppositionMs);
-    if (nextDate.getFullYear() === year) {
-      events.push({
-        id: `${p.id}_opposition_${year}`,
-        name: `Oposición de ${p.name}`,
-        type: 'planetary',
-        date: formatDate(nextDate),
-        peak: formatDate(nextDate),
-        description: `${p.name} en oposición. Mejor momento para observar. Brillo máximo y visible toda la noche.`,
-        hemisphere: 'Global',
-        moon_phase: getMoonPhase(formatDate(nextDate)),
-        source: 'nasa_jpl_horizons',
-        visible_from_canarias: true,
-        icon: 'planets',
-      });
+function conjunctions(lang, from, to) {
+  const out = [];
+  const days = Math.ceil((to.date - from.date) / 86400000);
+  for (let i = 0; i < BRIGHT.length; i++) {
+    for (let j = i + 1; j < BRIGHT.length; j++) {
+      const a = BRIGHT[i];
+      const b = BRIGHT[j];
+      const sep = (d) => {
+        const t = from.AddDays(d);
+        return Astronomy.AngleBetween(Astronomy.GeoVector(a, t, true), Astronomy.GeoVector(b, t, true));
+      };
+      let prev = sep(-1);
+      let cur = sep(0);
+      for (let d = 0; d <= days; d++) {
+        const next = sep(d + 1);
+        if (cur < prev && cur <= next && cur < 2.0) {
+          const t = from.AddDays(d);
+          const elong = Math.min(Astronomy.AngleFromSun(a, t), Astronomy.AngleFromSun(b, t));
+          if (elong > 15) {
+            const na = PLANETS[a][li(lang)];
+            const nb = PLANETS[b][li(lang)];
+            out.push(base(`conjunction_${a}_${b}_${iso(t.date)}`.toLowerCase(), 'conjunction', t.date,
+              fmt(T.conjunction[li(lang)], { a: na, b: nb }),
+              fmt(T.conjunctionDesc[li(lang)], { a: na, b: nb, sep: cur.toFixed(1), elong: Math.round(elong) }), lang,
+              { icon: 'conjunction', separation_deg: Number(cur.toFixed(2)) }));
+          }
+        }
+        prev = cur;
+        cur = next;
+      }
     }
-  });
+  }
+  return out;
+}
 
-  // Conjunctions
-  CONJUNCTIONS.forEach(c => {
-    const cYear = c.date.slice(0, 4);
-    if (parseInt(cYear) === year) {
-      events.push({
-        id: `conjunction_${c.date}`,
-        name: c.name,
-        type: 'conjunction',
-        date: c.date,
-        peak: c.date,
-        description: c.description,
-        hemisphere: c.hemisphere,
-        moon_phase: c.moon_phase,
-        source: 'nasa_jpl_horizons',
-        visible_from_canarias: true,
-        icon: 'conjunction',
-      });
+function supermoons(lang, from, to) {
+  const out = [];
+  let mq = Astronomy.SearchMoonQuarter(from);
+  while (mq.time.date < to) {
+    if (mq.quarter === 2) {
+      const km = Astronomy.GeoMoon(mq.time).Length() * Astronomy.KM_PER_AU;
+      if (km < 361000) {
+        out.push(base(`supermoon_${iso(mq.time.date)}`, 'supermoon', mq.time.date, T.supermoon[li(lang)],
+          fmt(T.supermoonDesc[li(lang)], { km: Math.round(km).toLocaleString(lang) }), lang, { icon: 'supermoon', distance_km: Math.round(km) }));
+      }
     }
-  });
+    mq = Astronomy.NextMoonQuarter(mq);
+  }
+  return out;
+}
 
-  // Supermoons
-  SUPERMOONS.forEach(s => {
-    const sYear = s.date.slice(0, 4);
-    if (parseInt(sYear) === year) {
-      events.push({
-        id: `supermoon_${s.date}`,
-        name: s.name,
-        type: 'supermoon',
-        date: s.date,
-        peak: s.date,
-        description: s.description,
-        hemisphere: s.hemisphere,
-        moon_phase: 'Llena',
-        source: 'nasa_jpl_horizons',
-        visible_from_canarias: true,
-        icon: 'supermoon',
-      });
-    }
-  });
+function seasons(year, lang) {
+  const s = Astronomy.Seasons(year);
+  return [['mar', s.mar_equinox], ['jun', s.jun_solstice], ['sep', s.sep_equinox], ['dec', s.dec_solstice]]
+    .map(([k, t]) => base(`${k}_${year}`, 'seasonal', t.date, T.seasons[k][li(lang)], '', lang, { icon: 'seasonal' }));
+}
 
-  // Comets
-  COMETS.forEach(c => {
-    const cYear = c.date.slice(0, 4);
-    if (parseInt(cYear) === year) {
-      events.push({
-        id: `comet_${c.date}`,
-        name: c.name,
-        type: 'comet',
-        date: c.date,
-        peak: c.date,
-        description: c.description,
-        hemisphere: c.hemisphere,
-        moon_phase: getMoonPhase(c.date),
-        source: 'nasa_jpl_sbdb',
-        visible_from_canarias: true,
-        icon: 'comet',
-      });
-    }
-  });
+const cache = new Map();
 
-  events.sort((a, b) => a.date.localeCompare(b.date));
+export function generateEventsForYear(year, lang = 'es') {
+  const key = `${year}:${lang}`;
+  if (cache.has(key)) return cache.get(key);
+  const from = Astronomy.MakeTime(new Date(Date.UTC(year, 0, 1)));
+  const to = Astronomy.MakeTime(new Date(Date.UTC(year + 1, 0, 1)));
+  const events = [
+    ...meteorShowers(year, lang),
+    ...eclipses(year, lang, from, to.date),
+    ...oppositions(lang, from, to.date),
+    ...conjunctions(lang, from, to),
+    ...supermoons(lang, from, to.date),
+    ...seasons(year, lang),
+  ].sort((a, b) => a.datetime_utc.localeCompare(b.datetime_utc));
+  if (cache.size > 50) cache.clear();
+  cache.set(key, events);
   return events;
 }
 
-export function generateEventsForMonth(year, month) {
-  const allYear = generateEventsForYear(year);
-  return allYear.filter(e => {
+export function generateEventsForMonth(year, month, lang = 'es') {
+  return generateEventsForYear(year, lang).filter((e) => {
     const [y, m] = e.date.split('-').map(Number);
     return y === year && m === month;
   });
