@@ -11,8 +11,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import health, chat, sky
+from routers import health, chat, sky, planner
 from config import get_settings
+from security import warn_if_open
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
 logger = logging.getLogger("adastra-ai")
@@ -23,6 +24,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from rag.vector_store import get_vector_store
+    warn_if_open()
     try:
         get_vector_store()
         logger.info("RAG ligero listo con documentos IAC")
@@ -35,7 +37,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="AdAstraSky AI Service",
     description="Agente astronómico inteligente con LangGraph y RAG sobre documentos IAC",
-    version="1.0.0",
+    version="1.1.0",
     lifespan=lifespan,
 )
 
@@ -46,13 +48,14 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key"],
 )
 
 # Routers
 app.include_router(health.router)
 app.include_router(chat.router)
 app.include_router(sky.router)
+app.include_router(planner.router)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,30 @@
+{
+  "_comment": "Constelaciones destacadas desde Canarias (~28° N). best_months = meses en que culmina al anochecer (~22 h). Datos de referencia (IAU / catálogos estándar).",
+  "constellations": [
+    {"latin": "Orion", "abbr": "Ori", "names": {"es": "Orión", "en": "Orion", "de": "Orion"}, "brightest_star": "Rigel", "best_months": [12, 1, 2, 3], "highlights": ["M42 (Nebulosa de Orión)", "Betelgeuse", "Cinturón de Orión"]},
+    {"latin": "Ursa Major", "abbr": "UMa", "names": {"es": "Osa Mayor", "en": "Great Bear", "de": "Großer Bär"}, "brightest_star": "Alioth", "best_months": [3, 4, 5, 6], "highlights": ["El Carro", "M81 y M82", "M101"]},
+    {"latin": "Ursa Minor", "abbr": "UMi", "names": {"es": "Osa Menor", "en": "Little Bear", "de": "Kleiner Bär"}, "brightest_star": "Polaris", "best_months": [5, 6, 7], "highlights": ["Polaris (a ~28° de altura desde Canarias)"]},
+    {"latin": "Cassiopeia", "abbr": "Cas", "names": {"es": "Casiopea", "en": "Cassiopeia", "de": "Kassiopeia"}, "brightest_star": "Schedar", "best_months": [10, 11, 12], "highlights": ["Forma de W", "M52", "M103"]},
+    {"latin": "Scorpius", "abbr": "Sco", "names": {"es": "Escorpio", "en": "Scorpius", "de": "Skorpion"}, "brightest_star": "Antares", "best_months": [6, 7], "highlights": ["M4", "M6", "M7"]},
+    {"latin": "Sagittarius", "abbr": "Sgr", "names": {"es": "Sagitario", "en": "Sagittarius", "de": "Schütze"}, "brightest_star": "Kaus Australis", "best_months": [7, 8], "highlights": ["Centro de la Vía Láctea", "M8 (Laguna)", "M20 (Trífida)", "M22"]},
+    {"latin": "Cygnus", "abbr": "Cyg", "names": {"es": "Cisne", "en": "Swan", "de": "Schwan"}, "brightest_star": "Deneb", "best_months": [8, 9, 10], "highlights": ["Albireo", "NGC 7000 (Norteamérica)", "Triángulo de Verano"]},
+    {"latin": "Lyra", "abbr": "Lyr", "names": {"es": "Lira", "en": "Lyre", "de": "Leier"}, "brightest_star": "Vega", "best_months": [7, 8, 9], "highlights": ["M57 (Nebulosa del Anillo)", "Épsilon Lyrae (doble doble)"]},
+    {"latin": "Aquila", "abbr": "Aql", "names": {"es": "Águila", "en": "Eagle", "de": "Adler"}, "brightest_star": "Altair", "best_months": [8, 9], "highlights": ["Triángulo de Verano"]},
+    {"latin": "Taurus", "abbr": "Tau", "names": {"es": "Tauro", "en": "Bull", "de": "Stier"}, "brightest_star": "Aldebarán", "best_months": [12, 1], "highlights": ["M45 (Pléyades)", "Híades", "M1 (Nebulosa del Cangrejo)"]},
+    {"latin": "Gemini", "abbr": "Gem", "names": {"es": "Géminis", "en": "Twins", "de": "Zwillinge"}, "brightest_star": "Pólux", "best_months": [1, 2, 3], "highlights": ["Cástor", "M35"]},
+    {"latin": "Canis Major", "abbr": "CMa", "names": {"es": "Can Mayor", "en": "Great Dog", "de": "Großer Hund"}, "brightest_star": "Sirio", "best_months": [1, 2, 3], "highlights": ["Sirio, la estrella más brillante del cielo nocturno", "M41"]},
+    {"latin": "Carina", "abbr": "Car", "names": {"es": "Quilla", "en": "Keel", "de": "Kiel des Schiffs"}, "brightest_star": "Canopus", "best_months": [1, 2], "highlights": ["Canopus es visible desde Canarias, bajo hacia el sur (~10° de altura)"]},
+    {"latin": "Leo", "abbr": "Leo", "names": {"es": "Leo", "en": "Lion", "de": "Löwe"}, "brightest_star": "Régulo", "best_months": [3, 4, 5], "highlights": ["Triplete de Leo (M65, M66, NGC 3628)"]},
+    {"latin": "Virgo", "abbr": "Vir", "names": {"es": "Virgo", "en": "Virgin", "de": "Jungfrau"}, "brightest_star": "Espiga", "best_months": [4, 5, 6], "highlights": ["Cúmulo de galaxias de Virgo", "M87", "M104 (Sombrero)"]},
+    {"latin": "Bootes", "abbr": "Boo", "names": {"es": "Boyero", "en": "Herdsman", "de": "Bärenhüter"}, "brightest_star": "Arturo", "best_months": [5, 6, 7], "highlights": ["Arturo"]},
+    {"latin": "Corona Borealis", "abbr": "CrB", "names": {"es": "Corona Boreal", "en": "Northern Crown", "de": "Nördliche Krone"}, "brightest_star": "Alphecca", "best_months": [6, 7], "highlights": ["Semicírculo de estrellas"]},
+    {"latin": "Hercules", "abbr": "Her", "names": {"es": "Hércules", "en": "Hercules", "de": "Herkules"}, "brightest_star": "Kornephoros", "best_months": [6, 7, 8], "highlights": ["M13 (Gran Cúmulo de Hércules)", "M92"]},
+    {"latin": "Draco", "abbr": "Dra", "names": {"es": "Dragón", "en": "Dragon", "de": "Drache"}, "brightest_star": "Eltanin", "best_months": [6, 7, 8], "highlights": ["NGC 6543 (Ojo de Gato)"]},
+    {"latin": "Centaurus", "abbr": "Cen", "names": {"es": "Centauro", "en": "Centaur", "de": "Zentaur"}, "brightest_star": "Alfa Centauri", "best_months": [5, 6], "highlights": ["Omega Centauri (NGC 5139) alcanza unos 14° de altura desde Canarias", "Alfa Centauri queda prácticamente en el horizonte"]},
+    {"latin": "Crux", "abbr": "Cru", "names": {"es": "Cruz del Sur", "en": "Southern Cross", "de": "Kreuz des Südens"}, "brightest_star": "Ácrux", "best_months": [4, 5], "highlights": ["Desde el sur de las islas asoma muy baja sobre el horizonte sur (pocos grados), solo con horizonte totalmente despejado"]},
+    {"latin": "Pegasus", "abbr": "Peg", "names": {"es": "Pegaso", "en": "Pegasus", "de": "Pegasus"}, "brightest_star": "Enif", "best_months": [9, 10, 11], "highlights": ["Gran Cuadrado de Pegaso", "M15"]},
+    {"latin": "Andromeda", "abbr": "And", "names": {"es": "Andrómeda", "en": "Andromeda", "de": "Andromeda"}, "brightest_star": "Alpheratz", "best_months": [10, 11, 12], "highlights": ["M31 (Galaxia de Andrómeda), visible a simple vista con cielo oscuro"]},
+    {"latin": "Perseus", "abbr": "Per", "names": {"es": "Perseo", "en": "Perseus", "de": "Perseus"}, "brightest_star": "Mirfak", "best_months": [11, 12, 1], "highlights": ["Doble Cúmulo (NGC 869/884)", "Algol (estrella variable)", "Radiante de las Perseidas"]},
+    {"latin": "Auriga", "abbr": "Aur", "names": {"es": "Cochero (Auriga)", "en": "Charioteer", "de": "Fuhrmann"}, "brightest_star": "Capella", "best_months": [12, 1, 2], "highlights": ["M36", "M37", "M38"]}
+  ]
+}

@@ -1,5 +1,12 @@
+import asyncio
+from datetime import date, datetime, timedelta
+
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
+
+from agent.messages import sky_recommendation
+from sky_engine.ephemeris import planets_tonight
+from sky_engine.events import compute_events
 from sky_engine.sky_score import SkyScoreAlgorithm
 from sky_engine.utils import calculate_moon_illumination
 
@@ -13,71 +20,49 @@ class SkyScoreRequest(BaseModel):
     wind: float = Field(..., ge=0)
     humidity: float = Field(..., ge=0, le=1)
     transparency: float = Field(default=0.8, ge=0, le=1)
+    language: str = Field(default="es", pattern="^(es|en|de)$")
 
 
 @router.post("/sky-score")
 async def sky_score(request: SkyScoreRequest):
-    algorithm = SkyScoreAlgorithm()
-    score = algorithm.calculate_sky_score(request.model_dump())
-    if score >= 8.5:
-        recommendation = "Excelente noche para observar. ¡Sal ahora!"
-    elif score >= 7:
-        recommendation = "Buena noche para observar."
-    elif score >= 5:
-        recommendation = "Condiciones aceptables. Puedes intentarlo."
-    else:
-        recommendation = "No es buena noche. Espera condiciones mejores."
-    return {"sky_score": score, "factors": request.model_dump(), "recommendation": recommendation}
+    factors = request.model_dump(exclude={"language"})
+    score = SkyScoreAlgorithm().calculate_sky_score(factors)
+    return {"sky_score": score, "factors": factors, "recommendation": sky_recommendation(score, request.language)}
 
 
 @router.get("/what-to-see")
 async def what_to_see(
-    latitude: float = Query(...),
-    longitude: float = Query(...),
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
     date: str | None = None,
-    time: str | None = None,
+    time: str | None = None,  # se mantiene por compatibilidad; el cálculo cubre toda la noche
 ):
-    from datetime import datetime
-
     if date:
         try:
-            dt = datetime.strptime(date, "%Y-%m-%d")
+            night = datetime.strptime(date, "%Y-%m-%d").date()
         except ValueError:
             raise HTTPException(status_code=400, detail="Formato de fecha inválido, use YYYY-MM-DD")
     else:
-        dt = datetime.now()
+        night = datetime.now().date()
 
-    moon_illum = calculate_moon_illumination(dt)
-
+    data = await asyncio.to_thread(planets_tonight, latitude, longitude, night)
+    planets = [o["names"]["en"] for o in data["objects"] if o["key"] != "moon"]
     return {
         "location": {"latitude": latitude, "longitude": longitude},
+        "night_of": night.isoformat(),
+        "dark_window_utc": data["window"],
         "visible_objects": {
-            "planets": ["Jupiter", "Venus", "Saturn", "Mars"],
-            "constellations": ["Orion", "Ursa Major", "Cassiopeia", "Scorpius"],
-            "messier_objects": ["M31 (Andromeda)", "M45 (Pleiades)", "M42 (Orion Nebula)"],
-            "moon_phase": moon_illum,
+            "planets": planets,
+            "details": data["objects"],
+            "moon_phase": data.get("moon_illumination", calculate_moon_illumination(datetime(night.year, night.month, night.day, 22))),
         },
+        "source": "Astronomy Engine (efemérides calculadas)",
     }
 
 
 @router.get("/events")
-async def get_events(days_ahead: int = Query(default=30, ge=1, le=365)):
-    from datetime import datetime, timedelta
-
-    base = datetime.now()
-    year = base.year
-    all_events = [
-        {"name": "Lluvia de Perseidas", "date": f"{year}-08-12", "type": "meteor_shower", "visibility_score": 9},
-        {"name": "Lluvia de Gemínidas", "date": f"{year}-12-13", "type": "meteor_shower", "visibility_score": 8},
-        {"name": "Equinoccio de Primavera", "date": f"{year}-03-20", "type": "seasonal", "visibility_score": 5},
-        {"name": "Equinoccio de Otoño", "date": f"{year}-09-22", "type": "seasonal", "visibility_score": 5},
-        {"name": "Solsticio de Verano", "date": f"{year}-06-21", "type": "seasonal", "visibility_score": 5},
-        {"name": "Solsticio de Invierno", "date": f"{year}-12-21", "type": "seasonal", "visibility_score": 5},
-    ]
-    cutoff = base + timedelta(days=days_ahead)
-    upcoming = []
-    for ev in all_events:
-        ev_date = datetime.strptime(ev["date"], "%Y-%m-%d")
-        if base <= ev_date <= cutoff:
-            upcoming.append(ev)
-    return {"events": upcoming, "total": len(upcoming)}
+async def get_events(days_ahead: int = Query(default=30, ge=1, le=365),
+                     language: str = Query(default="es", pattern="^(es|en|de)$")):
+    today = datetime.now().date()
+    events = await asyncio.to_thread(compute_events, today, today + timedelta(days=days_ahead), language)
+    return {"events": events, "total": len(events), "source": "Astronomy Engine + IMO"}

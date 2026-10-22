@@ -1,99 +1,89 @@
+"""Herramientas del agente.
+
+Todas devuelven estructuras serializables a JSON. Ninguna inventa datos: si una
+fuente no responde, la herramienta lo indica con ``available: false``.
+"""
+
+from __future__ import annotations
+
+import json
+from datetime import date, datetime
+from functools import lru_cache
+from pathlib import Path
+
 from langchain_core.tools import tool
-import httpx
 
+from agent.messages import sky_recommendation
 from rag.vector_store import get_cached_rag
-from config import get_settings
 
-settings = get_settings()
+DATA_DIR = Path(__file__).parent.parent / "data"
+RAG_SNIPPET_CHARS = 900
 
 
-@tool
-def search_rag_documents(query: str, top_k: int = 8, lang: str = "es") -> list[dict]:
-    """Busca en documentos IAC (Instituto Astrofísico de Canarias). Úsala SIEMPRE para preguntas sobre observatorios, normativa del cielo, astroturismo, lugares de observación, condiciones del cielo, o cualquier tema relacionado con astronomía en Canarias. Recibe un texto de búsqueda y devuelve fragmentos relevantes."""
-    rag = get_cached_rag()
-    # Buscar en TODOS los idiomas para dar máximo contexto al LLM
-    results = rag.search(query, k=top_k, lang=None)
+def rag_search(query: str, lang: str = "es", top_k: int = 4) -> list[dict]:
+    """Búsqueda RAG compartida por la recuperación proactiva y la herramienta."""
+    docs = get_cached_rag().search(query, k=max(1, min(int(top_k or 4), 8)), prefer_lang=lang if lang in ("es", "en", "de") else None)
     return [
         {
-            "content": doc.page_content,
-            "source": doc.metadata.get("source", "Documento IAC"),
-            "title": doc.metadata.get("title", ""),
-            "language": doc.metadata.get("language", "es"),
+            "chunk_id": d.metadata.get("chunk_id"),
+            "title": d.metadata.get("title", ""),
+            "section": d.metadata.get("section", ""),
+            "source": d.metadata.get("source", "Documento IAC"),
+            "language": d.metadata.get("language", "es"),
+            "content": d.page_content[:RAG_SNIPPET_CHARS],
         }
-        for doc in results
+        for d in docs
     ]
 
 
 @tool
+def search_rag_documents(query: str, top_k: int = 4, lang: str = "es") -> list[dict]:
+    """Busca en la base documental del IAC (observatorios, Ley del Cielo, astroturismo, eventos, telescopios).
+    Úsala solo si la información de documentos que ya tienes en el contexto no basta y necesitas buscar con
+    otras palabras. Devuelve fragmentos con título y fuente para citarlos."""
+    return rag_search(query, lang, top_k)
+
+
+@tool
 def get_observatory_info(name: str) -> dict:
-    """Obtiene información detallada de un observatorio astronómico en Canarias por nombre."""
-    db_results = _query_db(
-        "SELECT name, island, altitude, bortle_scale, description, institution, "
-        "established, research_areas, telescopes "
-        "FROM sky_quality_zones WHERE category = 'observatory' AND LOWER(name) LIKE LOWER(%s)",
-        (f"%{name}%",),
-    )
-    if db_results:
-        return db_results[0]
-    return {"error": f"No se encontró el observatorio: {name}"}
+    """Datos de un observatorio o zona de observación de Canarias por nombre (isla, altitud, Bortle, coordenadas, acceso)."""
+    from services.zones import find_by_name, get_zones
+    _, origin = get_zones()
+    if origin == "none":
+        return {"available": False, "error": "Los datos de zonas no están disponibles en este momento."}
+    matches = find_by_name(name, category="observatory") or find_by_name(name)
+    if not matches:
+        return {"available": True, "found": False, "message": f"No hay ninguna zona registrada con el nombre «{name}»."}
+    z = matches[0]
+    return {"available": True, "found": True, "origin": origin,
+            **{k: z.get(k) for k in ("name", "island", "municipality", "category", "altitude", "bortle_scale",
+                                     "sqm_estimate", "latitude", "longitude", "access_type", "description")}}
 
 
 @tool
 def get_weather_conditions(latitude: float, longitude: float) -> dict:
-    """Obtiene condiciones meteorológicas actuales para una ubicación (latitud, longitud)."""
-    if not settings.openweather_api_key:
-        return {"temperature": 18, "cloudiness": 15, "wind_speed": 12, "humidity": 45, "visibility": 25}
-    try:
-        with httpx.Client(timeout=10) as client:
-            resp = client.get(
-                "https://api.openweathermap.org/data/2.5/weather",
-                params={
-                    "lat": latitude,
-                    "lon": longitude,
-                    "appid": settings.openweather_api_key,
-                    "units": "metric",
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            return {
-                "temperature": round(data["main"]["temp"]),
-                "cloudiness": data["clouds"]["all"],
-                "wind_speed": round(data["wind"]["speed"] * 3.6),
-                "humidity": data["main"]["humidity"],
-                "visibility": round(data["visibility"] / 1000),
-            }
-    except Exception:
-        return {"error": "No se pudieron obtener datos meteorológicos"}
+    """Condiciones meteorológicas ACTUALES reales para una ubicación (nubosidad %, viento km/h, humedad %, temperatura °C).
+    Para planificar noches futuras usa plan_observation."""
+    from services.weather import get_current_weather
+    return get_current_weather(latitude, longitude)
+
+
+@lru_cache()
+def _constellations() -> list[dict]:
+    return json.loads((DATA_DIR / "constellations.json").read_text(encoding="utf-8"))["constellations"]
 
 
 @tool
-def get_constellation_info(name: str) -> dict:
-    """Obtiene información sobre una constelación por nombre o nombre latino."""
-    db_results = _query_db(
-        "SELECT * FROM constellations WHERE LOWER(name) LIKE LOWER(%s) OR LOWER(latin_name) LIKE LOWER(%s)",
-        (f"%{name}%", f"%{name}%"),
-    )
-    if db_results:
-        return db_results[0]
-    return {"error": f"No se encontró la constelación: {name}"}
-
-
-def _query_db(sql: str, params: tuple) -> list[dict]:
-    """Helper para consultas PostgreSQL."""
-    if not settings.database_url:
-        return [{"info": "Base de datos no disponible"}]
-    import psycopg2
-    try:
-        conn = psycopg2.connect(settings.database_url, connect_timeout=3)
-        with conn.cursor() as cur:
-            cur.execute(sql, params)
-            columns = [desc[0] for desc in cur.description]
-            rows = cur.fetchall()
-        conn.close()
-        return [dict(zip(columns, row)) for row in rows]
-    except Exception as e:
-        return [{"info": "Base de datos no disponible", "detail": str(e)}]
+def get_constellation_info(name: str, lang: str = "es") -> dict:
+    """Información de una constelación (nombre latino, estrella principal, mejores meses para verla desde Canarias, objetos destacados)."""
+    from agent.guards import normalize
+    q = normalize(name)
+    for c in _constellations():
+        candidates = [c["latin"], c["abbr"], *c["names"].values()]
+        if any(q == normalize(x) or (len(q) >= 4 and q in normalize(x)) for x in candidates):
+            return {"found": True, "name": c["names"].get(lang, c["names"]["es"]), **{k: c[k] for k in ("latin", "abbr", "brightest_star", "best_months", "highlights")},
+                    "source": "Datos de referencia AdAstra Sky (IAU)"}
+    return {"found": False, "message": f"No tengo datos de la constelación «{name}» en mi catálogo."}
 
 
 @tool
@@ -104,29 +94,47 @@ def calculate_sky_score(
     wind: float = 0.0,
     humidity: float = 0.0,
     transparency: float = 0.8,
+    lang: str = "es",
 ) -> dict:
-    """Calcula el Sky Score (0-10) de calidad del cielo basado en condiciones atmosféricas: nubosidad, contaminación lumínica, fase lunar, viento, humedad y transparencia."""
+    """Calcula el Sky Score (0-10) de calidad del cielo. Factores entre 0 y 1 (nubosidad, contaminación lumínica,
+    fase lunar, humedad, transparencia) y viento en km/h. Es una estimación, no garantiza visibilidad."""
     from sky_engine.sky_score import SkyScoreAlgorithm
-
-    factors = {
-        "cloudiness": cloudiness,
-        "light_pollution": light_pollution,
-        "moon_phase": moon_phase,
-        "wind": wind,
-        "humidity": humidity,
-        "transparency": transparency,
-    }
-    algorithm = SkyScoreAlgorithm()
-    score = algorithm.calculate_sky_score(factors)
-    if score >= 8.5:
-        recommendation = "Excelente noche para observar. ¡Sal ahora!"
-    elif score >= 7:
-        recommendation = "Buena noche para observar."
-    elif score >= 5:
-        recommendation = "Condiciones aceptables. Puedes intentarlo."
-    else:
-        recommendation = "No es buena noche. Espera condiciones mejores."
-    return {"sky_score": score, "factors": factors, "recommendation": recommendation}
+    factors = {"cloudiness": cloudiness, "light_pollution": light_pollution, "moon_phase": moon_phase,
+               "wind": wind, "humidity": humidity, "transparency": transparency}
+    score = SkyScoreAlgorithm().calculate_sky_score(factors)
+    return {"sky_score": score, "factors": factors, "recommendation": sky_recommendation(score, lang)}
 
 
-tools = [search_rag_documents, get_observatory_info, get_weather_conditions, get_constellation_info, calculate_sky_score]
+@tool
+def plan_observation(
+    target: str,
+    when: str | None = None,
+    start_date: str | None = None,
+    days: int | None = None,
+    latitude: float | None = None,
+    longitude: float | None = None,
+    island: str | None = None,
+    lang: str = "es",
+) -> dict:
+    """Planifica una observación: recomienda lugares y franjas horarias para ver un objeto (planeta, Luna, M31, M42,
+    Pléyades, M13, Vía Láctea) combinando efemérides reales, previsión de nubes, Luna y calidad del cielo.
+    when: 'tonight' | 'tomorrow' | 'weekend' | 'week' (o usa start_date YYYY-MM-DD y days 1-7).
+    Indica latitude/longitude del usuario o island si se conocen. Explica siempre las limitaciones del resultado."""
+    from sky_engine.planner import plan_observation as _plan
+    return _plan(target, lang=lang, when=when, start_date=start_date, days=days,
+                 latitude=latitude, longitude=longitude, island=island)
+
+
+@tool
+def get_visible_planets(latitude: float = 28.2916, longitude: float = -16.6291, night_date: str | None = None) -> dict:
+    """Planetas y Luna visibles una noche concreta desde una ubicación (efemérides reales). night_date YYYY-MM-DD; por defecto hoy."""
+    from sky_engine.ephemeris import planets_tonight
+    d = date.fromisoformat(night_date) if night_date else datetime.now().date()
+    return {**planets_tonight(latitude, longitude, d), "source": "Astronomy Engine"}
+
+
+tools = [search_rag_documents, get_observatory_info, get_weather_conditions, get_constellation_info,
+         calculate_sky_score, plan_observation, get_visible_planets]
+
+# Herramientas cuyas respuestas dependen de datos en tiempo real: no se cachean.
+REALTIME_TOOLS = {"get_weather_conditions", "plan_observation", "get_visible_planets"}
