@@ -23,7 +23,9 @@
 ### 1.3 Demo Rápido
 Puedes usar la cuenta demo para explorar todas las funcionalidades:
 - **Email:** `demo@adastra.sky`
-- **Contraseña:** `Demo1234`
+- **Contraseña:** `Estrellas2026`
+
+Es una cuenta pública: no se puede borrar ni cambiar su email.
 
 ### 1.4 Recuperación de Contraseña
 Actualmente no disponible. Contacta con el administrador.
@@ -36,7 +38,7 @@ La barra lateral izquierda (sidebar) te da acceso a todas las secciones:
 
 | Sección | Descripción |
 |---------|-------------|
-| **Dashboard** | Resumen general: sky score, clima, próximos eventos, colaboración Senderos Canarios |
+| **Dashboard** | Resumen general: sky score, clima, próximos eventos |
 | **Explorar** | Mapa interactivo con 95+ zonas de observación |
 | **Observatorios** | Información del Teide y Roque de los Muchachos |
 | **Calendario** | Eventos astronómicos y galería APOD |
@@ -62,7 +64,6 @@ Tras iniciar sesión, el Dashboard muestra:
 - **Próximos eventos** — Lluvias de estrellas, eclipses, etc.
 - **Fase lunar** — Estado actual de la luna
 - **Recomendaciones** — Mejores zonas para observar esta noche
-- **Senderos Canarios** — Colaboración con rutas de senderismo astronómico
 
 ---
 

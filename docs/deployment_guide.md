@@ -115,7 +115,7 @@ El archivo `render.yaml` en la raíz del proyecto define todos los servicios de 
 PORT=5000
 NODE_ENV=production
 DATABASE_URL=postgresql://user:pass@host:5432/db?sslmode=require
-JWT_SECRET=generar_clave_segura
+JWT_SECRET=cambia-esto-por-una-clave-larga-y-aleatoria
 JWT_EXPIRES_IN=7d
 AI_SERVICE_URL=https://adastra-sky-ai.onrender.com
 FRONTEND_URL=https://adastra-sky.vercel.app
@@ -150,7 +150,6 @@ VITE_API_URL=https://aadastra-sky-backend.onrender.com
 
 ## Colaboraciones
 
-- **Senderos Canarios** — datos de senderos colaborativos.
 - **Miradores destacados:**
   - Mirador Sicasumbre: (28.288, -14.160, 430 m)
   - Mirador Garañona: (28.4822, -16.4345, 250 m)

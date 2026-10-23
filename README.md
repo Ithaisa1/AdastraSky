@@ -1,12 +1,13 @@
 # AdAstra Sky
 
 **Plataforma inteligente de astroturismo para las Islas Canarias**  
-*Ithaisa Sánchez González · Junio 2026*
+*Ithaisa Sánchez González · Proyecto final del bootcamp Full Stack + IA (Ironhack · FULP), junio de 2026 · mejorado en octubre de 2026*
 
-[![Frontend](https://img.shields.io/badge/Frontend-Vercel-8B5CF6?style=flat-square)](https://adastra-sky.vercel.app)
-[![Backend](https://img.shields.io/badge/Backend-Render-06B6D4?style=flat-square)](https://aadastra-sky-backend.onrender.com)
-[![AI Service](https://img.shields.io/badge/AI-Render-10B981?style=flat-square)](https://adastra-sky-ai.onrender.com)
-[![Tests](https://img.shields.io/badge/Tests-24%2F24-22C55E?style=flat-square)]()
+**Demo:** [adastrasky.vercel.app](https://adastrasky.vercel.app) · entra con el [usuario de demostración](#usuarios-demo)
+
+[![Frontend](https://img.shields.io/badge/Frontend-Vercel-8B5CF6?style=flat-square)](https://adastrasky.vercel.app)
+[![Backend](https://img.shields.io/badge/Backend-Vercel-06B6D4?style=flat-square)](https://adastra-sky-1h2o.vercel.app/health)
+[![AI Service](https://img.shields.io/badge/AI-Hugging%20Face-10B981?style=flat-square)](https://huggingface.co/spaces/Ithaisa/adastrasky-ai-service)
 [![License](https://img.shields.io/badge/License-MIT-8B5CF6?style=flat-square)]()
 
 AdAstra Sky es una aplicación fullstack que integra mapas interactivos de 95 zonas de observación astronómica en Canarias, un asistente de IA con RAG sobre documentación del Instituto de Astrofísica de Canarias (IAC), un motor de puntuación de calidad del cielo en tiempo real, y herramientas para astrónomos aficionados y astrofotógrafos.
@@ -35,7 +36,6 @@ AdAstra Sky es una aplicación fullstack que integra mapas interactivos de 95 zo
 - [Pruebas](#pruebas)
 - [Despliegue](#despliegue)
 - [Documentación](#documentación)
-- [Colaboraciones](#colaboraciones)
 - [Herramientas de IA Utilizadas](#herramientas-de-ia-utilizadas)
 - [Backlogs Futuros](#backlogs-futuros)
 
@@ -47,14 +47,14 @@ AdAstra Sky es una aplicación fullstack que integra mapas interactivos de 95 zo
 |------|-----------|---------|
 | **Frontend** | React + Vite + Tailwind CSS | 18 / 5 / 3.4 |
 | **Backend** | Node.js + Express + Sequelize | 22 / 4 / 6 |
-| **Base de datos** | PostgreSQL (Render) | 18 |
+| **Base de datos** | PostgreSQL (Neon) | — |
 | **AI Service** | FastAPI + LangGraph + scikit-learn | Python 3.11 |
-| **LLM** | Groq LLaMA 3.3 70B (fallback: OpenAI → RAG-only) | — |
+| **LLM** | LLaMA vía Groq, configurable con `GROQ_MODEL` (respaldo: OpenAI → solo RAG) | — |
 | **Mapas** | Leaflet + React-Leaflet | 1.9 / 4 |
 | **Internacionalización** | i18next | es, en, de |
 | **Automatización** | n8n | — |
 | **APIs externas** | OpenWeatherMap, NASA APOD | — |
-| **Despliegue** | Vercel (frontend) + Render (backend + AI + DB) | — |
+| **Despliegue** | Vercel (frontend y backend) + Hugging Face Spaces (IA) + Neon (BD) | — |
 
 ---
 
@@ -73,7 +73,7 @@ AdAstra Sky es una aplicación fullstack que integra mapas interactivos de 95 zo
                                      │ JWT REST
                                      ▼
  ┌─────────────────────────────────────────────────────────────────┐
- │                Render — Backend (Express :5000)                  │
+ │                Vercel — Backend (Express)                        │
  │                                                                  │
  │  • Autenticación JWT (user/admin)     • CRUD experiencias       │
  │  • Proxy IA (120s timeout)            • Export CSV / GeoJSON    │
@@ -85,11 +85,11 @@ AdAstra Sky es una aplicación fullstack que integra mapas interactivos de 95 zo
         │ proxy /api/chat                    │ proxy /weather
         ▼                                    ▼
  ┌─────────────────────┐           ┌────────────────────┐
- │  Render — AI         │           │  OpenWeatherMap    │
+ │  HF Space — AI       │           │  OpenWeatherMap    │
  │  Service (FastAPI)   │           │     API            │
  │  • LangGraph agent   │           └────────────────────┘
  │  • RAG TF-IDF in-mem │
- │  • Groq LLaMA 70B    │
+ │  • Groq (LLaMA)      │
  │  • Sky Score (6 fac) │
  │  • ~512MB RAM        │
  └──────────┬───────────┘
@@ -116,7 +116,7 @@ Usuario → Frontend → Backend (proxy) → AI Service (FastAPI)
                                            ▼
                                      ┌─────────────┐
                                      │  2. Groq    │
-                                     │  LLaMA 70B  │
+                                     │  (LLaMA)    │
                                      │  + RAG ctx  │
                                      └─────┬───────┘
                                            │
@@ -179,7 +179,7 @@ Al hacer clic en un marcador del mapa se abre un panel con:
 
 ### Asistente IA con RAG
 
-Agente **LangGraph** que utiliza **Groq LLaMA 3.3 70B** como LLM principal, con sistema de RAG ligero implementado con **TF-IDF + cosine similarity** en memoria (sin ChromaDB, sin PyTorch, sin sentence-transformers — optimizado para 512MB RAM).
+Agente **LangGraph** que utiliza un modelo **LLaMA a través de Groq** como LLM principal (configurable con `GROQ_MODEL`), con sistema de RAG ligero implementado con **TF-IDF + cosine similarity** en memoria (sin ChromaDB, sin PyTorch, sin sentence-transformers — optimizado para 512MB RAM).
 
 **Fuentes documentales (IAC):**
 1. Introducción a la astronomía en Canarias
@@ -191,7 +191,7 @@ Agente **LangGraph** que utiliza **Groq LLaMA 3.3 70B** como LLM principal, con 
 
 **Cadena de fallos:**
 ```
-Groq LLaMA 70B → (429/error) → OpenAI GPT-4o-mini → (429/error) → RAG-only response
+Groq (LLaMA) → (429/error) → OpenAI GPT-4o-mini → (429/error) → RAG-only response
 ```
 
 **Características:**
@@ -288,7 +288,7 @@ El rol se asigna en el registro (`user` por defecto) o mediante seed. No existe 
 - **Validación** Joi en registro (password: 8+ chars, mayúscula, minúscula, número) y contacto
 - **Sanitización** de errores: `errorHandler` elimina nombres de campo y mensajes internos en `NODE_ENV=production`
 - **Imágenes**: Multer (10MB max) + Sharp para procesado
-- **SSL** PostgreSQL: `rejectUnauthorized: false` para certificados autofirmados de Render
+- **SSL** PostgreSQL: `rejectUnauthorized: false` para certificados autofirmados del proveedor
 - **Doble autenticación**: JWT para usuarios, API Key para n8n
 - **Helmet** + CORS configurado por origen
 
@@ -426,8 +426,10 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 
 | Email | Contraseña | Rol |
 |-------|-----------|-----|
-| `demo@adastra.sky` | `Demo1234` | user |
+| `demo@adastra.sky` | `Estrellas2026` | user |
 
+> La cuenta de demostración es pública: se puede usar con normalidad, pero no se puede borrar ni cambiar su email.
+>
 > El rol `user` se asigna automáticamente al registrarse. Para crear un admin, ejecutar `npm run seed` o asignar directamente en la base de datos.
 
 ---
@@ -435,10 +437,10 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 ## Pruebas
 
 ```bash
-# Backend — 24 tests (Jest + Supertest)
+# Backend (Jest + Supertest)
 cd backend && npm test
 
-# Frontend — 2 tests (Vitest)
+# Frontend (Vitest)
 cd frontend && npm test
 
 # AI Service
@@ -451,13 +453,13 @@ cd ai-service && python -m pytest
 
 | Servicio | Plataforma | URL |
 |----------|-----------|-----|
-| Frontend | Vercel | [adastra-sky.vercel.app](https://adastra-sky.vercel.app) |
-| Backend | Render | [aadastra-sky-backend.onrender.com](https://aadastra-sky-backend.onrender.com) |
-| AI Service | Render | [adastra-sky-ai.onrender.com](https://adastra-sky-ai.onrender.com) |
-| Base de datos | Render PostgreSQL | Interna |
+| Frontend | Vercel | [adastrasky.vercel.app](https://adastrasky.vercel.app) |
+| Backend | Vercel (carpeta `backend`) | [adastra-sky-1h2o.vercel.app](https://adastra-sky-1h2o.vercel.app/health) |
+| AI Service | Hugging Face Spaces (Docker) | [Ithaisa/adastrasky-ai-service](https://huggingface.co/spaces/Ithaisa/adastrasky-ai-service) |
+| Base de datos | Neon (PostgreSQL) | Interna |
 
-Infraestructura declarativa en `render.yaml`.  
-Ver `docs/13_MANUAL_INSTALACION.md` para instrucciones detalladas.
+Todo funciona en planes gratuitos. El servicio de IA se duerme tras 48 h sin uso y tarda un poco en despertar.  
+Pasos detallados en `docs/17_PUESTA_EN_PRODUCCION.md`. `render.yaml` se conserva como alternativa.
 
 ---
 
@@ -485,16 +487,6 @@ Ver `docs/13_MANUAL_INSTALACION.md` para instrucciones detalladas.
 | `docs/api_specification.md` | Especificación detallada de la API |
 | `docs/deployment_guide.md` | Guía de despliegue en producción |
 | `docs/postman/AdAstraSky.postman_collection.json` | Colección de Postman |
-
----
-
-## Colaboraciones
-
-### Senderos Canarios
-
-AdAstra Sky colabora con **Senderos Canarios**, un proyecto que descubre rutas de senderismo en las Islas Canarias. Muchos de los miradores paisajísticos y astronómicos de nuestra plataforma están conectados por senderos que puedes explorar.
-
-[Descubre rutas que pasan por estos miradores](https://senderoscanarios.vercel.app)
 
 ---
 

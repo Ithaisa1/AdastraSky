@@ -4,3 +4,6 @@ dist/
 .env.local
 .vite/
 *.log
+
+# Archivos temporales de Vite
+vite.config.*.timestamp-*
