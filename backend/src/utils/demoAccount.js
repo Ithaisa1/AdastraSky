@@ -4,7 +4,7 @@
  * así que nadie debe poder cambiarle el email ni borrarla.
  */
 
-export const DEMO_EMAIL = (process.env.DEMO_EMAIL || 'demo@adastra.sky').toLowerCase();
+export const DEMO_EMAIL = (process.env.DEMO_EMAIL || 'invitada@adastra.sky').toLowerCase();
 
 export const isDemoAccount = (email) =>
   typeof email === 'string' && email.trim().toLowerCase() === DEMO_EMAIL;

@@ -22,7 +22,7 @@
 
 ### 1.3 Demo Rápido
 Puedes usar la cuenta demo para explorar todas las funcionalidades:
-- **Email:** `demo@adastra.sky`
+- **Email:** `invitada@adastra.sky`
 - **Contraseña:** `Estrellas2026`
 
 Es una cuenta pública: no se puede borrar ni cambiar su email.

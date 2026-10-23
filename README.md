@@ -426,7 +426,7 @@ npm run dev    # Lanza backend + frontend + AI service con concurrently
 
 | Email | Contraseña | Rol |
 |-------|-----------|-----|
-| `demo@adastra.sky` | `Estrellas2026` | user |
+| `invitada@adastra.sky` | `Estrellas2026` | user |
 
 > La cuenta de demostración es pública: se puede usar con normalidad, pero no se puede borrar ni cambiar su email.
 >
