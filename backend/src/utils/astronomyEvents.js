@@ -17,9 +17,9 @@
  * sin efemérides específicas (el antiguo «C/2026 A3» no era un dato real).
  */
 
-// Importación estática: Vercel solo incluye en el paquete las dependencias importadas así.
-// En Jest se redirige a la build CommonJS (ver moduleNameMapper en jest.config.js).
-import * as Astronomy from 'astronomy-engine';
+// Build CommonJS de astronomy-engine incluida en el proyecto (src/vendor): el cargador de Vercel
+// no interpreta su build ESM y, cargada de forma dinámica, Vercel no la incluía en el paquete.
+import Astronomy from '../vendor/astronomy-engine.cjs';
 
 const CANARIAS = new Astronomy.Observer(28.29, -16.63, 0);
 const LANGS = ['es', 'en', 'de'];
