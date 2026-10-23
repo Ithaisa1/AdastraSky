@@ -37,7 +37,6 @@ Panel principal del usuario autenticado con:
 - **Clima actual**: temperatura, nubosidad, viento, humedad
 - **Eventos próximos**: cards con fecha, nombre y tipo
 - **Recomendación**: "Excelente noche para observar" según score
-- **Senderos Canarios**: tarjeta de colaboración con enlace a `senderoscanarios.vercel.app`
 - **Botones de exportación**: CSV, GeoJSON, PDF con descripciones
 
 ### ChatPage.jsx

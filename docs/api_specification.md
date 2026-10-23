@@ -18,7 +18,6 @@
 - **Límite de subida:** 10 MB.
 - **Auditoría de seguridad** aplicada.
 - **24/24 tests del backend** pasando.
-- Colaboración con **Senderos Canarios** para datos de senderos.
 - **13 archivos de documentación** (01–13).
 - **22 archivos no usados** eliminados del repositorio.
 - Postman collection: `docs/postman/AdAstraSky.postman_collection.json`.

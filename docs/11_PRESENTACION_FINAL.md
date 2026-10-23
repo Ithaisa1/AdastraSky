@@ -13,7 +13,6 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 - **Datos en tiempo real**: calidad del cielo, clima, eventos astronómicos
 - **Comunidad**: experiencias de observación compartidas por usuarios
 - **Calendario** de lluvias de estrellas, eclipses, conjunciones
-- **Colaboración** con Senderos Canarios en el Dashboard
 
 ---
 
@@ -140,7 +139,6 @@ Plataforma web que promueve el astroturismo en Canarias integrando:
 - Panel de administración
 - Avatar dinámico con iniciales del usuario
 - Dropdown personalizado para Ubicación en ExperienceForm
-- Colaboración Senderos Canarios en Dashboard
 
 ---
 
@@ -285,7 +283,6 @@ Usuario
 | Datos | Parciales | 6 documentos IAC + NASA/JPL + OpenWeather |
 | Idioma | Solo español | ES/EN/DE |
 | Comunidad | No | Experiencias de usuario + galería |
-| Colaboración | No | Senderos Canarios integrado |
 
 ---
 
@@ -293,7 +290,7 @@ Usuario
 
 1. **Landing** → Hero con animación espacial
 2. **Registro/Login** → Formulario inmersivo con selector de idioma
-3. **Dashboard** → Resumen con score del día, próximos eventos, clima, colaboración Senderos Canarios
+3. **Dashboard** → Resumen con score del día, próximos eventos, clima
 4. **Explorar Mapa** → 95+ zonas con filtros, panel de detalle, carrusel, "Ver ubicación", flyTo, PDF export
 5. **Observatorios** → Teide + Roque de los Muchachos con galería
 6. **Chat IA** → Pregunta sobre cualquier tema astronómico de Canarias, indicador de estado de IA

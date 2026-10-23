@@ -133,7 +133,6 @@ Reemplazar REST polling por WebSocket (Socket.io) para:
 | **StateGraph** | Grafo de estados que define el flujo de un agente LangGraph |
 | **Cold Start** | Retardo inicial cuando un servicio serverless se activa tras estar dormido |
 | **Glassmorphism** | Efecto visual con transparencia, desenfoque y bordes semitransparentes |
-| **Senderos Canarios** | Red de senderos de las Islas Canarias, colaboración para rutas de astroturismo |
 | **Objeto Messier** | Catálogo de 110 objetos astronómicos (nebulas, cúmulos, galaxias) compilado por Charles Messier |
 | **pdfkit** | Librería Node.js para generación de PDFs en el backend |
 
@@ -249,7 +248,6 @@ curl -X POST https://aadastra-sky-backend.onrender.com/api/chat \
 - **API Meteorológica**: OpenWeatherMap (CC BY-SA 4.0)
 - **API Astronómica**: NASA API (free tier)
 - **LLMs**: Groq (LLaMA 3.3), OpenAI (GPT-4o-mini) — uso educativo
-- **Colaboración**: Senderos Canarios — rutas de astroturismo
 
 ## Anexo F: Archivos de Documentación
 
@@ -268,7 +266,6 @@ La documentación del proyecto consta de 13 archivos:
 | `09_LIMPIEZA_ARCHIVOS.md` | Limpieza de archivos |
 | `10_POSTMAN.md` | Colección Postman |
 | `11_FAQ.md` | Preguntas frecuentes (incluye objetos Messier) |
-| `12_SENDEROS_CANARIOS.md` | Colaboración con Senderos Canarios |
 | `13_MIRADORES.md` | Catálogo completo de miradores |
 
 ## Anexo G: Credenciales de Prueba

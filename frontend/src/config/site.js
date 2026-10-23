@@ -6,8 +6,4 @@ export const NAV_LINKS = [
   { to: '/events', label: 'Events' },
 ]
 
-export const EXTERNAL_LINKS = {
-  caminosReales: 'https://senderocanarios.vercel.app',
-}
-
 export const DEFAULT_MAP_CENTER = [28.3, -15.7]

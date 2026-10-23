@@ -235,8 +235,5 @@ El panel de zona incluye un carrusel de imágenes con visor a pantalla completa.
 ### Map flyTo con `selectedZone`
 El mapa reacciona a la prop `selectedZone` animando el vuelo (`flyTo`) hacia las coordenadas de la zona seleccionada.
 
-### Colaboración Senderos Canarios
-El panel de Dashboard integra datos de la colaboración con **Senderos Canarios**, mostrando rutas de senderismo astronómico recomendadas.
-
 ### FAQ con Objetos Messier
 La sección FAQ del frontend incluye preguntas y respuestas sobre objetos Messier visibles desde Canarias.
