@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import Joi from 'joi';
 import User from '../models/User.js';
 import { purgeUser } from '../services/userPurge.js';
+import { isDemoAccount, DEMO_LOCKED_RESPONSE } from '../utils/demoAccount.js';
 
 const registerSchema = Joi.object({
   email: Joi.string().email({ tlds: { allow: false } }).required(),
@@ -198,6 +199,11 @@ export const updateProfile = async (req, res, next) => {
       });
     }
 
+    // La cuenta demo es pública: se puede editar el perfil, pero no el email
+    if (email && email !== user.email && isDemoAccount(user.email)) {
+      return res.status(403).json(DEMO_LOCKED_RESPONSE);
+    }
+
     if (email && email !== user.email) {
       const existing = await User.findOne({ where: { email } });
       if (existing) {
@@ -267,6 +273,9 @@ export const deleteAccount = async (req, res, next) => {
     const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ status: 'error', code: 'USER_NOT_FOUND', message: 'Usuario no encontrado' });
+    }
+    if (isDemoAccount(user.email)) {
+      return res.status(403).json(DEMO_LOCKED_RESPONSE);
     }
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
